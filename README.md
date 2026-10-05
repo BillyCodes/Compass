@@ -1,36 +1,73 @@
 # Compass — Digital Corsairs Senior Project
 
-A front-end prototype of Compass: a platform that helps Jackson State students see which skills matter, how their coursework builds them, and what industry professionals want new grads to know.
+Compass helps students connect their skills and coursework to career opportunities. The planned application will compare student skills with career profiles and job listings, identify skill gaps, and suggest learning resources and professional insights while keeping student profiles and comparison results private.
 
-## Status
+## Current status
 
-This is a **static, front-end-only prototype**. There is no backend or database wired up yet — all content lives in `js/data.js` as mock data so the team can review layout and flow before Richshard's database is connected.
+The working application is a static HTML/CSS/JavaScript prototype. It includes a skill explorer, career pathways, professional insights, and a sample student dashboard. All displayed data comes from `frontend/js/data.js`; professional insights are sample content.
 
-## Structure
+The Python backend is a scaffold: its files are placeholders. Authentication, a database connection, job-listing comparisons, personalized guidance, and AI features are not implemented yet. The dashboard does not represent a real logged-in student.
 
+## Project structure
+
+```text
+Compass/
+├── frontend/
+│   ├── pages/              HTML pages; index.html is the landing page
+│   ├── css/                Shared styles
+│   ├── js/                 Page rendering and mock data
+│   └── services/           Reserved for frontend API calls
+├── src/
+│   └── backend/
+│       ├── __init__.py
+│       ├── main.py         Future application entry point
+│       ├── config.py       Future backend configuration
+│       ├── database.py     Future database connection setup
+│       ├── models.py       Future database models
+│       ├── schemas.py      Future request/response schemas
+│       ├── routers/        Request handlers
+│       ├── services/       Business logic, including skill comparisons
+│       └── security/       Authentication and access controls
+├── migrations/             Database schema changes
+├── seeds/                  Sample development data
+├── tests/
+│   ├── comparisons/        Skill comparison correctness
+│   ├── permissions/        Student data access boundaries
+│   └── user_flows/         End-to-end student journeys
+├── docs/
+│   ├── requirements/
+│   ├── architecture/
+│   ├── api/
+│   └── security_guide/
+├── scripts/                Development and maintenance utilities
+├── .env.example
+├── .gitignore
+├── requirements.txt
+└── README.md
 ```
-compass-site/
-├── index.html          Home / landing page
-├── skills.html          Skill Explorer — filterable skill catalog
-├── pathways.html         Career Pathways — pick a path, see required skills + next steps
-├── insights.html         Professional Insights — cards from industry professionals (sample content)
-├── dashboard.html        Student Dashboard — sample logged-in-student preview
-├── about.html            Objective, research questions, and the team
-├── css/style.css         Shared styling (Compass navy/gold theme)
-├── js/data.js            Mock data — skills, pathways, insights, sample student
-└── js/main.js            Renders data.js into each page + nav behavior
+
+Empty directories contain `.gitkeep` files so Git preserves the scaffold.
+
+## Run the prototype locally
+
+From the repository root, with Python 3 installed:
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory frontend
 ```
 
-## Notes for the team
+Open <http://localhost:8000/pages/index.html>. Stop the server with `Ctrl+C`.
 
-- **All content is mock data** in `js/data.js`. The Insights page is explicitly marked "sample content" since it will be replaced by real answers from our planned interviews.
-- **No backend yet.** When Richshard's database and an API are ready, the plan is to swap the static `COMPASS_DATA` object in `data.js` for `fetch()` calls — the page rendering code in `main.js` shouldn't need to change much.
-- **AI is a planned feature, not built yet** — flagged on the home page as "Planned" so it isn't confused with something that already works.
-- **Cybersecurity isn't implemented here** — there's no login or real student data yet, so there's nothing to secure. Once accounts and real data are added, that's where Kershad's authentication/encryption work plugs in.
+Alternatively, open `frontend/pages/index.html` directly in a browser, or use VS Code's Live Server on that file. Serving over HTTP will also support future API requests.
 
-## Running it locally
+No build step, npm packages, or third-party Python dependencies are required for the current prototype. There is no runnable backend yet.
 
-No build step — it's plain HTML/CSS/JS. Easiest ways to view it:
+## Team development conventions
 
-1. Open `index.html` directly in a browser, or
-2. In VS Code, use the "Live Server" extension and click "Go Live" on `index.html` (recommended — keeps relative links and any future `fetch()` calls working correctly).
+- Keep page rendering in `frontend/js/` and add API request helpers under `frontend/services/` when the backend is ready. Loading API data will require adapting the current synchronous mock-data initialization.
+- Put request handling in backend `routers/` and comparison/recommendation logic in `services/`.
+- Keep database schema migrations and sample seed data in their root directories. Use synthetic student data for development.
+- Add backend dependencies with version constraints to `requirements.txt` when the team chooses the framework.
+- Document new configuration names with example values in `.env.example`. Keep real credentials in an ignored `.env` file; backend environment loading still needs to be implemented. Frontend assets must never contain secrets.
+- Enforce student data access on the backend. As accounts are implemented, add permission tests proving a student cannot read or modify another student's profile or comparison results, plus comparison and user-flow tests.
+- Keep requirements, architecture decisions, API contracts, and the security design in their respective `docs/` directories. The test directories are placeholders; no automated tests exist yet.
