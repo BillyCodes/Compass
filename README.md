@@ -35,7 +35,6 @@ Compass/
 │   ├── permissions/        Student data access boundaries
 │   └── user_flows/         End-to-end student journeys
 ├── docs/
-│   ├── requirements/
 │   ├── architecture/
 │   ├── api/
 │   └── security_guide/
