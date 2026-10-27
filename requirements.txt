@@ -1,3 +1,9 @@
-# No third-party Python dependencies are required by the current prototype.
-# The local frontend server uses Python's standard library.
-# Add backend dependencies with version constraints when the framework is chosen.
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+psycopg[binary]
+pydantic
+email-validator
+passlib[bcrypt]
+python-jose[cryptography]
