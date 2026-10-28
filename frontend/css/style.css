@@ -3,6 +3,7 @@
    Shared stylesheet
    ========================================================= */
 
+/* Shared draft design tokens; page-specific rules below reuse these values. */
 :root {
   --navy: #0b2545;
   --navy-deep: #081a33;

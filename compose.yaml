@@ -1,16 +1,24 @@
 # Local development database. Django currently runs in the host virtualenv.
 services:
   db:
+    # Share a PostgreSQL major version/OS family; this tag can receive updates.
     image: postgres:17-bookworm
     environment:
+      # The official image uses these values only to initialize an empty volume.
       POSTGRES_DB: ${POSTGRES_DB:-compass}
       POSTGRES_USER: ${POSTGRES_USER:-compass}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env or your shell}
     ports:
+      # Host loopback : configurable host port : container port.
+      # Django in the host virtualenv will use 127.0.0.1 and this host port.
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
+      # Keep data across container restarts/removal; do not use down --volumes
+      # unless deliberately erasing this local development database.
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
+      # $$ defers expansion to the container shell instead of Compose.
+      # Readiness does not prove Django connectivity or application-table setup.
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 5s
       timeout: 5s
@@ -18,4 +26,5 @@ services:
       start_period: 10s
 
 volumes:
+  # Compose scopes this volume to the project, isolating local developer data.
   postgres_data:
