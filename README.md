@@ -36,6 +36,7 @@ Compass/
 │   │   ├── urls.py             Included; no account routes yet
 │   │   ├── models.py           Placeholder pending user-model agreement
 │   │   ├── views.py
+│   │   ├── permissions.py           
 │   │   ├── admin.py
 │   │   ├── tests.py
 │   │   ├── migrations/         Future account schema migrations
@@ -52,6 +53,19 @@ Compass/
 
 See [Django architecture](docs/architecture/README.md) for app responsibilities,
 request flow, and conventions for extending the project.
+
+## Agreed development stack
+
+The backend uses Django, with models and migrations defining the shared schema.
+The programming lead's HTML/CSS/JavaScript design will be integrated as Django
+templates. PostgreSQL has a shared local [Docker Compose configuration](compose.yaml),
+and Mockaroo will supply repeatable synthetic sample data. See
+[Team development setup](docs/development.md) for database startup instructions
+and [sample-data conventions](seeds/README.md) for the import workflow.
+
+The database container can be prepared independently. Django database activation,
+the Psycopg driver, account migrations, and the seed importer remain pending the
+account-model agreement. Starting Compose does not apply migrations.
 
 ## Run Django locally
 

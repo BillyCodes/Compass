@@ -4,6 +4,11 @@ Foundation established on `django-structure`, October 28, 2026. This branch cont
 project wiring and a minimal home page; authentication and database models remain
 future work.
 
+The agreed PostgreSQL Compose setup, Django-template frontend direction, and
+Mockaroo data workflow are documented in [Team development setup](../development.md).
+The Compose database can run independently; Django's database settings remain
+deferred until account design is agreed.
+
 ## Responsibilities and locations
 
 | Location | Responsibility |
