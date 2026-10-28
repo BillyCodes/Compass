@@ -30,3 +30,13 @@ staticfiles/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+#VS Code settings
+# Ignore the entire .vscode folder by default
+.vscode/*
+
+# Un-ignore files that standardise the workspace for the team
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
