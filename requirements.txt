@@ -7,3 +7,4 @@ pydantic
 email-validator
 passlib[bcrypt]
 python-jose[cryptography]
+Django==6.1.2
