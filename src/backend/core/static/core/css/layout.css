@@ -1,0 +1,6 @@
+/* Shared shell only; feature styles belong to their owning apps. */
+body { min-height: 100vh; display: flex; flex-direction: column; }
+main { flex: 1; }
+.skip-link { position: absolute; top: -80px; left: 16px; padding: 12px; background: white; z-index: 100; }
+.skip-link:focus { top: 8px; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }

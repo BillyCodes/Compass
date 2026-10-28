@@ -1,10 +1,2 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-psycopg2-binary
-psycopg[binary]
-pydantic
-email-validator
-passlib[bcrypt]
-python-jose[cryptography]
+# Runtime for the current Django foundation. Add other packages when used.
 Django==6.1.2
