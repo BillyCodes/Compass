@@ -1,72 +1,125 @@
-# Compass — Digital Corsairs Senior Project
+# COMPASS — Test Launch 01
 
-Compass helps students connect their skills and coursework to career opportunities. The planned application will compare student skills with career profiles and job listings, identify skill gaps, and suggest learning resources and professional insights while keeping student profiles and comparison results private.
+Digital Corsairs senior project. This is the first integrated build of COMPASS, made from the **Test Launch 01 Engineering Blueprint**.
 
-## Current status
+A student can:
 
-The working application is a static HTML/CSS/JavaScript prototype. It includes a skill explorer, career pathways, professional insights, and a sample student dashboard. All displayed data comes from `frontend/js/data.js`; professional insights are sample content.
+- create an account and log in
+- upload a resume (PDF, .docx or .txt) and confirm the skills it finds
+- add skills and courses by hand
+- see a Skillprint radar chart and top-skills view
+- compare against a career profile, a sample job posting, or a posting they paste in
+- see strengths, skills to improve, major gaps, and a route to close them
+- save progress and see it on a Journey timeline
+- read sample Field Notes from (fictional) professionals
+- log out, after which every private page and API route is denied
 
-The Python backend is a scaffold: its files are placeholders. Authentication, a database connection, job-listing comparisons, personalized guidance, and AI features are not implemented yet. The dashboard does not represent a real logged-in student.
+All data is synthetic. Companies and professionals are fictional pilot content.
 
-## Project structure
+---
 
-```text
-Compass/
-├── frontend/
-│   ├── pages/              HTML pages; index.html is the landing page
-│   ├── css/                Shared styles
-│   ├── js/                 Page rendering and mock data
-│   └── services/           Reserved for frontend API calls
-├── src/
-│   └── backend/
-│       ├── __init__.py
-│       ├── main.py         Future application entry point
-│       ├── config.py       Future backend configuration
-│       ├── database.py     Future database connection setup
-│       ├── models.py       Future database models
-│       ├── schemas.py      Future request/response schemas
-│       ├── routers/        Request handlers
-│       ├── services/       Business logic, including skill comparisons
-│       └── security/       Authentication and access controls
-├── migrations/             Database schema changes
-├── seeds/                  Sample development data
-├── tests/
-│   ├── comparisons/        Skill comparison correctness
-│   ├── permissions/        Student data access boundaries
-│   └── user_flows/         End-to-end student journeys
-├── docs/
-│   ├── architecture/
-│   ├── api/
-│   └── security_guide/
-├── scripts/                Development and maintenance utilities
-├── .env.example
-├── .gitignore
-├── requirements.txt
-└── README.md
+## Run it (any teammate, about 2 minutes)
+
+```bash
+python -m venv .venv
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env                 # optional for local SQLite
+python manage.py migrate
+python manage.py seed_compass
+python manage.py runserver
 ```
 
-Empty directories contain `.gitkeep` files so Git preserves the scaffold.
+Open http://127.0.0.1:8000.
 
-## Run the prototype locally
+### Use PostgreSQL instead of SQLite
 
-From the repository root, with Python 3 installed:
-
-```sh
-python3 -m http.server 8000 --bind 127.0.0.1 --directory frontend
+```bash
+createdb compass                                     # or use pgAdmin
+echo "DATABASE_URL=postgres://USER:PASS@localhost:5432/compass" >> .env
+python manage.py migrate && python manage.py seed_compass
 ```
 
-Open <http://localhost:8000/pages/index.html>. Stop the server with `Ctrl+C`.
+### Demo accounts (synthetic, development only)
 
-Alternatively, open `frontend/pages/index.html` directly in a browser, or use VS Code's Live Server on that file. Serving over HTTP will also support future API requests.
+| Account | Email | Password | Purpose |
+|---|---|---|---|
+| Student A | `student.a@compass.test` | `CompassDemo-A1` | Full profile, history, saved results |
+| Student B | `student.b@compass.test` | `CompassDemo-B2` | Cross-account denial tests |
+| Disabled | `disabled@compass.test` | `CompassDemo-X9` | Login must fail |
 
-No build step, npm packages, or third-party Python dependencies are required for the current prototype. There is no runnable backend yet.
+`python manage.py seed_compass --reset` recreates them. Create an admin with `python manage.py createsuperuser` and open `/admin/` for reference content (skills, courses, career profiles, sample postings, Field Notes).
 
-## Team development conventions
+### Run the tests
 
-- Keep page rendering in `frontend/js/` and add API request helpers under `frontend/services/` when the backend is ready. Loading API data will require adapting the current synchronous mock-data initialization.
-- Put request handling in backend `routers/` and comparison/recommendation logic in `services/`.
-- Keep database schema migrations and sample seed data in their root directories. Use synthetic student data for development.
-- Add backend dependencies with version constraints to `requirements.txt` when the team chooses the framework.
-- Document new configuration names with example values in `.env.example`. Keep real credentials in an ignored `.env` file; backend environment loading still needs to be implemented. Frontend assets must never contain secrets.
-- Enforce student data access on the backend. As accounts are implemented, add permission tests proving a student cannot read or modify another student's profile or comparison results, plus comparison and user-flow tests.
-- Keep requirements, architecture decisions, API contracts, and the security design in their respective `docs/` directories. The test directories are placeholders; no automated tests exist yet.
+```bash
+python manage.py test core
+```
+
+33 tests cover blueprint §12.2 (trial-run script), §12.3 (negative test matrix), and hand-computed comparison examples.
+
+---
+
+## Trial-run script (blueprint §12.2)
+
+| # | Do this | You should see |
+|---|---|---|
+| 1 | `migrate`, `seed_compass`, `runserver` | No errors; seed prints counts |
+| 2 | Register a new account | Redirect to the welcome page |
+| 3 | Log out, try a wrong password | "That email and password don't match an active account." |
+| 4 | Log in as Student A | Dashboard loads with Jordan's data |
+| 5 | Open My Skillprint | Student A's skills only |
+| 6 | Change a skill level, reload | Change persists |
+| 7 | As A, open `/results/<one of B's result IDs>/` | 404 |
+| 8 | Compare → Cloud Engineer | Score, strong areas, gaps, route |
+| 9 | Log out | Back on home page |
+| 10 | Press Back / reopen `/dashboard/` | Redirected to login; `/api/me` returns 401 |
+
+---
+
+## Project layout
+
+```
+compass_site/settings.py      env-driven settings, SQLite/Postgres switch, hardened sessions
+core/models.py                Account ≠ Student, catalog, StudentSkill, versioned targets, MatchResult, snapshots, Field Notes
+core/security.py              student_required, owned(), login throttle, JSON response shapes
+core/middleware.py            disabled accounts lose live sessions
+core/services/comparison.py   comparison engine (algorithm tl01-v1)
+core/services/skillprint.py   category scores, radar SVG, snapshots
+core/services/resume.py       resume text extraction + skill detection
+core/services/postings.py     pasted posting → requirements
+core/services/skill_matcher.py catalog matching with word boundaries
+core/views.py                 pages
+core/api.py                   JSON contract (blueprint §7)
+core/templates/core/          Compass-styled templates
+core/static/core/compass.css  design tokens, light + dark
+core/management/commands/seed_compass.py   synthetic data
+core/tests.py                 acceptance tests
+docs/DECISIONS.md             what this build assumed — needs team sign-off
+```
+
+## Who owns what (blueprint §10)
+
+| Lead | Start here |
+|---|---|
+| Billy (Programming) | `services/comparison.py`, `services/resume.py`, `views.py`, `api.py`, `tests.py` |
+| Richshard (Database) | `models.py`, `migrations/`, `seed_compass.py`, the Postgres switch in `settings.py` |
+| Luis (Software Engineering) | `templates/`, `static/`, `urls.py`, this README's setup steps |
+| Kershad (Cybersecurity) | `security.py`, `middleware.py`, `settings.py` session/cookie block, `NegativeTests` in `tests.py` |
+
+## JSON API (blueprint §7)
+
+Every response is `{"ok": true, "data": …}` or `{"ok": false, "error": {"code", "message", "fields"?}}`. Get a CSRF token from `GET /api/csrf` and send it as `X-CSRFToken`.
+
+| Method | Route | Notes |
+|---|---|---|
+| GET | `/api/csrf` | CSRF token |
+| POST | `/api/register` | `name, email, password, major?` (anything else is rejected) |
+| POST | `/api/login` | `email, password` |
+| POST | `/api/logout` | |
+| GET/PATCH | `/api/me` | PATCH accepts `name, major, career_interests` |
+| GET | `/api/dashboard-data` | |
+| GET | `/api/skills` | catalog |
+| GET | `/api/me/skills` | own skills |
+| POST/PUT/DELETE | `/api/me/skills/<skill_id>` | `level` 1–5, `evidence?` |
+| GET/POST | `/api/comparisons` | POST `career_id` or `posting_id` |

@@ -1,0 +1,22 @@
+{% extends "core/app_base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Profile</h1><p>Only you can see and change this information.</p></div></div>
+<div class="grid g-side">
+  <section class="card">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+      {% endfor %}
+      <button class="btn" type="submit">Save profile</button>
+    </form>
+  </section>
+  <aside class="card">
+    <h2>Account</h2>
+    <p class="small"><span class="muted">Email</span><br>{{ request.user.email }}</p>
+    <p class="small"><span class="muted">Member since</span><br>{{ request.user.created_at|date:"M j, Y" }}</p>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn secondary block" type="submit">Log out</button></form>
+  </aside>
+</div>
+{% endblock %}

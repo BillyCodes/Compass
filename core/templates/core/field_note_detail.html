@@ -1,0 +1,47 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}{{ note.author_name }} · Field Note{% endblock %}
+{% block content %}
+<p class="eyebrow" style="margin-top:8px"><a href="{% url 'field_notes' %}">← Field Notes</a></p>
+<div class="grid g-side" style="margin-top:10px">
+  <article class="card note-body">
+    <div class="note-card"><div class="person"><div class="avatar {{ note.author_name|av }}">{{ note.initials }}</div><div><b>{{ note.author_name }}</b><span>{{ note.author_role }} · {{ note.author_org }} · {{ note.years_experience }} years</span></div></div></div>
+    <p class="big-quote">“{{ note.quote }}”</p>
+    <h2 style="font-size:22px;margin:0 0 10px">{{ note.headline }}</h2>
+    <p>{{ note.body }}</p>
+    <h3>What my team is working on right now</h3>
+    <p>{{ note.working_on }}</p>
+    <h3>What I'd learn next if I were you</h3>
+    <p>{{ note.learn_next }}</p>
+    <p class="small muted" style="margin-top:22px">Published {{ note.published_at|date:"M j, Y" }} · Sample Field Note for Test Launch 01; author and company are fictional.</p>
+  </article>
+  <aside class="stack">
+    <section class="card">
+      <h2>Skills in this note</h2>
+      <div class="list">
+        {% for s in note.skills.all %}
+        {% with lv=mine|get_item:s.skill_id %}
+        <div class="list-row">
+          <div class="icon-tile {{ s.category|cat_tint }}" style="width:34px;height:34px;font-weight:800;font-size:12px">{{ s.name|initials }}</div>
+          <div class="grow"><div class="title">{{ s.name }}</div><div class="sub">{% if lv %}You: {{ lv|level_label }}{% else %}Not on your Skillprint{% endif %}</div></div>
+          {% if lv %}{% dots lv %}{% endif %}
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+      <a class="btn secondary block" style="margin-top:14px" href="{% url 'skillprint' %}">Update my Skillprint</a>
+    </section>
+    <section class="card">
+      <h2>More notes</h2>
+      <div class="list">
+        {% for n in more %}
+        <a class="list-row" href="{% url 'field_note_detail' n.pk %}" style="color:inherit;text-decoration:none">
+          <div class="avatar {{ n.author_name|av }}" style="width:34px;height:34px;font-size:12px">{{ n.initials }}</div>
+          <div class="grow"><div class="title">{{ n.headline }}</div><div class="sub">{{ n.author_role }}</div></div>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

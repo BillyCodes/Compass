@@ -1,0 +1,17 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Compass{% endblock %} · Compass</title>
+  <meta name="description" content="COMPASS connects your coursework, skills and real industry insight in one place.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'core/compass.css' %}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='17.5' fill='white' stroke='%230F2352' stroke-width='3'/%3E%3Cpath d='M20 6.5l4.2 11.3L20 21l-4.2-3.2z' fill='%232F6BFF'/%3E%3Cpath d='M20 33.5l-4.2-11.3L20 19l4.2 3.2z' fill='%237C3AED'/%3E%3C/svg%3E">
+</head>
+<body>
+{% block body %}{% endblock %}
+</body>
+</html>

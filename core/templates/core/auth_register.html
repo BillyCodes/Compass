@@ -1,0 +1,34 @@
+{% extends "core/base.html" %}
+{% block title %}Create your account{% endblock %}
+{% block body %}
+<div class="auth-wrap">
+  <aside class="auth-side">
+    {% include "core/partials/logo.html" %}
+    <div>
+      <span class="hand">Same Courses. Bigger Possibilities.</span>
+      <h2 style="margin-top:14px">Start your <span class="grad">living map</span> of who you're becoming.</h2>
+    </div>
+    <p class="muted small" style="margin:0">Test Launch 01 uses synthetic data. Use a test email, and don't enter real student records.</p>
+  </aside>
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1>Create your account</h1>
+      <p class="sub">It takes a minute. You can upload your resume right after.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+        {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="muted">(optional)</span>{% endif %}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="help">{{ field.help_text }}</span>{% endif %}
+          {% for e in field.errors %}<span class="err">{{ e }}</span>{% endfor %}
+        </div>
+        {% endfor %}
+        <button class="btn block" type="submit">Create account</button>
+      </form>
+      <p class="small muted" style="margin-top:18px;text-align:center">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+    </div>
+  </main>
+</div>
+{% endblock %}

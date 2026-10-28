@@ -1,0 +1,93 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Comparison result{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow"><a href="{% url 'compare' %}">← Compare</a></p>
+    <h1>Compare to a job</h1>
+    <p>See how your skillset matches and get a plan to close the gap.</p>
+  </div>
+  <form method="post" action="{% if r.career_profile %}{% url 'run_career_compare' r.career_profile.pk %}{% elif r.posting %}{% url 'run_posting_compare' r.posting.pk %}{% endif %}">
+    {% csrf_token %}
+    {% if r.career_profile or r.posting %}<button class="btn secondary" type="submit">Run again with my current skills</button>{% endif %}
+  </form>
+</div>
+
+{% if changed_since %}<div class="alert">Your Skillprint changed after this comparison. This result shows the skills you had on {{ r.created_at|date:"M j, Y" }}.</div>{% endif %}
+
+<section class="card result-hero">
+  <div>
+    <div class="co" style="display:flex;gap:14px;align-items:center">
+      <div class="co-logo" style="width:56px;height:56px;font-size:18px">{{ r.target_title|initials }}</div>
+      <div>
+        <h2 style="font-size:20px;margin:0">{% if r.posting %}{{ r.posting.title }}{% else %}{{ r.target_title }}{% endif %}</h2>
+        <p class="muted" style="margin:2px 0 0">{{ company }}{% if r.posting.location %} · {{ r.posting.location }}{% endif %}</p>
+      </div>
+    </div>
+    {% if r.posting %}<div class="chips" style="margin-top:14px">{% for t in r.posting.tag_list %}<span class="pill p-blue">{{ t }}</span>{% endfor %}</div>{% endif %}
+  </div>
+  <div class="right">
+    {% ring ring "sm" "Match" %}
+    <div>
+      <p class="status {{ r.status|status_class }}" style="margin:0">{{ r.status }}{% if r.status == "Strong Match" %}!{% endif %}</p>
+      <p class="muted small" style="margin:4px 0 0">You meet {{ r.requirements_met }} of {{ r.requirements_total }} skills{% if r.mandatory_total %}, including {{ r.mandatory_met }} of {{ r.mandatory_total }} mandatory{% endif %}.</p>
+    </div>
+  </div>
+</section>
+
+<div class="grid outcomes" style="margin-top:18px">
+  <section class="card">
+    <h2>Your strong areas</h2>
+    <ul class="outcome-list">
+      {% for d in groups.met %}<li><span class="mk met">✓</span><span>{{ d.name }}{% if d.mandatory %} <span class="pill p-gray">Mandatory</span>{% endif %}<span class="lv">You: {{ d.student_label }} · needs {{ d.required_label }}</span></span></li>
+      {% empty %}<li class="muted">None yet. Every skill below is a place to start.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Skills to improve</h2>
+    <ul class="outcome-list">
+      {% for d in groups.below %}<li><span class="mk below">+</span><span>{{ d.name }}{% if d.mandatory %} <span class="pill p-amber">Mandatory</span>{% endif %}<span class="lv">You: {{ d.student_label }} · needs {{ d.required_label }}</span></span></li>
+      {% empty %}<li class="muted">Nothing below the required level.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Major gaps</h2>
+    <ul class="outcome-list">
+      {% for d in groups.missing %}<li><span class="mk missing">!</span><span>{{ d.name }}{% if d.mandatory %} <span class="pill p-red">Mandatory</span>{% endif %}<span class="lv">Not on your Skillprint · needs {{ d.required_label }}</span></span></li>
+      {% empty %}<li class="muted">No missing skills.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+
+<div class="grid g-side" style="margin-top:18px">
+  <section class="card" aria-labelledby="route-h">
+    <h2 id="route-h">Your route</h2>
+    {% if route %}
+    <div>
+      {% for step in route %}
+      <div class="route-step">
+        <span class="n">{{ forloop.counter }}</span>
+        <div>
+          <p style="margin:0;font-weight:700">{% if step.outcome == "missing" %}Learn{% else %}Level up{% endif %} {{ step.name }} <span class="muted" style="font-weight:500">→ {{ step.required_label }}</span></p>
+          <p class="small muted" style="margin:4px 0 0">
+            {% if step.courses %}Take {% for c in step.courses %}{{ c.course_code }} {{ c.course_name }}{% if not forloop.last %} or {% endif %}{% endfor %}. {% endif %}
+            {% if step.notes %}{% with n=step.notes.0 %}Read <a href="{% url 'field_note_detail' n.pk %}">{{ n.author_name }}'s Field Note</a>.{% endwith %}{% endif %}
+            {% if not step.courses and not step.notes %}Build a small project that uses it and add it as evidence.{% endif %}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="muted">You meet every requirement. Try a more senior posting next.</p>
+    {% endif %}
+  </section>
+  <aside class="card" aria-labelledby="how-h">
+    <h2 id="how-h">How this score works</h2>
+    <p class="how">Each required skill earns credit by how close your level is: meets it = 100%, one level short = 60%, two short = 30%, three or more = 10%, missing = 0%. Credits are weighted by importance and averaged.</p>
+    <p class="how">Mandatory skills are counted separately so a high score can't hide a critical gap. This score describes skill alignment. It isn't a hiring prediction.</p>
+    <p class="how" style="margin:0">Algorithm <code>{{ r.algorithm_version }}</code> · target version <code>v{{ r.target_version }}</code> · saved {{ r.created_at|date:"M j, Y g:i A" }}</p>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+{% load compass_tags %}
+{% block body %}
+<div class="app">
+  <aside class="sidebar" aria-label="Main navigation">
+    {% include "core/partials/logo.html" %}
+    <nav class="nav">
+      <a href="{% url 'dashboard' %}" class="{% if active == 'dashboard' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Dashboard</a>
+      <a href="{% url 'skillprint' %}" class="{% if active == 'skillprint' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8.7 5v10L12 22l-8.7-5V7z"/><path d="M12 8l4 2.5v4L12 17l-4-2.5v-4z"/></svg>My Skillprint</a>
+      <a href="{% url 'resume_upload' %}" class="{% if active == 'resume' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg>Resume</a>
+      <a href="{% url 'compare' %}" class="{% if active == 'compare' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v18M16 3v18M3 8h5M16 16h5M3 16h5M16 8h5"/></svg>Compare</a>
+      <a href="{% url 'explorer' %}" class="{% if active == 'explorer' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Skill Explorer</a>
+      <a href="{% url 'field_notes' %}" class="{% if active == 'notes' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>Field Notes</a>
+      <a href="{% url 'journey' %}" class="{% if active == 'journey' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>Journey</a>
+    </nav>
+    <nav class="nav nav-bottom">
+      <a href="{% url 'profile' %}" class="{% if active == 'profile' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profile</a>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11"/></svg>Log out</button></form>
+      <p class="pilot-tag">Test Launch 01 · synthetic pilot data</p>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="mobile-logo">{% include "core/partials/logo.html" %}</span>
+      <form class="search" action="{% url 'explorer' %}" method="get" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <label class="sr-only" for="q">Search skills</label>
+        <input id="q" name="q" type="search" placeholder="Search skills, careers, or job postings…">
+      </form>
+      <span class="spacer"></span>
+      <div class="who">
+        <div class="avatar" aria-hidden="true">{{ request.student.name|initials }}</div>
+        <div class="meta"><b>{{ request.student.first_name }}</b><span class="muted">Student</span></div>
+      </div>
+      <form method="post" action="{% url 'logout' %}" class="mobile-only-logout">{% csrf_token %}<button class="btn ghost small" type="submit" aria-label="Log out">Log out</button></form>
+    </header>
+
+    <main class="content" id="main">
+      {% for m in messages %}<div class="alert {{ m.tags }}" role="status">{{ m }}</div>{% endfor %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<nav class="mobile-nav" aria-label="Main navigation">
+  <a href="{% url 'dashboard' %}" class="{% if active == 'dashboard' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Home</a>
+  <a href="{% url 'skillprint' %}" class="{% if active == 'skillprint' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8.7 5v10L12 22l-8.7-5V7z"/></svg>Skills</a>
+  <a href="{% url 'compare' %}" class="{% if active == 'compare' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v18M16 3v18M3 8h5M16 16h5"/></svg>Compare</a>
+  <a href="{% url 'field_notes' %}" class="{% if active == 'notes' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8"/></svg>Notes</a>
+  <a href="{% url 'journey' %}" class="{% if active == 'journey' %}on{% endif %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-8"/></svg>Journey</a>
+</nav>
+{% block scripts %}{% endblock %}
+{% endblock %}

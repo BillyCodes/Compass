@@ -1,0 +1,51 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Journey{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Your Journey</h1>
+    <p>Every time you save progress, Compass keeps a copy of your Skillprint so you can see how far you've come.</p>
+  </div>
+  <form method="post" action="{% url 'save_progress' %}">{% csrf_token %}<button class="btn" type="submit">Save progress now</button></form>
+</div>
+
+<div class="grid g-main">
+  <section class="card" aria-labelledby="then-h">
+    <h2 id="then-h">{% if oldest %}Then and now{% else %}Now{% endif %}</h2>
+    {{ radar|safe }}
+    <div class="legend"><span><i></i>Now</span>{% if oldest %}<span><i class="prev"></i>{{ oldest.label|default:"First save" }} · {{ oldest.created_at|date:"M j, Y" }}</span>{% endif %}</div>
+  </section>
+
+  <section class="card" aria-labelledby="tl-h">
+    <h2 id="tl-h">Saved progress</h2>
+    {% if timeline %}
+    <div class="timeline">
+      {% for t in timeline %}
+      <div class="tl-item">
+        <div class="when">{{ t.snap.created_at|date:"M j, Y" }}</div>
+        <div class="what">{{ t.snap.label|default:"Saved progress" }}</div>
+        <div class="small muted">{{ t.skill_total }} skills{% if t.snap.readiness is not None %} · readiness {{ t.snap.readiness|floatformat:0 }}%{% endif %}</div>
+        {% if t.changes %}<div class="chips" style="margin-top:6px">{% for name, diff in t.changes %}<span class="pill {% if diff > 0 %}p-green{% else %}p-red{% endif %}">{{ name }} {% if diff > 0 %}+{% endif %}{{ diff|floatformat:0 }}</span>{% endfor %}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty"><h3>No saves yet</h3><p>Save your progress to start your Journey.</p></div>
+    {% endif %}
+  </section>
+</div>
+
+<section class="card" style="margin-top:18px" aria-labelledby="hist-h">
+  <h2 id="hist-h">Comparison history</h2>
+  <div class="list">
+    {% for r in results %}
+    <a class="list-row" href="{% url 'result_detail' r.pk %}" style="color:inherit;text-decoration:none">
+      <div class="co-logo">{{ r.target_title|initials }}</div>
+      <div class="grow"><div class="title">{{ r.target_title }}</div><div class="sub">{{ r.created_at|date:"M j, Y" }} · {{ r.requirements_met }} of {{ r.requirements_total }} met</div></div>
+      <span class="pill {% if r.status == 'Strong Match' %}p-green{% elif r.status == 'Developing Match' %}p-amber{% else %}p-blue{% endif %} tnum">{{ r.score|floatformat:0 }}% · {{ r.status }}</span>
+    </a>
+    {% empty %}<p class="muted">No comparisons yet. <a href="{% url 'compare' %}">Run your first one.</a></p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

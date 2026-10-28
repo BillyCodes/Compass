@@ -1,0 +1,75 @@
+{% extends "core/base.html" %}
+{% load compass_tags %}
+{% block title %}Find Your Direction{% endblock %}
+{% block body %}
+<header class="public-nav">
+  {% include "core/partials/logo.html" %}
+  <nav class="links" aria-label="Site">
+    <a href="#how">How it works</a>
+    <a href="#notes">Field Notes</a>
+    <a href="#pilot">About the pilot</a>
+  </nav>
+  <span class="spacer"></span>
+  <div class="actions">
+    {% if user.is_authenticated %}
+      <a class="btn" href="{% url 'dashboard' %}">Go to dashboard</a>
+    {% else %}
+      <a class="btn secondary" href="{% url 'login' %}">Log in</a>
+      <a class="btn" href="{% url 'register' %}">Get started</a>
+    {% endif %}
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-card">
+    <div>
+      <h1>Find Your Direction.<br><span class="grad">Build Your Future.</span></h1>
+      <p class="lede">A career development platform for students that connects your coursework, skills, and real industry insight, all in one place.</p>
+      <div class="cta">
+        <a class="btn" href="{% url 'register' %}">Get started →</a>
+        <a class="btn secondary" href="{% url 'login' %}">I have an account</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <span class="hand" style="position:absolute;right:8px;top:-14px">Same Courses.<br>Bigger Possibilities.</span>
+      <div class="preview" style="margin-top:46px">
+        <div class="card-head"><h2 style="margin:0">Your Skillprint</h2><span class="pill p-gray">Example</span></div>
+        {{ radar|safe }}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature-row" id="how" aria-label="What Compass does">
+  <div class="feature"><div class="icon-tile t-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>See your skills</h3><p>Upload your resume or add courses and projects. Compass turns them into a Skillprint you can grow.</p></div>
+  <div class="feature"><div class="icon-tile t-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div><h3>Compare to careers</h3><p>See how your skills match a job posting or career profile, and exactly which skills close the gap.</p></div>
+  <div class="feature"><div class="icon-tile t-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 20c1-4 4-6 7-6s6 2 7 6M17 4a4 4 0 0 1 0 8M22 20c-.6-2.4-2-4-4-5"/></svg></div><h3>Get field insights</h3><p>Read what working professionals are building right now and what they say to learn next.</p></div>
+  <div class="feature"><div class="icon-tile t-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div><h3>Follow your path</h3><p>Save your progress and watch your Skillprint change semester to semester.</p></div>
+</section>
+
+<section class="public-section" id="notes">
+  <p class="eyebrow">Field Notes</p>
+  <h2>Real advice, written for students</h2>
+  <p class="muted" style="max-width:60ch">Short notes from people in the field about the tools they use, the problems they're solving, and what they'd learn first.</p>
+  <div class="grid g-3" style="margin-top:22px">
+    {% for n in notes %}
+    <article class="card note-card">
+      <div class="person"><div class="avatar {{ n.author_name|av }}">{{ n.initials }}</div><div><b>{{ n.author_role }}</b><span>{{ n.author_org }}</span></div></div>
+      <blockquote>“{{ n.quote }}”</blockquote>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="public-section" id="pilot" style="padding-top:0">
+  <div class="card" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:240px">
+      <p class="eyebrow">Test Launch 01</p>
+      <h2 style="font-size:22px;margin:6px 0">A controlled pilot by the Digital Corsairs</h2>
+      <p class="muted" style="margin:0">This build uses synthetic data only. Companies and professionals shown are fictional sample content. Please don't enter real personal records.</p>
+    </div>
+    <a class="btn" href="{% url 'register' %}">Create a test account</a>
+  </div>
+</section>
+<p class="pilot-foot">COMPASS · Digital Corsairs Senior Project · Test Launch 01</p>
+{% endblock %}

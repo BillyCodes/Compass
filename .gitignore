@@ -1,31 +1,8 @@
-# Local configuration and secrets
+__pycache__/
+*.pyc
 .env
-.env.*
-!.env.example
-
-# Python environments and generated files
+*.sqlite3
+staticfiles/
 .venv/
 venv/
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-
-# Frontend dependencies and build output
-node_modules/
-dist/
-build/
-
-# Local databases and logs
-*.db
-*.sqlite
-*.sqlite3
-*.log
-
-# Operating system files
 .DS_Store
-Thumbs.db

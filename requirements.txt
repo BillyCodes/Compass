@@ -1,9 +1,5 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-psycopg2-binary
-psycopg[binary]
-pydantic
-email-validator
-passlib[bcrypt]
-python-jose[cryptography]
+Django==6.1.2
+pypdf>=5.0,<7
+python-docx>=1.1,<2
+# PostgreSQL driver — needed only when DATABASE_URL is set
+psycopg[binary]>=3.2,<4

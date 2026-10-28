@@ -1,0 +1,88 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}My Skillprint{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>My Skillprint</h1>
+    <p>Every skill, its level, and the evidence behind it. Levels: 1 Aware · 2 Beginner · 3 Developing · 4 Proficient · 5 Advanced.</p>
+  </div>
+  <form method="post" action="{% url 'save_progress' %}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'skillprint' %}">
+    <label class="sr-only" for="snap-label">Label for this save</label>
+    <input class="input" id="snap-label" name="label" maxlength="80" placeholder="Label (optional)" style="width:180px;padding:9px 12px">
+    <button class="btn" type="submit">Save progress</button>
+  </form>
+</div>
+
+<div class="grid g-side">
+  <div class="stack">
+    <section class="card" aria-labelledby="add-h">
+      <h2 id="add-h">Add or update a skill</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="field"><label for="{{ form.skill.id_for_label }}">Skill</label>{{ form.skill }}{% for e in form.skill.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+          <div class="field"><label for="{{ form.level.id_for_label }}">Level</label>{{ form.level }}</div>
+        </div>
+        <div class="field" style="margin-top:14px"><label for="{{ form.evidence.id_for_label }}">Evidence <span class="muted">(optional)</span></label>{{ form.evidence }}</div>
+        <button class="btn" type="submit">Save skill</button>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Your skills</h2>
+      {% for cat, label, score, items in groups %}
+      <div class="cat-block">
+        <div class="cat-title"><h3>{{ label }}</h3><span class="pill p-gray tnum">{{ score|floatformat:0 }} / 100</span></div>
+        {% for s in items %}
+        <div class="skill-line">
+          <div style="min-width:0">
+            <div class="nm">{{ s.skill.name }} <span class="pill {% if s.source == 'resume' %}p-blue{% elif s.source == 'course' %}p-violet{% else %}p-gray{% endif %}">{{ s.get_source_display }}</span></div>
+            {% if s.evidence %}<div class="ev" title="{{ s.evidence }}">{{ s.evidence }}</div>{% endif %}
+          </div>
+          <form class="level-form" method="post" action="{% url 'update_skill' s.skill_id %}">
+            {% csrf_token %}
+            <label class="sr-only" for="lv-{{ s.skill_id }}">Level for {{ s.skill.name }}</label>
+            <select class="input" id="lv-{{ s.skill_id }}" name="level" onchange="this.form.requestSubmit()">
+              {% for v, l in levels %}<option value="{{ v }}" {% if v == s.level %}selected{% endif %}>{{ v }} · {{ l }}</option>{% endfor %}
+            </select>
+            <noscript><button class="btn small secondary" type="submit">Set</button></noscript>
+          </form>
+          <form method="post" action="{% url 'remove_skill' s.skill_id %}">{% csrf_token %}<button class="btn danger" type="submit" aria-label="Remove {{ s.skill.name }}">Remove</button></form>
+        </div>
+        {% empty %}
+        <p class="muted small" style="margin:0 0 8px">No {{ label|lower }} skills yet.</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-labelledby="shape-h">
+      <h2 id="shape-h">Your shape</h2>
+      {{ radar|safe }}
+      <div class="legend"><span><i></i>Now</span>{% if last_snap %}<span><i class="prev"></i>Saved {{ last_snap.created_at|date:"M j" }}</span>{% endif %}</div>
+      <p class="how" style="margin:14px 0 0">Each category score is the average of your three strongest skill levels in it, out of 5.</p>
+    </section>
+
+    <section class="card" id="courses" aria-labelledby="course-h">
+      <h2 id="course-h">Courses</h2>
+      <form method="post" action="{% url 'add_course' %}">
+        {% csrf_token %}
+        <div class="field"><label for="{{ course_form.course.id_for_label }}">Course</label>{{ course_form.course }}</div>
+        <div class="field"><label for="{{ course_form.term.id_for_label }}">Term <span class="muted">(optional)</span></label>{{ course_form.term }}</div>
+        <button class="btn secondary block" type="submit">Add course</button>
+      </form>
+      <p class="how" style="margin:12px 0 16px">Adding a course adds the skills it covers at the course's level. It never lowers a level you've already set.</p>
+      <div class="list">
+        {% for c in courses %}
+        <div class="list-row"><div class="grow"><div class="title">{{ c.course.course_code }}</div><div class="sub">{{ c.course.course_name }}{% if c.term %} · {{ c.term }}{% endif %}</div></div></div>
+        {% empty %}<p class="muted small">No courses yet.</p>{% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
