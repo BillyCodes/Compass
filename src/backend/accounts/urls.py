@@ -1,5 +1,13 @@
-"""Reserved for account routes once authentication implementation begins."""
+"""Account routes live under the /accounts/ project prefix."""
+from django.contrib.auth.views import LogoutView
+from django.urls import path
+
+from .views import EmailLoginView, profile
+
 app_name = "accounts"
-# Future paths are relative to /accounts/, the prefix set in config.urls.
-# Keep this empty until handlers and their access behavior are implemented.
-urlpatterns = []
+urlpatterns = [
+    path("login/", EmailLoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("profile/", profile, name="profile"),
+    path("students/<uuid:student_id>/", profile, name="student-detail"),
+]

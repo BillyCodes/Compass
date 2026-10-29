@@ -27,8 +27,6 @@ class FoundationTests(SimpleTestCase):
                 self.assertIsNotNone(finders.find(asset))
                 self.assertContains(response, f'/static/{asset}')
 
-    def test_account_and_admin_features_are_not_exposed_yet(self):
-        # Update this expectation when real account/database integration lands.
-        for path in ["/accounts/login/", "/admin/"]:
-            with self.subTest(path=path):
-                self.assertEqual(self.client.get(path).status_code, 404)
+    def test_login_is_public_and_admin_is_not_exposed(self):
+        self.assertEqual(self.client.get(reverse("accounts:login")).status_code, 200)
+        self.assertEqual(self.client.get("/admin/").status_code, 404)

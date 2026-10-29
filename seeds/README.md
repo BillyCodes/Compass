@@ -1,8 +1,10 @@
 # Repeatable synthetic sample data
 
-The team has agreed to use Mockaroo for synthetic development data. The account
-and domain models are still being finalized, so this directory defines the
-convention; it does not yet contain an importer or runnable seed command.
+The team has agreed to use Mockaroo for synthetic development data. The first account
+models are implemented; the remaining domain models are still being finalized.
+This directory has no Mockaroo importer yet. The separate
+`create_demo_accounts` management command creates the initial synthetic login
+accounts, and the account data migration installs the three fixed role names.
 
 ## Database lead workflow
 

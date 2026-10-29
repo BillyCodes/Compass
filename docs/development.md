@@ -38,7 +38,7 @@ and user defaulting to `compass`. If that port is occupied, change `POSTGRES_POR
 in `.env`, for example to `5433`. The container itself still uses port 5432.
 
 The health check uses `pg_isready` to check server readiness; it does not prove
-that Django credentials or application tables work. You can inspect the empty
+that Django credentials or application tables work. You can inspect the
 database without making schema changes:
 
 ```sh
@@ -56,27 +56,66 @@ The published port is restricted to loopback. The image's initial user has datab
 superuser privileges; these credentials are for local synthetic-data development,
 not production application access.
 
-## Django integration boundary
+## Django and authentication
 
-Django intentionally still uses the dummy database backend. Starting this container
-does not configure Django, apply migrations, create account tables, or seed data.
-The existing foundation page and tests continue to work without Docker.
+Django now connects to PostgreSQL using Psycopg 3 and the root `.env` settings.
+`python-dotenv` reads that file without overriding exported shell variables.
+Host-run Django uses `POSTGRES_HOST=127.0.0.1` (the default) and `POSTGRES_PORT`.
+If Django is later containerized, its host would be `db` and port `5432` instead.
 
-After the custom-user and profile decisions are settled:
+The custom email-login account model is configured before the initial migration.
+See [ERD-to-Django mapping](architecture/erd-django-mapping.md) for the four models,
+Django field mappings, constraints, role boundaries, and deletion behavior.
 
-1. Add a pinned compatible Psycopg 3 driver to Python requirements.
-2. Configure `django.db.backends.postgresql` using the agreed environment settings.
-   Host-run Django connects to `127.0.0.1` and the chosen host port. If Django is
-   later containerized in the same Compose project, it connects to `db:5432`.
-3. Set `AUTH_USER_MODEL` and create the agreed initial app migrations. Review and
-   commit models and migrations together, then apply those same migrations in each
-   development database.
-4. Test account creation, sessions, ownership, and database constraints against
-   PostgreSQL. No migration or seed command will run automatically at startup.
+From the repository root, with Docker running and `.env` configured:
 
-Compose reads root `.env` values automatically. That does not export them to the
-host Django process. Django's environment-loading approach will be implemented
-alongside its database settings rather than silently assuming they are shared.
+```sh
+.venv/bin/python -m pip install -r requirements.txt
+docker compose up -d --wait db
+.venv/bin/python src/backend/manage.py check
+.venv/bin/python src/backend/manage.py migrate
+.venv/bin/python src/backend/manage.py create_demo_accounts
+.venv/bin/python src/backend/manage.py runserver 127.0.0.1:8000
+```
+
+The demo command prompts for a shared strong password for three synthetic
+accounts, without echoing or storing it in repository files:
+
+- `student.a@example.test` with a student profile and role.
+- `student.b@example.test` with a different student profile and role.
+- `maintainer@example.test` with a maintainer role and no student profile.
+
+It refuses to modify existing demo accounts on repeat runs. No administrator,
+staff, or superuser account is created. Use a synthetic password, not a personal
+password. Public registration and privileged role-management screens are deferred.
+
+Open <http://127.0.0.1:8000/accounts/login/>. A valid email/password opens the
+account's profile; logout uses POST and ends access. Login is case-insensitive for
+email addresses. The underlying form field is named `username` for compatibility
+with Django's AuthenticationForm; no username account column exists.
+
+Set a stable local `DJANGO_SECRET_KEY` in your ignored `.env` if you want sessions
+to survive server restarts; otherwise debug mode uses a temporary process key.
+Production keys must be separate. Compose does not run migrations or seeds on
+startup. Only Django migrations define the application schema.
+
+Run the PostgreSQL-backed suite with:
+
+```sh
+.venv/bin/python src/backend/manage.py test core accounts
+```
+
+Django creates and destroys an isolated `test_compass` database (or `test_` plus
+your configured database name). These tests verify database uniqueness, email
+login, ownership, disabled accounts, role checks, CSRF, logout, safe redirects,
+and a local failed-login throttle. Foundation tests still forbid database queries,
+but running the full suite now requires PostgreSQL and database-create privileges.
+The container's local development user has those privileges.
+
+The throttle is per-process and uses the direct peer IP. A deployment with proxies
+or multiple workers needs explicit proxy handling and a shared cache. This setup
+is for local testing; email verification, password reset, and production access
+configuration remain future work.
 
 ## Frontend integration
 

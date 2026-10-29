@@ -1,5 +1,6 @@
-from django.contrib import admin
+"""Account admin screens remain deferred; no models are registered yet.
 
-# Register the agreed account models when database integration is ready.
-# Registration controls admin management screens; it does not define student
-# access rules for the rest of the application.
+The custom user needs forms/fieldsets adapted to email before adding a UserAdmin.
+Business administrator roles do not automatically grant Django staff/superuser
+access. Role-management operations must use the appropriate authorization checks.
+"""

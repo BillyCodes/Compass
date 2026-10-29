@@ -1,13 +1,13 @@
 # Django architecture
 
 Foundation established on `django-structure`, October 28, 2026. This branch contains
-project wiring and a minimal home page; authentication and database models remain
-future work.
+project wiring, a placeholder home page, and the first account/authentication
+milestone. See [ERD-to-Django mapping](erd-django-mapping.md) for the implemented
+Account, Student, Role, and AccountRole models.
 
 The agreed PostgreSQL Compose setup, Django-template frontend direction, and
 Mockaroo data workflow are documented in [Team development setup](../development.md).
-The Compose database can run independently; Django's database settings remain
-deferred until account design is agreed.
+Django now connects to the Compose database using the root `.env` settings.
 
 ## Responsibilities and locations
 
@@ -16,7 +16,7 @@ deferred until account design is agreed.
 | `src/backend/manage.py` | Django management commands |
 | `src/backend/config/` | Project settings, root URL composition, WSGI/ASGI entry points |
 | `src/backend/core/` | Public pages and shared site layout assets; not a home for unrelated business logic |
-| `src/backend/accounts/` | Future account model, authentication, and account permissions |
+| `src/backend/accounts/` | Email account, student profile, role models, authentication, and access checks |
 | `src/backend/templates/` | Shared base template and header/footer includes |
 | `<app>/templates/<app>/` | Namespaced templates owned by a feature app |
 | `<app>/static/<app>/` | Namespaced CSS, JS, and images owned by that app |
@@ -27,39 +27,36 @@ deferred until account design is agreed.
 | `staticfiles/` | Ignored generated `collectstatic` output, not source files |
 
 The former repository-root migrations placeholder has been removed. Future Django
-migrations belong to each owning app. No database schema migrations were created
-or applied.
+migrations belong to each owning app. The initial account schema and role-seed
+migrations now live in `accounts/migrations/`.
 
 ## Request flow
 
 `config/urls.py` includes an app's URL configuration. The app maps a named route
 to a view. The view handles the request and renders a template or returns data.
-Templates extend the shared `base.html`; future models provide persistence when
-the data design is approved.
+Templates extend the shared `base.html`; account models now provide persistence
+for the first ERD section.
 
-The initial route is `core:home` at `/`. `accounts/urls.py` is included but has no
-routes until account implementation starts. `/admin/` is deliberately not exposed
-until account/database configuration is ready. Earlier sign-in work on another
-branch has not been copied into this foundation.
+The public home route is `core:home`. `accounts/urls.py` provides email login,
+POST-only logout, and private profile reads. `/admin/` is still not exposed;
+privileged model-management screens are deferred.
 
-## Configuration boundary
+## Configuration and identity
 
-- The ordinary Django auth, sessions, messages, and admin components remain
-  registered so the project is ready for their future integration.
-- Database configuration uses the dummy backend. This prevents accidentally
-  migrating Django's default user schema while the custom-user decision is open.
-  Account/admin operations and database queries are not supported at this stage.
-- Confirm the user model, account identifier type, student relationship, and
-  migration responsibilities before configuring the database and initial
-  migrations. Username login is the selected direction.
-- Environment values are read from exported variables, not automatically from
-  `.env` files. Debug defaults to true for local development. A process-local random
-  secret is used only when debug is enabled and no explicit key is exported.
-- With debug disabled, an explicit `DJANGO_SECRET_KEY` is required. Production
-  deployment still needs database, HTTPS, static hosting, and session configuration.
-- `requirements.txt` contains Django only. Unused FastAPI/SQLAlchemy/JWT packages
-  were removed from the declared runtime; installed environment packages were not
-  uninstalled. Add PostgreSQL dependencies when that integration is implemented.
+- `AUTH_USER_MODEL` points to the UUID-based `accounts.Account`; email login
+  supersedes the previous username choice. The initial migration defines this
+  custom model before its dependent application tables.
+- Django connects to PostgreSQL through Psycopg 3. Both Django and Compose read
+  root `.env`; exported shell values take precedence. Do not commit credentials.
+- Django authentication/session infrastructure is separate from Compass business
+  roles. `AccountRole` is authoritative for business role checks; Groups and admin
+  flags are not used as a duplicate business-role system.
+- Profile reads filter on the signed-in account. A role or UUID alone never grants
+  another student's private profile access.
+- Debug defaults to true with a temporary process-local secret if none is exported.
+  Set a stable local key to preserve sessions across restarts. Production needs
+  separate configuration, a shared throttle cache, and HTTPS.
+- Runtime requirements now include Django, Psycopg 3, and python-dotenv.
 
 ## Adding functionality
 
@@ -74,7 +71,7 @@ branch has not been copied into this foundation.
 4. Put shared presentation in the project templates and feature presentation in
    the app. The programming lead can replace templates and styles without changing
    the app's models or service logic.
-5. Commit model changes with app migrations after the account-design agreement.
+5. Review and commit model changes with app migrations.
    Use synthetic data and include tests of behavior and ownership boundaries.
 
 ## Validation

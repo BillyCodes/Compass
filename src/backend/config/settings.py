@@ -1,14 +1,16 @@
-"""Compass foundation settings; account schema and database setup are deferred."""
+"""Compass settings for email authentication and the first PostgreSQL ERD section."""
 import os
 from pathlib import Path
 from secrets import token_urlsafe
 
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 REPOSITORY_ROOT = BASE_DIR.parent.parent
 # BASE_DIR is src/backend; repository assets live two levels above it.
-# Values come from the process environment. Compose's .env is not loaded here.
+# Local development shares root .env with Compose; shell values take precedence.
+load_dotenv(REPOSITORY_ROOT / ".env", override=False, interpolate=False)
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() in {"true", "1"}
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 if not SECRET_KEY:
@@ -61,14 +63,30 @@ TEMPLATES = [{
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-# Prevent accidental initialization of the default user schema before agreement.
-# A healthy PostgreSQL container does not change this setting: Django remains
-# disconnected until the agreed user model and database settings are configured.
-DATABASES = {"default": {"ENGINE": "django.db.backends.dummy"}}
-# Default key type for future models; the account identifier is still undecided.
+# The first ERD section is now configured against the local Compose database.
+# Credentials stay in the ignored .env or process environment, not in source.
+if not os.environ.get("POSTGRES_PASSWORD"):
+    raise ImproperlyConfigured("Set POSTGRES_PASSWORD in the root .env or environment.")
+DATABASES = {"default": {
+    "ENGINE": "django.db.backends.postgresql",
+    "NAME": os.environ.get("POSTGRES_DB", "compass"),
+    "USER": os.environ.get("POSTGRES_USER", "compass"),
+    "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+    "HOST": os.environ.get("POSTGRES_HOST", "127.0.0.1"),
+    "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+}}
+AUTH_USER_MODEL = "accounts.Account"
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "accounts:profile"
+LOGOUT_REDIRECT_URL = "accounts:login"
+LOGIN_FAILURE_LIMIT = 10
+LOGIN_FAILURE_WINDOW = 300
+# Suitable for this single-process local demo. Use a shared cache for deployment.
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+# Default key type for future models; these ERD entities explicitly use UUIDs.
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# Available to Django password-validation flows once accounts are implemented.
-# These validators do not create accounts or implement sign-in.
+# Used by account password-validation flows, including demo account setup.
+# Trusted setup commands invoke these before creating demo account passwords.
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": f"django.contrib.auth.password_validation.{validator}"}
     for validator in [
@@ -90,8 +108,7 @@ STATICFILES_DIRS = [
     ("draft/css", REPOSITORY_ROOT / "frontend" / "css"),
     ("draft/js", REPOSITORY_ROOT / "frontend" / "js"),
 ]
-# Non-debug cookies require HTTPS. These settings prepare future session use;
-# they do not enable authentication or complete production configuration.
+# Non-debug session/CSRF cookies require HTTPS; deployment needs further configuration.
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SAMESITE = "Lax"

@@ -1,2 +1,4 @@
-# Runtime for the current Django foundation. Add other packages when used.
+# Django plus the PostgreSQL driver and local environment loader.
 Django==6.1.2
+psycopg[binary]==3.2.13
+python-dotenv==1.2.1

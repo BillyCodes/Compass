@@ -1,5 +1,15 @@
-"""Reserved for reusable backend access rules; none are implemented yet.
+"""Business roles and ownership are enforced separately from Django admin flags."""
+from django.core.exceptions import PermissionDenied
 
-Future checks should derive student ownership from the signed-in account and be
-called by protected operations. Merely having this file does not enforce access.
-"""
+from .models import Role
+
+
+def has_role(account, role_name):
+    return bool(account.is_authenticated and account.is_active and
+                account.role_assignments.filter(role__role_name=role_name).exists())
+
+
+def require_role_administrator(account):
+    # A Compass role does not grant is_staff/is_superuser, or vice versa.
+    if not has_role(account, Role.Name.ADMINISTRATOR):
+        raise PermissionDenied("Role administration is restricted.")

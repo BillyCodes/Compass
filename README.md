@@ -1,21 +1,24 @@
 # Compass — Digital Corsairs Senior Project
 
 Compass helps Jackson State University students connect coursework and skills to
-career opportunities. The team is establishing a Django foundation before
-implementing accounts, private profiles, skill comparisons, and recommendations.
+career opportunities. The team is building
+Django account authentication first, followed by skill comparisons and recommendations.
 
 ## Current status
 
-The `django-structure` branch has a conventional Django project (`config`) and
+The codebase has a conventional Django project (`config`) and
 feature apps (`core` and `accounts`). Django renders a minimal home page through
 shared templates. The original six-page HTML/CSS/JavaScript draft remains in
 `frontend/` for reference and can be replaced as the design develops.
 
-Authentication, student models, comparisons, and database integration are not
-implemented here. The auth/session/admin components are registered, but database
-access is disabled and no admin or sign-in route is exposed yet. No account
-migrations have been created or applied. Account-model decisions must be settled
-before configuring the database and running initial migrations.
+The first ERD section is now implemented: Account, Student, Role, and AccountRole.
+Email/password sign-in uses Django sessions and the local PostgreSQL container.
+Private student-profile reads enforce ownership. The student and maintainer demo
+accounts are created through an interactive command; public registration, profile
+editing, admin screens, skills, and comparisons remain future work.
+
+See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
+diagram's fields and relationships map to Django and PostgreSQL.
 
 ## Project structure
 
@@ -33,13 +36,17 @@ Compass/
 │   │   └── tests/              Database-free foundation tests
 │   ├── accounts/               Account/authentication implementation area
 │   │   ├── apps.py
-│   │   ├── urls.py             Included; no account routes yet
-│   │   ├── models.py           Placeholder pending user-model agreement
+│   │   ├── urls.py             Login, POST logout, private student profiles
+│   │   ├── models.py           Account, Student, Role, AccountRole
 │   │   ├── views.py
-│   │   ├── permissions.py           
+│   │   ├── forms.py            Email authentication form
+│   │   ├── services.py         Atomic student setup and guarded role assignment
+│   │   ├── managers.py         Email normalization and password hashing
+│   │   ├── management/         Interactive synthetic-account setup
+│   │   ├── permissions.py      Business role checks
 │   │   ├── admin.py
 │   │   ├── tests.py
-│   │   ├── migrations/         Future account schema migrations
+│   │   ├── migrations/         Initial schema and fixed role vocabulary
 │   │   └── templates/accounts/
 │   └── templates/              Shared base.html and includes/
 ├── frontend/                   Preserved standalone design draft
@@ -63,9 +70,9 @@ and Mockaroo will supply repeatable synthetic sample data. See
 [Team development setup](docs/development.md) for database startup instructions
 and [sample-data conventions](seeds/README.md) for the import workflow.
 
-The database container can be prepared independently. Django database activation,
-the Psycopg driver, account migrations, and the seed importer remain pending the
-account-model agreement. Starting Compose does not apply migrations.
+Django models and committed migrations define the application schema. Mockaroo
+will supply domain datasets; the initial three role names are installed by a data
+migration. No privileged account is automatically created.
 
 ## Run Django locally
 
@@ -74,20 +81,23 @@ From the repository root with Python 3.12 or newer:
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
+docker compose up -d --wait db
 .venv/bin/python src/backend/manage.py check
+.venv/bin/python src/backend/manage.py migrate
+.venv/bin/python src/backend/manage.py create_demo_accounts
 .venv/bin/python src/backend/manage.py runserver 127.0.0.1:8000
 ```
 
-Reuse `.venv` if it already exists. Open <http://127.0.0.1:8000/> and stop the
-server with `Ctrl+C`. Do not run `migrate`, `makemigrations`, or `createsuperuser`
-yet. The dummy database backend deliberately prevents accidental creation of the
-default account schema while the custom-user model is still being agreed.
+Reuse `.venv` if it already exists. Before starting Compose, copy `.env.example`
+to `.env` only if that file does not exist, and set a local `POSTGRES_PASSWORD`.
+Preserve existing values if `.env` already exists. Django and Compose both read
+root `.env`; exported variables take precedence. Full instructions are in
+[Team development setup](docs/development.md).
 
-Optional settings are documented in `.env.example`. Export them in your shell;
-Django does not automatically load `.env` files. Local defaults work without
-configuration. Debug defaults to true with a temporary process-local secret;
-when debug is disabled, an explicit `DJANGO_SECRET_KEY` is required. This is a
-local development foundation, not a completed production deployment setup.
+Open <http://127.0.0.1:8000/accounts/login/> and sign in with a synthetic account
+created by `create_demo_accounts`, which prompts for a password. Stop the server
+with `Ctrl+C`. Migrations run only when explicitly requested; they do not run at
+container startup. This is a local development setup.
 
 ## Run tests
 
@@ -101,9 +111,10 @@ Or activate the environment, change into `src/backend`, and run
 `python manage.py test`. Explicit app labels from the repository root avoid
 missing tests beneath the non-package `src/` directory.
 
-The current tests cover home-page routing, template inheritance, static asset
-discovery, and the absence of unfinished account/admin routes. They prohibit
-database access. Authentication and ownership tests will accompany those features.
+The suite runs account-model, login/session, ownership, role, CSRF, logout, and
+throttling tests on an isolated PostgreSQL test database. The foundation tests
+also check routing, shared templates, and static asset discovery. Keep Docker's
+database running when testing.
 
 ## View the standalone design draft
 
@@ -125,11 +136,11 @@ Django templates. Django can also discover their CSS/JS under `/static/draft/`.
   as the frontend evolves while preserving route names and form contracts.
 - Keep migrations inside each owning app, and commit them with model changes.
   The former repository-root migrations placeholder has been removed.
-- Coordinate the custom user model, account identifiers, student-profile
-  relationship, and migration ownership before initial database migrations.
+- The custom email-login user and related UUID entities are implemented. Review
+  future model changes with Richshard and commit the corresponding app migrations.
 - Use synthetic student data. Enforce private-record ownership in backend
   operations and test cross-account access when private data is implemented.
-- Add runtime packages when they are used. Django is the current runtime;
-  PostgreSQL integration dependencies will be added when needed.
+- Runtime requirements include Django, Psycopg 3, and python-dotenv. Add further
+  dependencies when their features are implemented.
 - Keep real credentials out of source control and frontend assets. Document
   exported environment settings in `.env.example`.
