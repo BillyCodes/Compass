@@ -1,2 +1,6 @@
-# Runtime for the current Django foundation. Add other packages when used.
+# Django application
 Django==6.1.2
+
+# Production server and static files
+gunicorn
+whitenoise
