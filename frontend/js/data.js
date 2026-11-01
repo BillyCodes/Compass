@@ -2,9 +2,10 @@
    Compass — mock data layer
    ---------------------------------------------------------
    Everything in this file stands in for data that will
-   eventually be served from Richshard's database via an API.
-   Keeping it in one place means swapping mock data for real
-   fetch() calls later only touches this file, not every page.
+   eventually come from Django's agreed database models.
+   This standalone draft uses synchronous local data. Real
+   integration will also require adapting the renderers in
+   main.js or replacing them with server-rendered templates.
    ========================================================= */
 
 const COMPASS_DATA = {

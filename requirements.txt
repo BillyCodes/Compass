@@ -1,6 +1,4 @@
-# Django application
+# Django plus the PostgreSQL driver and local environment loader.
 Django==6.1.2
-
-# Production server and static files
-gunicorn
-whitenoise
+psycopg[binary]==3.2.13
+python-dotenv==1.2.1

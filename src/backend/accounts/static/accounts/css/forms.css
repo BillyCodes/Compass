@@ -1,0 +1,7 @@
+/* Sign-in styling is isolated so the programming lead can replace it. */
+.account-wrap { max-width: 520px; }
+.form-field { margin-bottom: 20px; }
+.form-field label { display: block; font-weight: 700; margin-bottom: 6px; }
+.form-field input { width: 100%; min-height: 46px; padding: 10px; border: 1px solid var(--mute); border-radius: 6px; font: inherit; }
+.form-errors, .errorlist { color: #851919; }
+.form-field input[aria-invalid="true"] { border: 2px solid #851919; }

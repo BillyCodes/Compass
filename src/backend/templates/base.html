@@ -1,4 +1,5 @@
 {% load static %}
+{# Shared shell. Feature templates override blocks to supply their own content. #}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Compass{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'draft/css/style.css' %}">
+  {# Draft branding is temporary; layout.css supplies the shared shell behavior. #}
   <link rel="stylesheet" href="{% static 'core/css/layout.css' %}">
+  {# Feature-specific styles and scripts belong in these extension blocks. #}
   {% block extra_css %}{% endblock %}
 </head>
 <body>

@@ -1,6 +1,8 @@
 /* Shared shell only; feature styles belong to their owning apps. */
+/* Let the main region fill short pages so the footer stays near the bottom. */
 body { min-height: 100vh; display: flex; flex-direction: column; }
 main { flex: 1; }
+/* Reveal the keyboard shortcut on focus without occupying the default layout. */
 .skip-link { position: absolute; top: -80px; left: 16px; padding: 12px; background: white; z-index: 100; }
 .skip-link:focus { top: 8px; }
 :focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }

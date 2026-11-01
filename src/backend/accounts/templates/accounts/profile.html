@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Your profile — Compass{% endblock %}
+{% block content %}
+<section class="section"><div class="wrap"><div class="card">
+  <h1>Your profile</h1>
+  <p>Signed in as {{ request.user.login_email }}</p>
+  {% if student %}
+  <h2>{{ student.display_name }}</h2>
+  <dl>
+    <dt>Major</dt><dd>{{ student.major|default:"Not provided" }}</dd>
+    <dt>Career interests</dt><dd>{{ student.career_interests|default:"Not provided" }}</dd>
+    <dt>Graduation year</dt><dd>{{ student.graduation_year|default_if_none:"Not provided" }}</dd>
+  </dl>
+  {% else %}<p>This account does not have a student profile.</p>{% endif %}
+</div></div></section>
+{% endblock %}

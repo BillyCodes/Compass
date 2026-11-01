@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Sign in — Compass{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'accounts/css/forms.css' %}">{% endblock %}
+{% block content %}
+<section class="section"><div class="wrap account-wrap"><div class="card">
+  <h1>Sign in to Compass</h1>
+  <p>Use your email address and password.</p>
+  <form method="post" action="{% url 'accounts:login' %}">
+    {% csrf_token %}
+    {% if throttled %}<p role="alert" class="form-errors">Sign-in is temporarily unavailable. Please try again later.</p>{% endif %}
+    {% if form.non_field_errors %}<div role="alert" class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}<div class="form-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endfor %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button class="btn btn-primary" type="submit">Sign in</button>
+  </form>
+</div></div></section>
+{% endblock %}

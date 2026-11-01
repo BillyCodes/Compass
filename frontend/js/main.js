@@ -2,6 +2,8 @@
    Compass — shared interactivity
    ========================================================= */
 
+// One script serves all standalone draft pages. Each initializer exits when
+// its page-specific container is absent; data.js must load before this script.
 document.addEventListener("DOMContentLoaded", () => {
   initNavToggle();
   initSkillsPage();
@@ -32,6 +34,8 @@ function initSkillsPage() {
     .join("");
 
   function render(activeCat) {
+    // These HTML strings assume bundled mock content. Use safe text rendering
+    // before replacing it with student-entered or other untrusted content.
     const list = activeCat === "All" ? skills : skills.filter((s) => s.category === activeCat);
     grid.innerHTML = list
       .map(
@@ -49,6 +53,7 @@ function initSkillsPage() {
   }
 
   filterBar.addEventListener("click", (e) => {
+    // Delegate clicks to the parent so category buttons share one handler.
     const btn = e.target.closest(".chip");
     if (!btn) return;
     filterBar.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
@@ -66,6 +71,7 @@ function initPathwaysPage() {
   if (!selectBar || !panel) return;
 
   const pathways = COMPASS_DATA.pathways;
+  // Index catalog skills once so pathway skill IDs can resolve to display names.
   const skillsById = Object.fromEntries(COMPASS_DATA.skills.map((s) => [s.id, s]));
 
   selectBar.innerHTML = pathways
@@ -102,6 +108,7 @@ function initPathwaysPage() {
     render(btn.dataset.id);
   });
 
+  // The current fixture guarantees a first pathway; real data needs an empty state.
   render(pathways[0].id);
 }
 
@@ -131,6 +138,7 @@ function initDashboardPage() {
   const root = document.getElementById("dashboard-root");
   if (!root) return;
 
+  // Public fictional persona only: this is not the current authenticated user.
   const s = COMPASS_DATA.sampleStudent;
 
   document.getElementById("dash-initials").textContent = s.initials;
