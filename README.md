@@ -7,7 +7,7 @@ Django account authentication first, followed by skill comparisons and recommend
 ## Current status
 
 The codebase has a conventional Django project (`config`) and
-feature apps (`core` and `accounts`). Django renders a minimal home page through
+feature apps (`core`, `accounts`, `skills`, and `reference`). Django renders a minimal home page through
 shared templates. The original six-page HTML/CSS/JavaScript draft remains in
 `frontend/` for reference and can be replaced as the design develops.
 
@@ -15,10 +15,16 @@ The first ERD section is now implemented: Account, Student, Role, and AccountRol
 Email/password sign-in uses Django sessions and the local PostgreSQL container.
 Private student-profile reads enforce ownership. The student and maintainer demo
 accounts are created through an interactive command; public registration, profile
-editing, admin screens, skills, and comparisons remain future work.
+editing and admin screens remain future work. The next schema batch now adds
+skills, private student proficiency, and content item/version foundations.
+Comparisons and reference publication remain future work.
 
 See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
 diagram's fields and relationships map to Django and PostgreSQL.
+
+See [Skills and reference-content foundation](docs/architecture/skills-reference-foundation.md)
+for the new tables, 0–5 proficiency scale, typed foreign key, and draft services.
+No new skill-entry or content-management screens are included yet.
 
 ## Project structure
 
@@ -48,6 +54,8 @@ Compass/
 │   │   ├── tests.py
 │   │   ├── migrations/         Initial schema and fixed role vocabulary
 │   │   └── templates/accounts/
+│   ├── skills/                 Skill catalog, student proficiency, services/tests
+│   ├── reference/              Content items/versions, draft services/tests
 │   └── templates/              Shared base.html and includes/
 ├── frontend/                   Preserved standalone design draft
 ├── tests/                      Reserved for future cross-app workflows
@@ -104,15 +112,16 @@ container startup. This is a local development setup.
 From the repository root:
 
 ```sh
-.venv/bin/python src/backend/manage.py test core accounts
+.venv/bin/python src/backend/manage.py test core accounts skills reference
 ```
 
 Or activate the environment, change into `src/backend`, and run
 `python manage.py test`. Explicit app labels from the repository root avoid
 missing tests beneath the non-package `src/` directory.
 
-The suite runs account-model, login/session, ownership, role, CSRF, logout, and
-throttling tests on an isolated PostgreSQL test database. The foundation tests
+The 61-test suite covers accounts/authentication, student skills, content
+versioning, typed foreign keys, ownership, and role controls on an isolated
+PostgreSQL test database. The foundation tests
 also check routing, shared templates, and static asset discovery. Keep Docker's
 database running when testing.
 

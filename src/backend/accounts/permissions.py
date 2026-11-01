@@ -13,3 +13,9 @@ def require_role_administrator(account):
     # A Compass role does not grant is_staff/is_superuser, or vice versa.
     if not has_role(account, Role.Name.ADMINISTRATOR):
         raise PermissionDenied("Role administration is restricted.")
+
+
+def require_content_editor(account):
+    """Reference/catalog edits require a Compass maintainer or administrator role."""
+    if not (has_role(account, Role.Name.MAINTAINER) or has_role(account, Role.Name.ADMINISTRATOR)):
+        raise PermissionDenied("Content maintenance is restricted.")
