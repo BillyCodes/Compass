@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" role="img">
+<title>Student skills and selected courses</title><desc>Proposed next section. Selected courses reference stable course items, not job or career items.</desc>
+<rect width="1600" height="1600" fill="#f8fafc"/>
+<text x="60" y="57" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#52677a" text-anchor="start">COMPASS  /  RELATIONSHIP REVIEW</text>
+<text x="60" y="105" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#162b40" text-anchor="start">Student skills and selected courses</text>
+<text x="60" y="140" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Proposed next section. Selected courses reference stable course items, not job or career items.</text>
+<polyline points="610,250 520,250" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="554" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="580" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">1</text>
+<rect x="524" y="261" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="550" y="280" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..*</text>
+<rect x="536" y="180" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="560" y="200" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A5</text>
+<polyline points="295,650 295,400" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="299" y="603" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="325" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">1</text>
+<rect x="299" y="413" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="325" y="432" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..*</text>
+<rect x="306" y="512" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="330" y="532" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A6</text>
+<polyline points="1010,250 1120,250" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="1014" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1040" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">1</text>
+<rect x="1064" y="261" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1090" y="280" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..*</text>
+<rect x="1041" y="180" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="1065" y="200" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A7</text>
+<polyline points="1325,650 1325,400" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="1329" y="603" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1355" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">1</text>
+<rect x="1329" y="413" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1355" y="432" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..*</text>
+<rect x="1336" y="512" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="1360" y="532" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A8</text>
+<rect x="610" y="170" width="400" height="180" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="610" y="170" width="400" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="626" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">STUDENT</text>
+<text x="626" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK student_id : UUID</text>
+<text x="626" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK/FK account_id -&gt; ACCOUNT</text>
+<text x="626" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Each student has one account</text>
+<rect x="70" y="170" width="450" height="230" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="70" y="170" width="450" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="86" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">STUDENT_SKILL</text>
+<text x="86" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">KEY (student_id, skill_id)</text>
+<text x="86" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK student_id -&gt; STUDENT</text>
+<text x="86" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK skill_id -&gt; SKILL</text>
+<text x="86" y="324" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">proficiency_level : agreed scale</text>
+<rect x="1120" y="170" width="410" height="230" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="1120" y="170" width="410" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="1136" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">STUDENT_COURSE</text>
+<text x="1136" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">KEY (student_id, course_item_id)</text>
+<text x="1136" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK student_id -&gt; STUDENT</text>
+<text x="1136" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (course_item_id, course_kind)</text>
+<text x="1136" y="324" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start"> -&gt; CONTENT_ITEM(item_id, kind)</text>
+<text x="1136" y="352" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">CHECK course_kind = &#x27;course&#x27;</text>
+<rect x="70" y="650" width="450" height="180" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="70" y="650" width="450" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="86" y="678" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">SKILL</text>
+<text x="86" y="720" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK skill_id : UUID</text>
+<text x="86" y="748" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK skill_name</text>
+<text x="86" y="776" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">status : active / retired</text>
+<rect x="1120" y="650" width="410" height="220" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="1120" y="650" width="410" height="42" rx="0" fill="#def2df" stroke="#64748b"/>
+<text x="1136" y="678" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">CONTENT_ITEM</text>
+<text x="1136" y="720" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK item_id : UUID</text>
+<text x="1136" y="748" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">kind : career/job/course/resource/insight</text>
+<text x="1136" y="776" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (item_id, kind)</text>
+<text x="1136" y="804" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">retired_at : nullable</text>
+<text x="60" y="1510" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">Counts at an endpoint describe how many of that entity relate to one entity at the opposite end.</text>
+<text x="60" y="1540" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">1 = exactly one   |   0..1 = optional one   |   0..* = zero or many   |   IDs link to relationships.md</text>
+<text x="60" y="1570" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#162b40" text-anchor="start">PROPOSAL ONLY  /  Keys and relationships shown; full non-key attributes remain in the supplied PNG.</text>
+</svg>

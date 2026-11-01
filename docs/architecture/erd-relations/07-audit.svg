@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" role="img">
+<title>Audit actor, subject, and content references</title><desc>The two ACCOUNT boxes are aliases of one table. Nullable links support system events and retained history.</desc>
+<rect width="1600" height="1600" fill="#f8fafc"/>
+<text x="60" y="57" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#52677a" text-anchor="start">COMPASS  /  RELATIONSHIP REVIEW</text>
+<text x="60" y="105" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#162b40" text-anchor="start">Audit actor, subject, and content references</text>
+<text x="60" y="140" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">The two ACCOUNT boxes are aliases of one table. Nullable links support system events and retained history.</text>
+<polyline points="470,250 760,250 760,550" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="474" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="500" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..1</text>
+<rect x="764" y="503" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="790" y="522" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="596" y="207" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="620" y="227" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">D1</text>
+<polyline points="1130,250 930,250 930,550" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="1074" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1100" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..1</text>
+<rect x="934" y="503" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="960" y="522" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="906" y="432" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="930" y="452" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">D2</text>
+<polyline points="825,1050 825,840" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="829" y="1003" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="855" y="1022" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..1</text>
+<rect x="829" y="853" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="855" y="872" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="836" y="932" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="860" y="952" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">D3</text>
+<rect x="70" y="170" width="400" height="220" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="70" y="170" width="400" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="86" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">ACCOUNT</text>
+<text x="86" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK account_id : UUID</text>
+<text x="86" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK login_email : email</text>
+<text x="86" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">password -&gt; password_hash</text>
+<text x="86" y="324" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">is_active : boolean</text>
+<text x="86" y="352" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Django auth fields (see mapping)</text>
+<rect x="1130" y="170" width="400" height="220" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="1130" y="170" width="400" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="1146" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">ACCOUNT</text>
+<text x="1146" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK account_id : UUID</text>
+<text x="1146" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK login_email : email</text>
+<text x="1146" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">password -&gt; password_hash</text>
+<text x="1146" y="324" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">is_active : boolean</text>
+<text x="1146" y="352" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Django auth fields (see mapping)</text>
+<rect x="610" y="550" width="430" height="290" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="610" y="550" width="430" height="42" rx="0" fill="#fff0cf" stroke="#64748b"/>
+<text x="626" y="578" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">AUDIT_EVENT</text>
+<text x="626" y="620" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK event_id : UUID</text>
+<text x="626" y="648" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK actor_account_id -&gt; ACCOUNT [nullable]</text>
+<text x="626" y="676" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK subject_account_id -&gt; ACCOUNT [nullable]</text>
+<text x="626" y="704" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK content_version_id -&gt; CONTENT_VERSION</text>
+<text x="626" y="732" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start"> [nullable]</text>
+<text x="626" y="760" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">event_type / occurred_at / minimal metadata</text>
+<rect x="610" y="1050" width="430" height="310" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="610" y="1050" width="430" height="42" rx="0" fill="#def2df" stroke="#64748b"/>
+<text x="626" y="1078" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">CONTENT_VERSION</text>
+<text x="626" y="1120" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK version_id : UUID</text>
+<text x="626" y="1148" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (item_id, kind) -&gt; CONTENT_ITEM</text>
+<text x="626" y="1176" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (item_id, version_no)</text>
+<text x="626" y="1204" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (version_id, kind)</text>
+<text x="626" y="1232" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK created_by -&gt; ACCOUNT</text>
+<text x="626" y="1260" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK published_by -&gt; ACCOUNT [nullable]</text>
+<text x="626" y="1288" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">REMOVE UK (item_id, kind) here</text>
+<text x="60" y="1510" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">Counts at an endpoint describe how many of that entity relate to one entity at the opposite end.</text>
+<text x="60" y="1540" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">1 = exactly one   |   0..1 = optional one   |   0..* = zero or many   |   IDs link to relationships.md</text>
+<text x="60" y="1570" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#162b40" text-anchor="start">PROPOSAL ONLY  /  Keys and relationships shown; full non-key attributes remain in the supplied PNG.</text>
+</svg>
