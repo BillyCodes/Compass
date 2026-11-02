@@ -8,6 +8,8 @@ from django.db.models import Max
 from django.utils import timezone
 
 from accounts.permissions import require_content_editor
+from auditing.models import AuditEvent
+from auditing.services import _record_event
 from skills.models import Skill
 from .models import (
     Company, ContentDetails, ContentItem, ContentKind, ContentRequirement,
@@ -243,6 +245,8 @@ def review_content_version(*, actor, version_id, expected_revision, decision, re
     )
     review.full_clean()
     review.save()
+    _record_event(event_type=AuditEvent.Type.CONTENT_REVIEWED, actor=actor, version=version,
+                  metadata={"decision": review.decision, "reviewed_revision": review.reviewed_revision})
     return review
 
 
@@ -268,6 +272,7 @@ def publish_content_version(*, actor, version_id, expected_revision):
             raise
         message = exc.__cause__.diag.message_primary
         raise ValidationError(message) from exc
+    _record_event(event_type=AuditEvent.Type.CONTENT_PUBLISHED, actor=actor, version=version)
     return version
 
 
@@ -279,6 +284,7 @@ def retire_content_version(*, actor, version_id):
         raise ValidationError("Only published versions can be retired.")
     version.status = ContentVersion.Status.RETIRED
     version.save(update_fields=["status"])
+    _record_event(event_type=AuditEvent.Type.CONTENT_RETIRED, actor=actor, version=version)
     return version
 
 

@@ -72,6 +72,9 @@ Companies, sources, details, requirements, and learning mappings are described i
 private course selections, independent approval, publication, and history guards.
 [The comparison batch](architecture/comparison-batch.md) adds private scoring
 snapshots, per-skill outcomes, and mandatory-gap-first learning recommendations.
+[The audit batch](architecture/audit-batch.md) completes the planned schema with
+transactional events and documents the one-year retention maintenance command;
+its daily schedule must be configured on deployment.
 See [ERD-to-Django mapping](architecture/erd-django-mapping.md) for the four models,
 Django field mappings, constraints, role boundaries, and deletion behavior.
 

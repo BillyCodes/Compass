@@ -6,7 +6,7 @@ from .models import Role
 
 def has_role(account, role_name):
     return bool(account.is_authenticated and account.is_active and
-                account.role_assignments.filter(role__role_name=role_name).exists())
+                account.role_assignments.filter(role__role_name=role_name, account__is_active=True).exists())
 
 
 def require_role_administrator(account):

@@ -7,7 +7,7 @@ Django account authentication first, followed by skill comparisons and recommend
 ## Current status
 
 The codebase has a conventional Django project (`config`) and
-feature apps (`core`, `accounts`, `skills`, `reference`, and `comparisons`). Django renders a minimal home page through
+feature apps (`core`, `accounts`, `skills`, `reference`, `comparisons`, and `auditing`). Django renders a minimal home page through
 shared templates. The original six-page HTML/CSS/JavaScript draft remains in
 `frontend/` for reference and can be replaced as the design develops.
 
@@ -21,7 +21,9 @@ The second reference batch adds companies, sources, source links, typed details,
 career/job requirements, and course/resource skill mappings. Reference review/publication services and private course selections are now
 implemented. Private comparisons, saved proficiency snapshots, skill outcomes, and
 ranked learning recommendations are now available through backend services.
-Audit events and new frontend management screens remain future work.
+Audit events now record supported role/account and reference-content actions
+transactionally, with administrator-only reads and one-year retention. All 21
+planned ERD tables are implemented; new frontend management screens remain future work.
 
 See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
 diagram's fields and relationships map to Django and PostgreSQL.
@@ -34,7 +36,8 @@ content-management screens are included yet. See
 [Review/publication batch](docs/architecture/review-publication-batch.md) for the
 new course selections, independent approvals, and publication/history guards.
 See [Comparison batch](docs/architecture/comparison-batch.md) for the agreed scoring,
-private history, and recommendation rules.
+private history, and recommendation rules. See [Audit batch](docs/architecture/audit-batch.md)
+for event coverage, access, one-year retention, and the maintenance command.
 
 ## Project structure
 
@@ -66,6 +69,8 @@ Compass/
 │   │   └── templates/accounts/
 │   ├── skills/                 Skill catalog, student proficiency, services/tests
 │   ├── reference/              Versioned reference data, draft services/tests
+│   ├── comparisons/            Private scoring, snapshots, recommendations
+│   ├── auditing/               Minimal event history and retention maintenance
 │   └── templates/              Shared base.html and includes/
 ├── frontend/                   Preserved standalone design draft
 ├── tests/                      Reserved for future cross-app workflows
@@ -122,15 +127,15 @@ container startup. This is a local development setup.
 From the repository root:
 
 ```sh
-.venv/bin/python src/backend/manage.py test core accounts skills reference comparisons
+.venv/bin/python src/backend/manage.py test core accounts skills reference comparisons auditing
 ```
 
 Or activate the environment, change into `src/backend`, and run
 `python manage.py test`. Explicit app labels from the repository root avoid
 missing tests beneath the non-package `src/` directory.
 
-The 177-test suite covers accounts/authentication, student skills, content
-versioning, comparisons, recommendation snapshots, typed foreign keys, ownership, and role controls on an isolated
+The 199-test suite covers accounts/authentication, student skills, content
+versioning, comparisons, recommendation snapshots, audit history/retention, typed foreign keys, ownership, and role controls on an isolated
 PostgreSQL test database. The foundation tests
 also check routing, shared templates, and static asset discovery. Keep Docker's
 database running when testing.

@@ -177,7 +177,8 @@ the PostgreSQL extension to see the new tables.
 ## Next section
 
 The [comparison batch](comparison-batch.md) now implements comparison results,
-skill input snapshots, per-skill outcomes, and recommendations. Audit events remain. The [comparison scoring rules](comparison-scoring.md)
+skill input snapshots, per-skill outcomes, and recommendations. The [audit batch](audit-batch.md) now records supported
+role/account and content lifecycle events. The [comparison scoring rules](comparison-scoring.md)
 now record the agreed score calculation, mandatory-skill semantics, and
 missing-input treatment for implementing comparison services. New forms
 and management screens can then call the tested backend services without bypassing

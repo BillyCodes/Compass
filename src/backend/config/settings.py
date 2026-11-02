@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "skills.apps.SkillsConfig",
     "reference.apps.ReferenceConfig",
     "comparisons.apps.ComparisonsConfig",
+    "auditing.apps.AuditingConfig",
 ]
 # Middleware wraps requests in this order and responses in reverse order.
 # Sessions must precede authentication so it can resolve a session's user.

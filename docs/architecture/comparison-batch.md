@@ -3,7 +3,7 @@
 Implemented November 1, 2026, using the [agreed scoring rules](comparison-scoring.md).
 The `comparisons` Django app owns calculations and private results. This batch
 adds backend services and four tables; no new routes, forms, or demo records.
-Audit events remain a later batch.
+The subsequent [audit batch](audit-batch.md) now implements audit events.
 
 ## ERD-to-Django mapping
 
@@ -151,6 +151,7 @@ comparison tables without seeding or publishing content.
 
 ## Remaining work
 
-The planned ERD now has 20 of 21 application tables. AUDIT_EVENT and D1–D3 remain.
+This batch brought the ERD to 20 of 21 application tables. The subsequent
+[audit batch](audit-batch.md) adds AUDIT_EVENT and D1–D3, completing all 21 tables.
 Frontend comparison/proficiency/review screens, representative seed content, and
 complete browser workflows remain separate work after database services.
