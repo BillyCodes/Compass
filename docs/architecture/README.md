@@ -9,6 +9,10 @@ The following [Reference data batch](reference-data-batch.md) adds companies, so
 details, requirements, and learning mappings.
 [Student courses and review/publication](review-publication-batch.md) now implement
 private course selections, independent approvals, publication, and frozen history.
+The [agreed comparison scoring rules](comparison-scoring.md) define the next
+batch's weighted score, mandatory statuses, and missing-input behavior.
+The [comparison batch](comparison-batch.md) implements these rules, private
+snapshots, per-skill outcomes, and ranked learning recommendations.
 
 The agreed PostgreSQL Compose setup, Django-template frontend direction, and
 Mockaroo data workflow are documented in [Team development setup](../development.md).
@@ -34,6 +38,7 @@ unchanged; the foundation note records the relationships implemented since then.
 | `src/backend/core/` | Public pages and shared site layout assets; not a home for unrelated business logic |
 | `src/backend/accounts/` | Email account, student profile, role models, authentication, and access checks |
 | `src/backend/skills/` | Skill catalog, 0–5 proficiency, private course selections, ownership-scoped services |
+| `src/backend/comparisons/` | Private comparisons, scoring rules, input/outcome snapshots, ranked recommendations |
 | `src/backend/reference/` | Typed reference data, reviews, authorized draft/publication services, lifecycle guards |
 | `src/backend/templates/` | Shared base template and header/footer includes |
 | `<app>/templates/<app>/` | Namespaced templates owned by a feature app |

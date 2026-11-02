@@ -7,7 +7,7 @@ Django account authentication first, followed by skill comparisons and recommend
 ## Current status
 
 The codebase has a conventional Django project (`config`) and
-feature apps (`core`, `accounts`, `skills`, and `reference`). Django renders a minimal home page through
+feature apps (`core`, `accounts`, `skills`, `reference`, and `comparisons`). Django renders a minimal home page through
 shared templates. The original six-page HTML/CSS/JavaScript draft remains in
 `frontend/` for reference and can be replaced as the design develops.
 
@@ -19,7 +19,9 @@ editing and admin screens remain future work. The next schema batch now adds
 skills, private student proficiency, and content item/version foundations.
 The second reference batch adds companies, sources, source links, typed details,
 career/job requirements, and course/resource skill mappings. Reference review/publication services and private course selections are now
-implemented. Comparisons and new frontend management screens remain future work.
+implemented. Private comparisons, saved proficiency snapshots, skill outcomes, and
+ranked learning recommendations are now available through backend services.
+Audit events and new frontend management screens remain future work.
 
 See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
 diagram's fields and relationships map to Django and PostgreSQL.
@@ -31,6 +33,8 @@ additional tables and related draft-edit services. No new skill-entry or
 content-management screens are included yet. See
 [Review/publication batch](docs/architecture/review-publication-batch.md) for the
 new course selections, independent approvals, and publication/history guards.
+See [Comparison batch](docs/architecture/comparison-batch.md) for the agreed scoring,
+private history, and recommendation rules.
 
 ## Project structure
 
@@ -118,15 +122,15 @@ container startup. This is a local development setup.
 From the repository root:
 
 ```sh
-.venv/bin/python src/backend/manage.py test core accounts skills reference
+.venv/bin/python src/backend/manage.py test core accounts skills reference comparisons
 ```
 
 Or activate the environment, change into `src/backend`, and run
 `python manage.py test`. Explicit app labels from the repository root avoid
 missing tests beneath the non-package `src/` directory.
 
-The 136-test suite covers accounts/authentication, student skills, content
-versioning, typed foreign keys, ownership, and role controls on an isolated
+The 177-test suite covers accounts/authentication, student skills, content
+versioning, comparisons, recommendation snapshots, typed foreign keys, ownership, and role controls on an isolated
 PostgreSQL test database. The foundation tests
 also check routing, shared templates, and static asset discovery. Keep Docker's
 database running when testing.

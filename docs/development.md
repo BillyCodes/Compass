@@ -70,6 +70,8 @@ Companies, sources, details, requirements, and learning mappings are described i
 [the second reference batch](architecture/reference-data-batch.md).
 [The review/publication batch](architecture/review-publication-batch.md) adds
 private course selections, independent approval, publication, and history guards.
+[The comparison batch](architecture/comparison-batch.md) adds private scoring
+snapshots, per-skill outcomes, and mandatory-gap-first learning recommendations.
 See [ERD-to-Django mapping](architecture/erd-django-mapping.md) for the four models,
 Django field mappings, constraints, role boundaries, and deletion behavior.
 

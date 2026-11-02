@@ -7,7 +7,8 @@ models, migration history, existing data, or application behavior.
 
 Implementation update: the following [foundation batch](skills-reference-foundation.md)
 and subsequent reference/review batches now implement all A1–A8 and R1–R13
-relationships. Comparison/audit links C1–C9 and D1–D3 remain future work.
+relationships. The [comparison batch](comparison-batch.md) now implements C1–C9.
+Audit links D1–D3 remain future work.
 The approved proficiency scale is 0–5. The original review diagrams/catalog retain
 their proposal-snapshot labels; consult the foundation note for current coverage.
 
