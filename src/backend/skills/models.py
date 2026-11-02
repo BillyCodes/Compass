@@ -53,3 +53,19 @@ class StudentSkill(models.Model):
                 name="student_skill_level_0_5",
             ),
         ]
+
+
+class StudentCourse(models.Model):
+    """A selected course identity, not enrollment history or verified mastery."""
+    selection_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="course_selections")
+    course_item = models.ForeignKey("reference.ContentItem", on_delete=models.PROTECT, related_name="student_selections")
+    course_kind = models.CharField(max_length=10, default="course", editable=False)
+    selected_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "student_course"
+        constraints = [
+            models.UniqueConstraint(fields=["student", "course_item"], name="student_course_unique"),
+            models.CheckConstraint(condition=models.Q(course_kind="course"), name="student_course_kind_fixed"),
+        ]

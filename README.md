@@ -18,8 +18,8 @@ accounts are created through an interactive command; public registration, profil
 editing and admin screens remain future work. The next schema batch now adds
 skills, private student proficiency, and content item/version foundations.
 The second reference batch adds companies, sources, source links, typed details,
-career/job requirements, and course/resource skill mappings. Comparisons and
-reference publication remain future work.
+career/job requirements, and course/resource skill mappings. Reference review/publication services and private course selections are now
+implemented. Comparisons and new frontend management screens remain future work.
 
 See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
 diagram's fields and relationships map to Django and PostgreSQL.
@@ -28,7 +28,9 @@ See [Skills and reference-content foundation](docs/architecture/skills-reference
 for the new tables, 0–5 proficiency scale, typed foreign key, and draft services.
 See [Reference data batch](docs/architecture/reference-data-batch.md) for the six
 additional tables and related draft-edit services. No new skill-entry or
-content-management screens are included yet.
+content-management screens are included yet. See
+[Review/publication batch](docs/architecture/review-publication-batch.md) for the
+new course selections, independent approvals, and publication/history guards.
 
 ## Project structure
 
@@ -123,7 +125,7 @@ Or activate the environment, change into `src/backend`, and run
 `python manage.py test`. Explicit app labels from the repository root avoid
 missing tests beneath the non-package `src/` directory.
 
-The 92-test suite covers accounts/authentication, student skills, content
+The 136-test suite covers accounts/authentication, student skills, content
 versioning, typed foreign keys, ownership, and role controls on an isolated
 PostgreSQL test database. The foundation tests
 also check routing, shared templates, and static asset discovery. Keep Docker's

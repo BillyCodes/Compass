@@ -1,15 +1,17 @@
 """Authorized draft creation/editing; publication awaits the review milestone."""
+from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Max
+from django.utils import timezone
 
 from accounts.permissions import require_content_editor
 from skills.models import Skill
 from .models import (
     Company, ContentDetails, ContentItem, ContentKind, ContentRequirement,
-    ContentSkill, ContentSource, ContentVersion, ReferenceSource,
+    ContentReview, ContentSkill, ContentSource, ContentVersion, ReferenceSource,
 )
 
 
@@ -66,8 +68,9 @@ def _lock_draft(actor, version_id, expected_revision):
 
 
 def _touch_revision(version):
-    version.draft_revision += 1
-    version.save(update_fields=["draft_revision"])
+    # Child/shared-reference triggers advance the revision in the same transaction.
+    # Refresh rather than incrementing again in Python.
+    version.refresh_from_db(fields=["draft_revision"])
 
 
 def _text(value, field):
@@ -223,3 +226,65 @@ def remove_skill_mapping(*, actor, version_id, skill_id, expected_revision):
 @transaction.atomic
 def clear_content_details(*, actor, version_id, expected_revision):
     return _remove_draft_link(actor,version_id,expected_revision,ContentDetails)
+
+
+@transaction.atomic
+def review_content_version(*, actor, version_id, expected_revision, decision, review_note=""):
+    version = _lock_draft(actor, version_id, expected_revision)
+    if actor.pk == version.created_by_id:
+        raise ValidationError("The draft author cannot review their own content.")
+    latest = version.reviews.filter(reviewed_revision=version.draft_revision).order_by("-reviewed_at", "-review_id").first()
+    reviewed_at = timezone.now()
+    if latest is not None:
+        reviewed_at = max(reviewed_at, latest.reviewed_at + timedelta(microseconds=1))
+    review = ContentReview(
+        version=version, reviewer=actor, reviewed_revision=version.draft_revision,
+        decision=decision, review_note=_text(review_note,"review_note"), reviewed_at=reviewed_at,
+    )
+    review.full_clean()
+    review.save()
+    return review
+
+
+@transaction.atomic
+def publish_content_version(*, actor, version_id, expected_revision):
+    version = _lock_draft(actor, version_id, expected_revision)
+    # Revalidate application-level fields (notably complete URL syntax) as well
+    # as the database's relationship/completeness guards.
+    details = ContentDetails.objects.filter(version=version).first()
+    if details is not None:
+        details.full_clean()
+    version.status = ContentVersion.Status.PUBLISHED
+    version.published_by = actor
+    version.published_at = timezone.now()
+    version.full_clean()
+    # The database trigger is the single publication-policy validator, including
+    # current independent approval, sources, and type-specific completeness.
+    try:
+        with transaction.atomic():
+            version.save(update_fields=["status", "published_by", "published_at"])
+    except IntegrityError as exc:
+        if getattr(exc.__cause__, "sqlstate", None) != "23514":
+            raise
+        message = exc.__cause__.diag.message_primary
+        raise ValidationError(message) from exc
+    return version
+
+
+@transaction.atomic
+def retire_content_version(*, actor, version_id):
+    require_content_editor(actor)
+    version = ContentVersion.objects.select_for_update().get(pk=version_id)
+    if version.status != ContentVersion.Status.PUBLISHED:
+        raise ValidationError("Only published versions can be retired.")
+    version.status = ContentVersion.Status.RETIRED
+    version.save(update_fields=["status"])
+    return version
+
+
+def available_content_versions(*, kind=None):
+    versions = ContentVersion.objects.filter(status=ContentVersion.Status.PUBLISHED, item__retired_at__isnull=True)
+    versions = versions.exclude(details__expires_at__lte=timezone.now())
+    if kind is not None:
+        versions = versions.filter(kind=kind)
+    return versions

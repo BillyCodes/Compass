@@ -4,7 +4,7 @@ from django.db import transaction
 
 from accounts.models import Role, Student
 from accounts.permissions import has_role, require_content_editor
-from .models import Skill, StudentSkill
+from .models import Skill, StudentCourse, StudentSkill
 
 
 def _owned_student(actor):
@@ -59,3 +59,30 @@ def retire_skill(*, actor, skill_id):
     skill.status = Skill.Status.RETIRED
     skill.save(update_fields=["status"])
     return skill
+
+
+@transaction.atomic
+def select_student_course(*, actor, course_item_id):
+    from reference.models import ContentItem, ContentKind, ContentVersion
+    student = _owned_student(actor)
+    item = ContentItem.objects.select_for_update().get(pk=course_item_id)
+    if item.kind != ContentKind.COURSE or item.retired_at is not None:
+        raise ValidationError("Choose an available course.")
+    if not ContentVersion.objects.filter(item=item, status=ContentVersion.Status.PUBLISHED).exists():
+        raise ValidationError("This course has no available published version.")
+    record = StudentCourse.objects.filter(student=student, course_item=item).first()
+    if record is None:
+        record = StudentCourse(student=student, course_item=item)
+        record.full_clean()
+        record.save()
+    return record
+
+
+def list_student_courses(*, actor):
+    return StudentCourse.objects.filter(student=_owned_student(actor)).select_related("course_item")
+
+
+@transaction.atomic
+def remove_student_course(*, actor, course_item_id):
+    deleted, _ = StudentCourse.objects.filter(student=_owned_student(actor), course_item_id=course_item_id).delete()
+    return bool(deleted)

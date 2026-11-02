@@ -21,6 +21,7 @@ from reference.services import (
     set_requirement, set_skill_mapping,
 )
 from skills.models import Skill
+from reference.tests.factories import publish_complete_version
 
 
 class ReferenceDataTests(TestCase):
@@ -232,7 +233,7 @@ class ReferenceDataTests(TestCase):
     def test_published_versions_block_all_related_edit_and_remove_services(self):
         for kind in self.versions:
             row = self.versions[kind]
-            ContentVersion.objects.filter(pk=row.pk).update(status="published", published_by=self.editor, published_at=timezone.now())
+            publish_complete_version(row,self.editor,self.admin)
         operations = [self.attach, self.requirement, self.mapping, self.details,
                       lambda: detach_source(actor=self.editor, version_id=self.versions["career"].pk, source_id=self.source.pk, expected_revision=1),
                       lambda: remove_requirement(actor=self.editor, version_id=self.versions["career"].pk, skill_id=self.skill.pk, expected_revision=1),

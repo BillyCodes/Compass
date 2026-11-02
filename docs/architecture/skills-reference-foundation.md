@@ -113,9 +113,9 @@ positive version/revision numbers, and requires paired publisher/timestamp value
 and attribution for a published status. The exposed services create/edit drafts
 only. **Publication is not implemented or authorized by those metadata checks.**
 
-Source/requirement/detail/coverage models now exist in the second batch. Review
-approval, publication validation, published-content immutability across all write
-paths, and retirement workflows remain subsequent milestones. Direct ORM/SQL access
+Source/requirement/detail/coverage models exist in the second batch. The
+[review/publication batch](review-publication-batch.md) now implements approvals,
+publication validation, retirement, and ordinary-row published-history guards. Direct ORM/SQL access
 is trusted developer access; do not use it to simulate an approved publication.
 No public reference browsing or publication API is introduced here.
 

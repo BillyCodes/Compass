@@ -206,3 +206,26 @@ class ContentDetails(VersionKindValidationMixin):
             models.CheckConstraint(condition=(models.Q(cost_amount__isnull=True) | models.Q(cost_amount__gte=0, cost_amount__lte=Decimal("9999999999.99"))), name="details_cost_finite_nonnegative"),
             models.CheckConstraint(condition=(models.Q(cost_amount__isnull=True,currency="") | models.Q(cost_amount__isnull=False,currency__regex=r"^[A-Z]{3}$")), name="details_price_currency_paired"),
         ]
+
+
+class ContentReview(models.Model):
+    """Append-only review of one exact draft revision; edits require a new review."""
+    class Decision(models.TextChoices):
+        APPROVED = "approved", "Approved"
+        CHANGES_REQUESTED = "changes_requested", "Changes requested"
+
+    review_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    version = models.ForeignKey(ContentVersion, on_delete=models.PROTECT, related_name="reviews")
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="content_reviews")
+    reviewed_revision = models.PositiveIntegerField()
+    decision = models.CharField(max_length=20, choices=Decision.choices)
+    reviewed_at = models.DateTimeField(default=timezone.now)
+    review_note = models.TextField(blank=True)
+
+    class Meta:
+        db_table = "content_review"
+        indexes = [models.Index(fields=["version", "reviewed_revision", "-reviewed_at"], name="review_current_revision_idx")]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(reviewed_revision__gte=1), name="review_revision_positive"),
+            models.CheckConstraint(condition=models.Q(decision__in=["approved", "changes_requested"]), name="review_decision_allowed"),
+        ]

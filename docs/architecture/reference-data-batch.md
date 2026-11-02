@@ -4,6 +4,10 @@ Implemented November 1, 2026 as the second reference database batch. This extend
 [the skills/item/version foundation](skills-reference-foundation.md) with six
 reference tables. It does not add publication, comparison scoring, or new screens.
 
+Update: [the review/publication batch](review-publication-batch.md) now adds the
+next lifecycle protections. This document retains the second batch's original
+scope and verification count.
+
 ## Tables and ERD mappings
 
 | Table | Django model | Relationship and purpose |
@@ -97,8 +101,7 @@ within the same transaction after a successful change. A stale or invalid input
 leaves rows and revision unchanged. No-op attachment/removal does not bump the
 revision. Requirements and learning mappings also reject retired skills.
 
-This revision policy prepares for exact-draft approval invalidation. **It does not
-implement review or publication approval yet.** Existing foundation text edits
+This revision policy prepares for exact-draft approval invalidation. **The following batch now implements review and publication approval.** Existing foundation text edits
 now use the same draft guard. There are no new HTTP endpoints, admin registrations,
 or unguarded publication services in this batch.
 
@@ -110,9 +113,9 @@ before deliberate cleanup; shared reference rows are not cascade-deleted with a
 student. Published/retired versions cannot be changed by these services.
 
 Direct ORM/SQL access is trusted developer access. Database constraints enforce
-relational integrity, type applicability, bounds, and uniqueness; they do not yet
-freeze all published history or enforce review approval. The later publication
-milestone must address all write paths, including shared source/company metadata.
+relational integrity, type applicability, bounds, and uniqueness; the following publication batch now guards ordinary row writes, including
+shared source/company metadata. See its documented boundaries for privileged
+database administration and full URL validation.
 
 ## Migrations and testing
 

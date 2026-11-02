@@ -30,3 +30,13 @@ Raw Mockaroo JSON is not automatically a Django fixture. A fixture or importer
 must use the agreed model/field structure. Keep raw exports and mapping metadata
 distinct when those files are added. No real student records or credentials belong
 in these datasets, and no automatic seeding runs when Compose starts.
+
+
+## Published reference data
+
+The review/publication batch freezes sources/company metadata used by published
+versions and requires independent review of the exact draft revision. Do not
+upsert over published rows or their shared references. Import new/corrected
+reference rows and successor draft versions instead, then use the authorized
+review/publication services. Migrations/imports do not automatically create a
+reviewer, approve content, or grant publication roles.

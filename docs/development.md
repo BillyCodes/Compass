@@ -68,6 +68,8 @@ Skills and typed content-item/version models are now also available; see the
 [foundation implementation note](architecture/skills-reference-foundation.md).
 Companies, sources, details, requirements, and learning mappings are described in
 [the second reference batch](architecture/reference-data-batch.md).
+[The review/publication batch](architecture/review-publication-batch.md) adds
+private course selections, independent approval, publication, and history guards.
 See [ERD-to-Django mapping](architecture/erd-django-mapping.md) for the four models,
 Django field mappings, constraints, role boundaries, and deletion behavior.
 

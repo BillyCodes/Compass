@@ -9,6 +9,7 @@ from django.utils import timezone
 from accounts.models import Account, AccountRole, Role
 from reference.models import ContentItem, ContentKind, ContentVersion
 from reference.services import create_content_item, create_draft_version, update_draft_version
+from reference.tests.factories import publish_complete_version
 
 
 class ReferenceTests(TestCase):
@@ -16,6 +17,8 @@ class ReferenceTests(TestCase):
     def setUpTestData(cls):
         cls.editor=Account.objects.create_user("reference.editor@example.test")
         cls.student=Account.objects.create_user("reference.student@example.test")
+        cls.reviewer=Account.objects.create_user("reference.reviewer@example.test")
+        AccountRole.objects.create(account=cls.reviewer,role=Role.objects.get(role_name="maintainer"))
         cls.admin=Account.objects.create_user("reference.admin@example.test")
         AccountRole.objects.create(account=cls.editor,role=Role.objects.get(role_name="maintainer"))
         AccountRole.objects.create(account=cls.student,role=Role.objects.get(role_name="student"))
@@ -122,11 +125,7 @@ class ReferenceTests(TestCase):
 
     def test_draft_service_cannot_edit_non_draft_content(self):
         row=self.draft()
-        # Fixture simulates a later publication workflow; no publication route exists.
-        row.status="published"
-        row.published_by=self.editor
-        row.published_at=timezone.now()
-        row.save()
+        row=publish_complete_version(row,self.editor,self.reviewer)
         with self.assertRaises(ValidationError):
             update_draft_version(actor=self.editor,version_id=row.pk,expected_revision=1,title="Forbidden",body="Forbidden")
 
