@@ -3,11 +3,33 @@
 Foundation established on `django-structure`, October 28, 2026. This branch contains
 project wiring, a placeholder home page, and the first account/authentication
 milestone. See [ERD-to-Django mapping](erd-django-mapping.md) for the implemented
-Account, Student, Role, and AccountRole models.
+Account, Student, Role, and AccountRole models. The next implemented batch is
+documented in [Skills and reference-content foundation](skills-reference-foundation.md).
+The following [Reference data batch](reference-data-batch.md) adds companies, sources,
+details, requirements, and learning mappings.
+[Student courses and review/publication](review-publication-batch.md) now implement
+private course selections, independent approvals, publication, and frozen history.
+The [agreed comparison scoring rules](comparison-scoring.md) define the next
+batch's weighted score, mandatory statuses, and missing-input behavior.
+The [comparison batch](comparison-batch.md) implements these rules, private
+snapshots, per-skill outcomes, and ranked learning recommendations.
+The [audit batch](audit-batch.md) completes the 21-table ERD with minimal
+transactional events, administrator-only reads, and one-year retention.
 
 The agreed PostgreSQL Compose setup, Django-template frontend direction, and
 Mockaroo data workflow are documented in [Team development setup](../development.md).
 Django now connects to the Compose database using the root `.env` settings.
+
+## ERD draft and relationship review
+
+The supplied [full-attribute ERD](<Compass ERD Final Draft.png>) is reviewed in
+[ERD relationship review](erd-relationship-review.md). The review compares it with
+the implemented accounts and proposes corrections for the remaining sections.
+The [editable draw.io relationship views](<Compass ERD Relationships.drawio>) and
+[33-link catalog with SVG previews](erd-relations/relationships.md) complete the
+relationship inventory for team review. They are design proposals, not new models
+or applied migrations in that review snapshot. The original image is preserved
+unchanged; the foundation note records the relationships implemented since then.
 
 ## Responsibilities and locations
 
@@ -17,6 +39,10 @@ Django now connects to the Compose database using the root `.env` settings.
 | `src/backend/config/` | Project settings, root URL composition, WSGI/ASGI entry points |
 | `src/backend/core/` | Public pages and shared site layout assets; not a home for unrelated business logic |
 | `src/backend/accounts/` | Email account, student profile, role models, authentication, and access checks |
+| `src/backend/skills/` | Skill catalog, 0–5 proficiency, private course selections, ownership-scoped services |
+| `src/backend/auditing/` | Minimal transactional event history, administrator reads, one-year retention maintenance |
+| `src/backend/comparisons/` | Private comparisons, scoring rules, input/outcome snapshots, ranked recommendations |
+| `src/backend/reference/` | Typed reference data, reviews, authorized draft/publication services, lifecycle guards |
 | `src/backend/templates/` | Shared base template and header/footer includes |
 | `<app>/templates/<app>/` | Namespaced templates owned by a feature app |
 | `<app>/static/<app>/` | Namespaced CSS, JS, and images owned by that app |
@@ -35,7 +61,8 @@ migrations now live in `accounts/migrations/`.
 `config/urls.py` includes an app's URL configuration. The app maps a named route
 to a view. The view handles the request and renders a template or returns data.
 Templates extend the shared `base.html`; account models now provide persistence
-for the first ERD section.
+for the account section. Skills and content item/version models now extend
+that foundation without introducing new frontend routes.
 
 The public home route is `core:home`. `accounts/urls.py` provides email login,
 POST-only logout, and private profile reads. `/admin/` is still not exposed;
@@ -80,7 +107,7 @@ From the repository root:
 
 ```sh
 .venv/bin/python src/backend/manage.py check
-.venv/bin/python src/backend/manage.py test core accounts
+.venv/bin/python src/backend/manage.py test core accounts skills reference
 ```
 
 Alternatively, activate the environment, change into `src/backend`, and run

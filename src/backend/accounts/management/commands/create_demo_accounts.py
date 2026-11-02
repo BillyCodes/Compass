@@ -8,6 +8,8 @@ from django.db import transaction
 
 from accounts.models import Account, AccountRole, Role
 from accounts.services import create_student
+from auditing.models import AuditEvent
+from auditing.services import _record_event
 
 
 class Command(BaseCommand):
@@ -30,5 +32,6 @@ class Command(BaseCommand):
         create_student(email=emails[1], password=password, display_name="Sample Student B")
         maintainer = Account.objects.create_user(emails[2], password)
         AccountRole.objects.create(account=maintainer, role=Role.objects.get(role_name="maintainer"))
+        _record_event(event_type=AuditEvent.Type.ROLE_ASSIGNED, subject=maintainer, metadata={"role_name": "maintainer"})
         self.stdout.write(self.style.SUCCESS("Created synthetic accounts: " + ", ".join(emails)))
         self.stdout.write("No staff, superuser, or administrator privileges were granted.")

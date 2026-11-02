@@ -1,4 +1,4 @@
-"""Compass settings for email authentication and the first PostgreSQL ERD section."""
+"""Compass settings for accounts, student skills, and reference-content foundations."""
 import os
 from pathlib import Path
 from secrets import token_urlsafe
@@ -35,6 +35,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
+    "skills.apps.SkillsConfig",
+    "reference.apps.ReferenceConfig",
+    "comparisons.apps.ComparisonsConfig",
+    "auditing.apps.AuditingConfig",
 ]
 # Middleware wraps requests in this order and responses in reverse order.
 # Sessions must precede authentication so it can resolve a session's user.

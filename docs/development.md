@@ -63,7 +63,18 @@ Django now connects to PostgreSQL using Psycopg 3 and the root `.env` settings.
 Host-run Django uses `POSTGRES_HOST=127.0.0.1` (the default) and `POSTGRES_PORT`.
 If Django is later containerized, its host would be `db` and port `5432` instead.
 
-The custom email-login account model is configured before the initial migration.
+The custom email-login account model was configured before its initial migration.
+Skills and typed content-item/version models are now also available; see the
+[foundation implementation note](architecture/skills-reference-foundation.md).
+Companies, sources, details, requirements, and learning mappings are described in
+[the second reference batch](architecture/reference-data-batch.md).
+[The review/publication batch](architecture/review-publication-batch.md) adds
+private course selections, independent approval, publication, and history guards.
+[The comparison batch](architecture/comparison-batch.md) adds private scoring
+snapshots, per-skill outcomes, and mandatory-gap-first learning recommendations.
+[The audit batch](architecture/audit-batch.md) completes the planned schema with
+transactional events and documents the one-year retention maintenance command;
+its daily schedule must be configured on deployment.
 See [ERD-to-Django mapping](architecture/erd-django-mapping.md) for the four models,
 Django field mappings, constraints, role boundaries, and deletion behavior.
 
@@ -102,7 +113,7 @@ startup. Only Django migrations define the application schema.
 Run the PostgreSQL-backed suite with:
 
 ```sh
-.venv/bin/python src/backend/manage.py test core accounts
+.venv/bin/python src/backend/manage.py test core accounts skills reference
 ```
 
 Django creates and destroys an isolated `test_compass` database (or `test_` plus

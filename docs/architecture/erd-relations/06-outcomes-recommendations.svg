@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" role="img">
+<title>Requirement outcomes and recommended resources</title><desc>An outcome must reference a requirement for the same target version as its match. C7 is logically redundant.</desc>
+<rect width="1600" height="1600" fill="#f8fafc"/>
+<text x="60" y="57" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#52677a" text-anchor="start">COMPASS  /  RELATIONSHIP REVIEW</text>
+<text x="60" y="105" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#162b40" text-anchor="start">Requirement outcomes and recommended resources</text>
+<text x="60" y="140" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">An outcome must reference a requirement for the same target version as its match. C7 is logically redundant.</text>
+<polyline points="520,250 740,250 740,700" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="524" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="550" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="744" y="653" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="770" y="672" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="716" y="542" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="740" y="562" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C5</text>
+<polyline points="1130,250 930,250 930,700" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="1074" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1100" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="934" y="653" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="960" y="672" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="906" y="542" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="930" y="562" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C6</text>
+<polyline points="1130,770 1040,770" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="1074" y="737" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1100" y="756" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="1044" y="781" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1070" y="800" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="1061" y="700" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="1085" y="720" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C7</text>
+<polyline points="295,480 295,1150" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="299" y="493" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="325" y="512" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="299" y="1103" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="325" y="1122" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="306" y="972" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="330" y="992" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C8</text>
+<polyline points="1030,1230 570,1230" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="974" y="1197" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1000" y="1216" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="574" y="1197" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="600" y="1216" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="776" y="1187" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="800" y="1207" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C9</text>
+<rect x="70" y="170" width="450" height="310" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="70" y="170" width="450" height="42" rx="0" fill="#fff0cf" stroke="#64748b"/>
+<text x="86" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">MATCH_RESULT</text>
+<text x="86" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK match_id : UUID</text>
+<text x="86" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK student_id -&gt; STUDENT</text>
+<text x="86" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (target_version_id, target_kind)</text>
+<text x="86" y="324" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start"> -&gt; CONTENT_VERSION(version_id, kind)</text>
+<text x="86" y="352" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (match_id, target_version_id)</text>
+<text x="86" y="380" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">alg_version : required, reproducible</text>
+<text x="86" y="408" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">score / mandatory result / timestamp</text>
+<rect x="1130" y="170" width="400" height="250" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="1130" y="170" width="400" height="42" rx="0" fill="#def2df" stroke="#64748b"/>
+<text x="1146" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">CONTENT_REQUIREMENT</text>
+<text x="1146" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">KEY (version_id, skill_id)</text>
+<text x="1146" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (version_id, kind) -&gt; CONTENT_VERSION</text>
+<text x="1146" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK skill_id -&gt; SKILL</text>
+<text x="1146" y="324" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">CHECK kind IN (&#x27;career&#x27;, &#x27;job&#x27;)</text>
+<text x="1146" y="352" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">required_level / mandatory / weight</text>
+<rect x="1130" y="700" width="400" height="180" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="1130" y="700" width="400" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="1146" y="728" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">SKILL</text>
+<text x="1146" y="770" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK skill_id : UUID</text>
+<text x="1146" y="798" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK skill_name</text>
+<text x="1146" y="826" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">status : active / retired</text>
+<rect x="610" y="700" width="430" height="290" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="610" y="700" width="430" height="42" rx="0" fill="#fff0cf" stroke="#64748b"/>
+<text x="626" y="728" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">MATCH_SKILL_RESULT</text>
+<text x="626" y="770" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">KEY (match_id, skill_id)</text>
+<text x="626" y="798" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (match_id, target_version_id)</text>
+<text x="626" y="826" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start"> -&gt; MATCH_RESULT</text>
+<text x="626" y="854" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (target_version_id, skill_id)</text>
+<text x="626" y="882" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start"> -&gt; CONTENT_REQUIREMENT</text>
+<text x="626" y="910" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK skill_id -&gt; SKILL [redundant link]</text>
+<rect x="70" y="1150" width="500" height="290" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="70" y="1150" width="500" height="42" rx="0" fill="#fff0cf" stroke="#64748b"/>
+<text x="86" y="1178" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">RECOMMENDATION</text>
+<text x="86" y="1220" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK recommendation_id : UUID</text>
+<text x="86" y="1248" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK match_id -&gt; MATCH_RESULT</text>
+<text x="86" y="1276" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (resource_version_id, resource_kind)</text>
+<text x="86" y="1304" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start"> -&gt; CONTENT_VERSION(version_id, kind)</text>
+<text x="86" y="1332" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (match_id, resource_version_id)</text>
+<text x="86" y="1360" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">CHECK kind IN (&#x27;course&#x27;, &#x27;resource&#x27;)</text>
+<rect x="1030" y="1150" width="500" height="310" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="1030" y="1150" width="500" height="42" rx="0" fill="#def2df" stroke="#64748b"/>
+<text x="1046" y="1178" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">CONTENT_VERSION</text>
+<text x="1046" y="1220" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK version_id : UUID</text>
+<text x="1046" y="1248" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (item_id, kind) -&gt; CONTENT_ITEM</text>
+<text x="1046" y="1276" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (item_id, version_no)</text>
+<text x="1046" y="1304" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (version_id, kind)</text>
+<text x="1046" y="1332" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK created_by -&gt; ACCOUNT</text>
+<text x="1046" y="1360" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK published_by -&gt; ACCOUNT [nullable]</text>
+<text x="1046" y="1388" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">REMOVE UK (item_id, kind) here</text>
+<text x="60" y="1510" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">Counts at an endpoint describe how many of that entity relate to one entity at the opposite end.</text>
+<text x="60" y="1540" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">1 = exactly one   |   0..1 = optional one   |   0..* = zero or many   |   IDs link to relationships.md</text>
+<text x="60" y="1570" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#162b40" text-anchor="start">PROPOSAL ONLY  /  Keys and relationships shown; full non-key attributes remain in the supplied PNG.</text>
+</svg>

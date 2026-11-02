@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" role="img">
+<title>Accounts, profiles, and roles</title><desc>A1-A4 match the implemented Django relationships. Application tables only.</desc>
+<rect width="1600" height="1600" fill="#f8fafc"/>
+<text x="60" y="57" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#52677a" text-anchor="start">COMPASS  /  RELATIONSHIP REVIEW</text>
+<text x="60" y="105" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#162b40" text-anchor="start">Accounts, profiles, and roles</text>
+<text x="60" y="140" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">A1-A4 match the implemented Django relationships. Application tables only.</text>
+<polyline points="430,250 850,250" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="434" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="460" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">1</text>
+<rect x="794" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="820" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..*</text>
+<rect x="596" y="207" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="620" y="227" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A3</text>
+<polyline points="520,700 650,700 650,290 850,290" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="524" y="667" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="550" y="686" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">1</text>
+<rect x="794" y="257" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="820" y="276" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..*</text>
+<rect x="626" y="462" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="650" y="482" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A2</text>
+<polyline points="300,650 300,520 1500,520 1500,330 1420,330" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="304" y="603" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="330" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..1</text>
+<rect x="1424" y="297" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1450" y="316" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..*</text>
+<rect x="1086" y="502" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="1110" y="522" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A4</text>
+<polyline points="520,780 850,780" fill="none" stroke="#356b9a" stroke-width="2.5"/>
+<rect x="524" y="747" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="550" y="766" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">1</text>
+<rect x="794" y="747" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="820" y="766" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">0..1</text>
+<rect x="656" y="737" width="48" height="26" rx="4" fill="#ffffff" stroke="#356b9a"/>
+<text x="680" y="757" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#356b9a" text-anchor="middle">A1</text>
+<rect x="80" y="180" width="350" height="150" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="80" y="180" width="350" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="96" y="208" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">ROLE</text>
+<text x="96" y="250" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK role_id : UUID</text>
+<text x="96" y="278" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK role_name : allowed role</text>
+<rect x="80" y="650" width="440" height="220" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="80" y="650" width="440" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="96" y="678" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">ACCOUNT</text>
+<text x="96" y="720" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK account_id : UUID</text>
+<text x="96" y="748" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK login_email : email</text>
+<text x="96" y="776" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">password -&gt; password_hash</text>
+<text x="96" y="804" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">is_active : boolean</text>
+<text x="96" y="832" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Django auth fields (see mapping)</text>
+<rect x="850" y="180" width="570" height="240" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="850" y="180" width="570" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="866" y="208" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">ACCOUNT_ROLE</text>
+<text x="866" y="250" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK assignment_id : UUID [implemented]</text>
+<text x="866" y="278" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (account_id, role_id)</text>
+<text x="866" y="306" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK account_id -&gt; ACCOUNT [recipient]</text>
+<text x="866" y="334" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK role_id -&gt; ROLE</text>
+<text x="866" y="362" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK assigned_by -&gt; ACCOUNT [nullable]</text>
+<rect x="850" y="650" width="570" height="180" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="850" y="650" width="570" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="866" y="678" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">STUDENT</text>
+<text x="866" y="720" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK student_id : UUID</text>
+<text x="866" y="748" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK/FK account_id -&gt; ACCOUNT</text>
+<text x="866" y="776" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Each student has one account</text>
+<text x="60" y="1510" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">Counts at an endpoint describe how many of that entity relate to one entity at the opposite end.</text>
+<text x="60" y="1540" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">1 = exactly one   |   0..1 = optional one   |   0..* = zero or many   |   IDs link to relationships.md</text>
+<text x="60" y="1570" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#162b40" text-anchor="start">PROPOSAL ONLY  /  Keys and relationships shown; full non-key attributes remain in the supplied PNG.</text>
+</svg>

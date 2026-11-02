@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" role="img">
+<title>Comparison ownership, target, and input snapshot</title><desc>Pin the exact published career/job version. Snapshot inputs do not reference mutable STUDENT_SKILL rows.</desc>
+<rect width="1600" height="1600" fill="#f8fafc"/>
+<text x="60" y="57" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#52677a" text-anchor="start">COMPASS  /  RELATIONSHIP REVIEW</text>
+<text x="60" y="105" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#162b40" text-anchor="start">Comparison ownership, target, and input snapshot</text>
+<text x="60" y="140" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Pin the exact published career/job version. Snapshot inputs do not reference mutable STUDENT_SKILL rows.</text>
+<polyline points="470,250 760,250 760,550" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="474" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="500" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="764" y="503" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="790" y="522" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="596" y="207" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="620" y="227" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C1</text>
+<polyline points="1130,250 900,250 900,550" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="1074" y="217" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="1100" y="236" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="904" y="503" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="930" y="522" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="876" y="432" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="900" y="452" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C2</text>
+<polyline points="825,860 825,1100" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="829" y="873" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="855" y="892" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="829" y="1053" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="855" y="1072" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="836" y="962" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="860" y="982" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C3</text>
+<polyline points="470,1180 610,1180" fill="none" stroke="#b56b15" stroke-width="2.5"/>
+<rect x="474" y="1147" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="500" y="1166" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">1</text>
+<rect x="554" y="1191" width="52" height="25" rx="3" fill="#f8fafc" stroke="#f8fafc"/>
+<text x="580" y="1210" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">0..*</text>
+<rect x="516" y="1110" width="48" height="26" rx="4" fill="#ffffff" stroke="#b56b15"/>
+<text x="540" y="1130" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#b56b15" text-anchor="middle">C4</text>
+<rect x="70" y="170" width="400" height="180" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="70" y="170" width="400" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="86" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">STUDENT</text>
+<text x="86" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK student_id : UUID</text>
+<text x="86" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK/FK account_id -&gt; ACCOUNT</text>
+<text x="86" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">Each student has one account</text>
+<rect x="1130" y="170" width="400" height="310" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="1130" y="170" width="400" height="42" rx="0" fill="#def2df" stroke="#64748b"/>
+<text x="1146" y="198" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">CONTENT_VERSION</text>
+<text x="1146" y="240" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK version_id : UUID</text>
+<text x="1146" y="268" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (item_id, kind) -&gt; CONTENT_ITEM</text>
+<text x="1146" y="296" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (item_id, version_no)</text>
+<text x="1146" y="324" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (version_id, kind)</text>
+<text x="1146" y="352" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK created_by -&gt; ACCOUNT</text>
+<text x="1146" y="380" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK published_by -&gt; ACCOUNT [nullable]</text>
+<text x="1146" y="408" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">REMOVE UK (item_id, kind) here</text>
+<rect x="610" y="550" width="430" height="310" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="610" y="550" width="430" height="42" rx="0" fill="#fff0cf" stroke="#64748b"/>
+<text x="626" y="578" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">MATCH_RESULT</text>
+<text x="626" y="620" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK match_id : UUID</text>
+<text x="626" y="648" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK student_id -&gt; STUDENT</text>
+<text x="626" y="676" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK (target_version_id, target_kind)</text>
+<text x="626" y="704" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start"> -&gt; CONTENT_VERSION(version_id, kind)</text>
+<text x="626" y="732" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK (match_id, target_version_id)</text>
+<text x="626" y="760" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">alg_version : required, reproducible</text>
+<text x="626" y="788" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">score / mandatory result / timestamp</text>
+<rect x="610" y="1100" width="430" height="210" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="610" y="1100" width="430" height="42" rx="0" fill="#fff0cf" stroke="#64748b"/>
+<text x="626" y="1128" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">MATCH_INPUT_SKILL</text>
+<text x="626" y="1170" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">KEY (match_id, skill_id)</text>
+<text x="626" y="1198" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK match_id -&gt; MATCH_RESULT</text>
+<text x="626" y="1226" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">FK skill_id -&gt; SKILL</text>
+<text x="626" y="1254" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">level_used : saved input snapshot</text>
+<rect x="70" y="1100" width="400" height="180" rx="8" fill="#ffffff" stroke="#64748b"/>
+<rect x="70" y="1100" width="400" height="42" rx="0" fill="#dcecff" stroke="#64748b"/>
+<text x="86" y="1128" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#162b40" text-anchor="start">SKILL</text>
+<text x="86" y="1170" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">PK skill_id : UUID</text>
+<text x="86" y="1198" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">UK skill_name</text>
+<text x="86" y="1226" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#162b40" text-anchor="start">status : active / retired</text>
+<text x="60" y="1510" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">Counts at an endpoint describe how many of that entity relate to one entity at the opposite end.</text>
+<text x="60" y="1540" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#162b40" text-anchor="start">1 = exactly one   |   0..1 = optional one   |   0..* = zero or many   |   IDs link to relationships.md</text>
+<text x="60" y="1570" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#162b40" text-anchor="start">PROPOSAL ONLY  /  Keys and relationships shown; full non-key attributes remain in the supplied PNG.</text>
+</svg>
