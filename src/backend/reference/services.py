@@ -1,10 +1,16 @@
 """Authorized draft creation/editing; publication awaits the review milestone."""
+from decimal import Decimal, InvalidOperation
+
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Max
 
 from accounts.permissions import require_content_editor
-from .models import ContentItem, ContentVersion
+from skills.models import Skill
+from .models import (
+    Company, ContentDetails, ContentItem, ContentKind, ContentRequirement,
+    ContentSkill, ContentSource, ContentVersion, ReferenceSource,
+)
 
 
 @transaction.atomic
@@ -35,15 +41,185 @@ def create_draft_version(*, actor, item_id, title, body):
 
 @transaction.atomic
 def update_draft_version(*, actor, version_id, expected_revision, title, body):
-    require_content_editor(actor)
-    version = ContentVersion.objects.select_for_update().get(pk=version_id)
-    if version.status != ContentVersion.Status.DRAFT:
-        raise ValidationError("Only draft versions can be edited.")
-    if version.draft_revision != expected_revision:
-        raise ValidationError("The draft changed; reload it before saving.")
+    version = _lock_draft(actor, version_id, expected_revision)
     version.title = title.strip()
     version.body = body.strip()
     version.draft_revision += 1
     version.full_clean()
     version.save(update_fields=["title", "body", "draft_revision"])
     return version
+
+
+def _lock_draft(actor, version_id, expected_revision):
+    """Shared guard for text edits and every related draft-data mutation."""
+    require_content_editor(actor)
+    version = ContentVersion.objects.select_for_update().get(pk=version_id)
+    if version.status != ContentVersion.Status.DRAFT:
+        raise ValidationError("Only draft versions can be edited.")
+    if version.item.retired_at is not None:
+        raise ValidationError("This content item is retired.")
+    if type(expected_revision) is not int or expected_revision < 1:
+        raise ValidationError("A positive integer draft revision is required.")
+    if version.draft_revision != expected_revision:
+        raise ValidationError("The draft changed; reload it before saving.")
+    return version
+
+
+def _touch_revision(version):
+    version.draft_revision += 1
+    version.save(update_fields=["draft_revision"])
+
+
+def _text(value, field):
+    if not isinstance(value, str):
+        raise ValidationError({field: "Use plain text."})
+    return value.strip()
+
+
+def _level(value, field):
+    if type(value) is not int or not 0 <= value <= 5:
+        raise ValidationError({field: "Choose an integer from 0 to 5."})
+    return value
+
+
+def _decimal(value, field):
+    try:
+        result = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        raise ValidationError({field: "Use a finite nonnegative number."}) from None
+    if not result.is_finite() or result < 0:
+        raise ValidationError({field: "Use a finite nonnegative number."})
+    return result
+
+
+@transaction.atomic
+def create_company(*, actor, company_name, industry=""):
+    require_content_editor(actor)
+    company = Company(company_name=_text(company_name,"company_name"), industry=_text(industry,"industry"))
+    company.full_clean()
+    company.save()
+    return company
+
+
+@transaction.atomic
+def create_reference_source(*, actor, source_title, source_url_or_identifier, collected_at=None):
+    require_content_editor(actor)
+    fields = {
+        "source_title": _text(source_title,"source_title"),
+        "source_url_or_identifier": _text(source_url_or_identifier,"source_url_or_identifier"),
+    }
+    if collected_at is not None:
+        fields["collected_at"] = collected_at
+    source = ReferenceSource(**fields)
+    source.full_clean()
+    source.save()
+    return source
+
+
+@transaction.atomic
+def attach_source(*, actor, version_id, source_id, expected_revision):
+    version = _lock_draft(actor,version_id,expected_revision)
+    source = ReferenceSource.objects.get(pk=source_id)
+    existing = ContentSource.objects.filter(version=version,source=source).first()
+    if existing is not None:
+        return existing  # No content change, so do not increment the revision.
+    link = ContentSource(version=version,source=source)
+    link.full_clean()
+    link.save()
+    _touch_revision(version)
+    return link
+
+
+@transaction.atomic
+def set_requirement(*, actor, version_id, skill_id, required_level, mandatory, weight, expected_revision):
+    version = _lock_draft(actor,version_id,expected_revision)
+    if version.kind not in (ContentKind.CAREER, ContentKind.JOB):
+        raise ValidationError("Only career/job versions have requirements.")
+    skill = Skill.objects.select_for_update().get(pk=skill_id)
+    if skill.status != Skill.Status.ACTIVE:
+        raise ValidationError("This skill is retired.")
+    if type(mandatory) is not bool:
+        raise ValidationError({"mandatory": "Use a boolean value."})
+    record = ContentRequirement.objects.filter(version=version,skill=skill).first()
+    if record is None:
+        record = ContentRequirement(version=version,skill=skill,kind=version.kind)
+    record.required_level = _level(required_level,"required_level")
+    record.mandatory = mandatory
+    record.weight = _decimal(weight,"weight")
+    record.full_clean()
+    record.save()
+    _touch_revision(version)
+    return record
+
+
+@transaction.atomic
+def set_skill_mapping(*, actor, version_id, skill_id, coverage_level, expected_revision):
+    version = _lock_draft(actor,version_id,expected_revision)
+    if version.kind not in (ContentKind.COURSE, ContentKind.RESOURCE):
+        raise ValidationError("Only course/resource versions have learning mappings.")
+    skill = Skill.objects.select_for_update().get(pk=skill_id)
+    if skill.status != Skill.Status.ACTIVE:
+        raise ValidationError("This skill is retired.")
+    record = ContentSkill.objects.filter(version=version,skill=skill).first()
+    if record is None:
+        record = ContentSkill(version=version,skill=skill,kind=version.kind)
+    record.coverage_level = _level(coverage_level,"coverage_level")
+    record.full_clean()
+    record.save()
+    _touch_revision(version)
+    return record
+
+
+@transaction.atomic
+def set_content_details(
+    *, actor, version_id, expected_revision, company_id=None, location="",
+    expires_at=None, course_code="", credits=None, provider="", resource_url="",
+    cost_amount=None, currency="",
+):
+    """Replace the complete details state; omitted optional fields are cleared."""
+    version = _lock_draft(actor,version_id,expected_revision)
+    record = ContentDetails.objects.filter(version=version).first()
+    if record is None:
+        record = ContentDetails(version=version,kind=version.kind)
+    record.company_id = company_id
+    record.expires_at = expires_at
+    for field,value in {
+        "location":location, "course_code":course_code, "provider":provider,
+        "resource_url":resource_url, "currency":currency,
+    }.items():
+        setattr(record,field,_text(value,field))
+    record.currency = record.currency.upper()
+    record.credits = None if credits is None else _decimal(credits,"credits")
+    record.cost_amount = None if cost_amount is None else _decimal(cost_amount,"cost_amount")
+    record.full_clean()
+    record.save()
+    _touch_revision(version)
+    return record
+
+
+def _remove_draft_link(actor, version_id, expected_revision, model, **lookup):
+    version = _lock_draft(actor,version_id,expected_revision)
+    deleted, _ = model.objects.filter(version=version,**lookup).delete()
+    if deleted:
+        _touch_revision(version)
+    return bool(deleted)
+
+
+@transaction.atomic
+def detach_source(*, actor, version_id, source_id, expected_revision):
+    return _remove_draft_link(actor,version_id,expected_revision,ContentSource,source_id=source_id)
+
+
+@transaction.atomic
+def remove_requirement(*, actor, version_id, skill_id, expected_revision):
+    return _remove_draft_link(actor,version_id,expected_revision,ContentRequirement,skill_id=skill_id)
+
+
+@transaction.atomic
+def remove_skill_mapping(*, actor, version_id, skill_id, expected_revision):
+    return _remove_draft_link(actor,version_id,expected_revision,ContentSkill,skill_id=skill_id)
+
+
+@transaction.atomic
+def clear_content_details(*, actor, version_id, expected_revision):
+    return _remove_draft_link(actor,version_id,expected_revision,ContentDetails)

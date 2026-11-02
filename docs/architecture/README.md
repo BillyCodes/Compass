@@ -5,6 +5,8 @@ project wiring, a placeholder home page, and the first account/authentication
 milestone. See [ERD-to-Django mapping](erd-django-mapping.md) for the implemented
 Account, Student, Role, and AccountRole models. The next implemented batch is
 documented in [Skills and reference-content foundation](skills-reference-foundation.md).
+The following [Reference data batch](reference-data-batch.md) adds companies, sources,
+details, requirements, and learning mappings.
 
 The agreed PostgreSQL Compose setup, Django-template frontend direction, and
 Mockaroo data workflow are documented in [Team development setup](../development.md).
@@ -30,7 +32,7 @@ unchanged; the foundation note records the relationships implemented since then.
 | `src/backend/core/` | Public pages and shared site layout assets; not a home for unrelated business logic |
 | `src/backend/accounts/` | Email account, student profile, role models, authentication, and access checks |
 | `src/backend/skills/` | Skill catalog, 0–5 student proficiency, ownership-scoped services |
-| `src/backend/reference/` | Typed content identities/versions and authorized draft services |
+| `src/backend/reference/` | Typed items/versions, reference data, requirements, coverage mappings, authorized draft services |
 | `src/backend/templates/` | Shared base template and header/footer includes |
 | `<app>/templates/<app>/` | Namespaced templates owned by a feature app |
 | `<app>/static/<app>/` | Namespaced CSS, JS, and images owned by that app |

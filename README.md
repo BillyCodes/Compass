@@ -17,14 +17,18 @@ Private student-profile reads enforce ownership. The student and maintainer demo
 accounts are created through an interactive command; public registration, profile
 editing and admin screens remain future work. The next schema batch now adds
 skills, private student proficiency, and content item/version foundations.
-Comparisons and reference publication remain future work.
+The second reference batch adds companies, sources, source links, typed details,
+career/job requirements, and course/resource skill mappings. Comparisons and
+reference publication remain future work.
 
 See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
 diagram's fields and relationships map to Django and PostgreSQL.
 
 See [Skills and reference-content foundation](docs/architecture/skills-reference-foundation.md)
 for the new tables, 0–5 proficiency scale, typed foreign key, and draft services.
-No new skill-entry or content-management screens are included yet.
+See [Reference data batch](docs/architecture/reference-data-batch.md) for the six
+additional tables and related draft-edit services. No new skill-entry or
+content-management screens are included yet.
 
 ## Project structure
 
@@ -55,7 +59,7 @@ Compass/
 │   │   ├── migrations/         Initial schema and fixed role vocabulary
 │   │   └── templates/accounts/
 │   ├── skills/                 Skill catalog, student proficiency, services/tests
-│   ├── reference/              Content items/versions, draft services/tests
+│   ├── reference/              Versioned reference data, draft services/tests
 │   └── templates/              Shared base.html and includes/
 ├── frontend/                   Preserved standalone design draft
 ├── tests/                      Reserved for future cross-app workflows
@@ -119,7 +123,7 @@ Or activate the environment, change into `src/backend`, and run
 `python manage.py test`. Explicit app labels from the repository root avoid
 missing tests beneath the non-package `src/` directory.
 
-The 61-test suite covers accounts/authentication, student skills, content
+The 92-test suite covers accounts/authentication, student skills, content
 versioning, typed foreign keys, ownership, and role controls on an isolated
 PostgreSQL test database. The foundation tests
 also check routing, shared templates, and static asset discovery. Keep Docker's

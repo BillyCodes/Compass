@@ -4,6 +4,9 @@ Implemented November 1, 2026 after approval of the relationship corrections.
 This batch adds four models and their validated service operations. It does not
 implement the remaining ERD, publication workflow, or new web pages.
 
+Update: [the next reference data batch](reference-data-batch.md) is now implemented.
+This note retains the first batch's scope and original verification count.
+
 ## Implemented tables
 
 | Table | Django model | Purpose and relationship |
@@ -110,9 +113,9 @@ positive version/revision numbers, and requires paired publisher/timestamp value
 and attribution for a published status. The exposed services create/edit drafts
 only. **Publication is not implemented or authorized by those metadata checks.**
 
-Review/source/requirement models, approval matching, type-specific publication
-validation, published-content immutability across all write paths, and retirement
-workflows arrive in the next reference-content milestones. Direct ORM/SQL access
+Source/requirement/detail/coverage models now exist in the second batch. Review
+approval, publication validation, published-content immutability across all write
+paths, and retirement workflows remain subsequent milestones. Direct ORM/SQL access
 is trusted developer access; do not use it to simulate an approved publication.
 No public reference browsing or publication API is introduced here.
 
@@ -152,8 +155,8 @@ ORDER BY table_name;
 
 ## Next implementation batches
 
-1. Add sources, companies, details, requirements, and course/resource skill mappings
-   using the same typed-FK convention and the agreed 0..5 scale where compatible.
+1. Sources, companies, details, requirements, and course/resource skill mappings
+   are now implemented in the linked second batch.
 2. Add student course selections and exact-draft review/publication rules.
 3. Add comparison inputs/outcomes, recommendations, and minimal audit events with
    same-target integrity and server-side scoring.

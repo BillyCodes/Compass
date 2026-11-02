@@ -3,6 +3,11 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator, URLValidator
+from decimal import Decimal
+from django.utils import timezone
+
+from skills.models import ProficiencyLevel
 from django.db import models
 
 
@@ -82,3 +87,122 @@ class ContentVersion(models.Model):
 
     def __str__(self):
         return f"{self.title} (v{self.version_no})"
+
+
+class Company(models.Model):
+    """Reference organization, not an employer account or authentication identity."""
+    company_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    company_name = models.CharField(max_length=250)
+    industry = models.CharField(max_length=150, blank=True)
+
+    class Meta:
+        db_table = "company"
+        constraints = [models.CheckConstraint(condition=~models.Q(company_name=""), name="company_name_not_empty")]
+
+    def __str__(self):
+        return self.company_name
+
+
+class ReferenceSource(models.Model):
+    """Bibliographic/source information only; no automatic URL fetching."""
+    source_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    source_title = models.CharField(max_length=250)
+    source_url_or_identifier = models.TextField()
+    collected_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "reference_source"
+        constraints = [
+            models.CheckConstraint(condition=~models.Q(source_title=""), name="source_title_not_empty"),
+            models.CheckConstraint(condition=~models.Q(source_url_or_identifier=""), name="source_identifier_not_empty"),
+        ]
+
+    def __str__(self):
+        return self.source_title
+
+
+class ContentSource(models.Model):
+    source_link_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    version = models.ForeignKey(ContentVersion, on_delete=models.PROTECT, related_name="source_links")
+    source = models.ForeignKey(ReferenceSource, on_delete=models.PROTECT, related_name="version_links")
+
+    class Meta:
+        db_table = "content_source"
+        constraints = [models.UniqueConstraint(fields=["version", "source"], name="content_source_unique")]
+
+
+class VersionKindValidationMixin(models.Model):
+    """Friendly validation; migration 0004 independently enforces the typed FK."""
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        super().clean()
+        if self.version_id:
+            kind = ContentVersion.objects.filter(pk=self.version_id).values_list("kind", flat=True).first()
+            if kind is not None and kind != self.kind:
+                raise ValidationError({"kind": "The kind must match the referenced version."})
+
+
+class ContentRequirement(VersionKindValidationMixin):
+    requirement_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    version = models.ForeignKey(ContentVersion, on_delete=models.PROTECT, related_name="requirements")
+    skill = models.ForeignKey("skills.Skill", on_delete=models.PROTECT, related_name="content_requirements")
+    kind = models.CharField(max_length=10, choices=[(ContentKind.CAREER,"Career"),(ContentKind.JOB,"Job")])
+    required_level = models.PositiveSmallIntegerField(choices=ProficiencyLevel.choices)
+    mandatory = models.BooleanField(default=False)
+    weight = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal("1"))
+
+    class Meta:
+        db_table = "content_requirement"
+        constraints = [
+            models.UniqueConstraint(fields=["version", "skill"], name="content_requirement_unique"),
+            models.CheckConstraint(condition=models.Q(kind__in=["career", "job"]), name="requirement_kind_allowed"),
+            models.CheckConstraint(condition=models.Q(required_level__gte=0, required_level__lte=5), name="requirement_level_0_5"),
+            # The finite upper bound also rejects PostgreSQL numeric NaN/Infinity.
+            models.CheckConstraint(condition=models.Q(weight__gte=0, weight__lte=Decimal("999999.9999")), name="requirement_weight_finite_nonnegative"),
+        ]
+
+
+class ContentSkill(VersionKindValidationMixin):
+    mapping_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    version = models.ForeignKey(ContentVersion, on_delete=models.PROTECT, related_name="skill_mappings")
+    skill = models.ForeignKey("skills.Skill", on_delete=models.PROTECT, related_name="learning_mappings")
+    kind = models.CharField(max_length=10, choices=[(ContentKind.COURSE,"Course"),(ContentKind.RESOURCE,"Resource")])
+    coverage_level = models.PositiveSmallIntegerField(choices=ProficiencyLevel.choices)
+
+    class Meta:
+        db_table = "content_skill"
+        constraints = [
+            models.UniqueConstraint(fields=["version", "skill"], name="content_skill_unique"),
+            models.CheckConstraint(condition=models.Q(kind__in=["course", "resource"]), name="content_skill_kind_allowed"),
+            models.CheckConstraint(condition=models.Q(coverage_level__gte=0, coverage_level__lte=5), name="coverage_level_0_5"),
+        ]
+
+
+class ContentDetails(VersionKindValidationMixin):
+    # One optional detail row per version: no extra surrogate ID is necessary.
+    version = models.OneToOneField(ContentVersion, primary_key=True, on_delete=models.PROTECT, related_name="details")
+    kind = models.CharField(max_length=10, choices=ContentKind.choices)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT, null=True, blank=True, related_name="content_details")
+    location = models.CharField(max_length=250, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    course_code = models.CharField(max_length=50, blank=True)
+    credits = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    provider = models.CharField(max_length=250, blank=True)
+    resource_url = models.URLField(max_length=2000, blank=True, validators=[URLValidator(schemes=["http", "https"])])
+    cost_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(max_length=3, blank=True, validators=[RegexValidator(r"^[A-Z]{3}$", "Use three uppercase currency letters.")])
+
+    class Meta:
+        db_table = "content_details"
+        constraints = [
+            models.CheckConstraint(condition=models.Q(kind__in=["career", "job", "course", "resource", "insight"]), name="details_kind_allowed"),
+            models.CheckConstraint(condition=(models.Q(kind="job") | models.Q(company__isnull=True, location="", expires_at__isnull=True)), name="details_job_fields_only"),
+            models.CheckConstraint(condition=(models.Q(kind="course") | models.Q(course_code="", credits__isnull=True)), name="details_course_fields_only"),
+            models.CheckConstraint(condition=(models.Q(kind__in=["course", "resource"]) | models.Q(provider="", resource_url="", cost_amount__isnull=True, currency="")), name="details_learning_fields_only"),
+            models.CheckConstraint(condition=(models.Q(credits__isnull=True) | models.Q(credits__gte=0, credits__lte=Decimal("999.99"))), name="details_credits_finite_nonnegative"),
+            models.CheckConstraint(condition=(models.Q(cost_amount__isnull=True) | models.Q(cost_amount__gte=0, cost_amount__lte=Decimal("9999999999.99"))), name="details_cost_finite_nonnegative"),
+            models.CheckConstraint(condition=(models.Q(cost_amount__isnull=True,currency="") | models.Q(cost_amount__isnull=False,currency__regex=r"^[A-Z]{3}$")), name="details_price_currency_paired"),
+        ]
