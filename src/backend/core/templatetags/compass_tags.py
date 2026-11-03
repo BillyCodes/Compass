@@ -4,10 +4,12 @@ from django import template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from core.models import LEVEL_LABELS, SkillCategory
+from skills.models import ProficiencyLevel
 
 register = template.Library()
-CAT_LABELS = dict(SkillCategory.choices)
+
+# Presentation labels follow the established backend scale; no pilot models.
+LEVEL_LABELS = dict(ProficiencyLevel.choices)
 CAT_TINT = {"programming": "t-blue", "data": "t-violet", "systems": "t-green", "security": "t-red", "cloud": "t-amber", "professional": "t-violet"}
 
 
@@ -27,11 +29,6 @@ def level_label(level):
 @register.filter
 def level_pct(level):
     return int(level or 0) * 20
-
-
-@register.filter
-def cat_label(cat):
-    return CAT_LABELS.get(cat, cat)
 
 
 @register.filter

@@ -4,8 +4,8 @@ from django.urls import include, path
 urlpatterns = [
     # Each app owns the route names and views below its included prefix.
     path("", include("core.urls")),
-    # An included empty URL list reserves the app boundary; it exposes no page.
+    # Account routes expose sign-in, POST-only sign-out, and owned profiles.
     path("accounts/", include("accounts.urls")),
 ]
 
-# Add admin.site.urls after the agreed user model and database are configured.
+# Admin routes remain deferred until the corresponding forms and access rules are ready.

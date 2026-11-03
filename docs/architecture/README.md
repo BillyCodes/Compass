@@ -1,5 +1,9 @@
 # Django architecture
 
+Current frontend checkpoint: new templates and assets are imported but not yet
+connected to the backend routes/forms. The [cleanup review](frontend-cleanup-review.md)
+records active legacy dependencies, safe removals, and known rendering blockers.
+
 Foundation established on `django-structure`, October 28, 2026. This branch contains
 project wiring, a placeholder home page, and the first account/authentication
 milestone. See [ERD-to-Django mapping](erd-django-mapping.md) for the implemented
@@ -107,7 +111,7 @@ From the repository root:
 
 ```sh
 .venv/bin/python src/backend/manage.py check
-.venv/bin/python src/backend/manage.py test core accounts skills reference
+.venv/bin/python src/backend/manage.py test core accounts skills reference comparisons auditing
 ```
 
 Alternatively, activate the environment, change into `src/backend`, and run

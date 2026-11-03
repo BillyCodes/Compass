@@ -7,9 +7,14 @@ Django account authentication first, followed by skill comparisons and recommend
 ## Current status
 
 The codebase has a conventional Django project (`config`) and
-feature apps (`core`, `accounts`, `skills`, `reference`, `comparisons`, and `auditing`). Django renders a minimal home page through
-shared templates. The original six-page HTML/CSS/JavaScript draft remains in
-`frontend/` for reference and can be replaced as the design develops.
+feature apps (`core`, `accounts`, `skills`, `reference`, `comparisons`, and `auditing`).
+This branch has imported the new Django templates, stylesheet, and template helpers
+for integration. Their routes, forms, and view context are not connected yet; the
+imported homepage currently fails to reverse the pilot URL names. Existing
+account routes still use the legacy layout, which depends on `frontend/css/style.css`.
+The original standalone draft remains in `frontend/` for reference. See the
+[frontend cleanup review](docs/architecture/frontend-cleanup-review.md) for active
+dependencies, safe cleanup, and the integration checklist.
 
 The first ERD section is now implemented: Account, Student, Role, and AccountRole.
 Email/password sign-in uses Django sessions and the local PostgreSQL container.
@@ -147,7 +152,7 @@ python3 -m http.server 8001 --bind 127.0.0.1 --directory frontend
 ```
 
 Open <http://127.0.0.1:8001/pages/index.html>. These pages use mock data and are
-separate from Django's current minimal home page. Editing them does not update
+separate from the imported Django templates. Editing them does not update
 Django templates. Django can also discover their CSS/JS under `/static/draft/`.
 
 ## Team development conventions
