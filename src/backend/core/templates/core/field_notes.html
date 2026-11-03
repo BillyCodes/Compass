@@ -1,0 +1,28 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Field Notes{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Field Notes</h1>
+    <p>Real advice from working professionals, alumni, and industry leaders.</p>
+  </div>
+</div>
+<div class="sample-banner"><span class="pill p-amber">Pilot</span>These are sample notes written by the team for Test Launch 01. The people and companies are fictional.</div>
+<div class="tabs" aria-label="Filter by skill">
+  <a class="chip {% if not current %}on{% endif %}" href="{% url 'field_notes' %}">All</a>
+  {% for s in tagged %}<a class="chip {% if current == s.skill_id %}on{% endif %}" href="?skill={{ s.skill_id }}">{{ s.name }}</a>{% endfor %}
+</div>
+<div class="grid g-3">
+  {% for n in notes %}
+  <article class="card note-card">
+    <div class="person"><div class="avatar {{ n.author_name|av }}">{{ n.initials }}</div><div><b>{{ n.author_role }}</b><span>{{ n.author_org }}</span></div></div>
+    <blockquote>“{{ n.quote }}”</blockquote>
+    <div class="chips">{% for s in n.skills.all|slice:":4" %}<span class="chip">{{ s.name }}</span>{% endfor %}</div>
+    <div class="foot"><a href="{% url 'field_note_detail' n.pk %}">Read full note →</a><span class="small muted">{{ n.published_at|date:"M j" }}</span></div>
+  </article>
+  {% empty %}
+  <div class="card empty" style="grid-column:1/-1"><h3>No notes for that skill yet</h3><a href="{% url 'field_notes' %}">See all notes</a></div>
+  {% endfor %}
+</div>
+{% endblock %}
