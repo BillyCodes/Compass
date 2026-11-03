@@ -1,0 +1,67 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Compare{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Compare to a job</h1>
+    <p>See how your Skillprint matches a career or a real job posting, and get a plan to close the gap.</p>
+  </div>
+</div>
+{% if not has_skills %}
+<div class="alert warning">Your Skillprint is empty, so every comparison will show 0%. <a href="{% url 'resume_upload' %}">Upload your resume</a> or <a href="{% url 'skillprint' %}">add skills</a> first.</div>
+{% endif %}
+
+<h2 style="font-size:18px;margin:6px 0 12px">Career profiles</h2>
+<div class="grid g-2">
+  {% for c in careers %}
+  <article class="card target">
+    <div class="co"><div class="co-logo">{{ c.title|initials }}</div><div><h3>{{ c.title }}</h3><span class="muted small">COMPASS career profile · v{{ c.version }}</span></div></div>
+    <p class="muted small" style="margin:0">{{ c.summary }}</p>
+    <div class="foot">
+      <span class="small muted">{{ c.requirements.all|length }} skills</span>
+      <form method="post" action="{% url 'run_career_compare' c.pk %}">{% csrf_token %}<button class="btn small" type="submit">Compare</button></form>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+<h2 style="font-size:18px;margin:28px 0 12px">Job postings <span class="pill p-gray" style="vertical-align:middle">Sample postings · fictional companies</span></h2>
+<div class="grid g-2">
+  {% for p in samples %}
+  <article class="card target">
+    <div class="co"><div class="co-logo">{{ p.company|initials }}</div><div><h3>{{ p.title }}</h3><span class="muted small">{{ p.company }}</span></div></div>
+    <p class="muted small" style="margin:0">{{ p.location }}</p>
+    <div class="chips">{% for t in p.tag_list %}<span class="pill p-blue">{{ t }}</span>{% endfor %}</div>
+    <div class="foot">
+      <span class="small muted">{{ p.requirements.all|length }} skills</span>
+      <form method="post" action="{% url 'run_posting_compare' p.pk %}">{% csrf_token %}<button class="btn small" type="submit">Compare</button></form>
+    </div>
+  </article>
+  {% endfor %}
+  {% for p in mine %}
+  <article class="card target">
+    <div class="co"><div class="co-logo">{{ p.company|initials }}</div><div><h3>{{ p.title }}</h3><span class="muted small">{{ p.company }}</span></div></div>
+    <div class="chips"><span class="pill p-violet">Your posting</span></div>
+    <div class="foot">
+      <span class="small muted">{{ p.requirements.all|length }} skills · added {{ p.created_at|date:"M j" }}</span>
+      <form method="post" action="{% url 'run_posting_compare' p.pk %}">{% csrf_token %}<button class="btn small secondary" type="submit">Compare again</button></form>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+<section class="card" style="margin-top:28px" aria-labelledby="paste-h" id="paste">
+  <h2 id="paste-h">Paste a real job posting</h2>
+  <p class="muted small">Compass reads the posting, finds the skills it asks for, and treats skills listed under "Requirements" as mandatory and skills under "Preferred" as nice-to-have. The posting stays private to you.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="field"><label for="{{ form.title.id_for_label }}">Job title</label>{{ form.title }}{% for e in form.title.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+      <div class="field"><label for="{{ form.company.id_for_label }}">Company</label>{{ form.company }}{% for e in form.company.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+    </div>
+    <div class="field" style="margin-top:14px"><label for="{{ form.description.id_for_label }}">Posting text</label>{{ form.description }}{% for e in form.description.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+    <button class="btn" type="submit">Compare to this posting</button>
+  </form>
+</section>
+{% endblock %}

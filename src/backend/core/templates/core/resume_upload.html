@@ -1,0 +1,60 @@
+{% extends "core/app_base.html" %}
+{% block title %}Upload resume{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Upload your resume</h1>
+    <p>Compass finds the skills you mention and suggests a starting level for each. You confirm everything before it's saved.</p>
+  </div>
+</div>
+<div class="grid g-side">
+  <section class="card">
+    {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" enctype="multipart/form-data" id="resume-form">
+      {% csrf_token %}
+      <label class="drop" id="drop" for="{{ form.resume.id_for_label }}">
+        <div class="icon-tile t-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg></div>
+        <span class="fname" id="fname">Drop your resume here, or click to choose</span>
+        <span class="muted small">PDF, Word (.docx) or .txt · up to 2 MB</span>
+        {{ form.resume }}
+      </label>
+      <button class="btn block" type="submit" style="margin-top:16px" id="go">Read my resume</button>
+    </form>
+  </section>
+  <aside class="stack">
+    <section class="card">
+      <h2>What happens to the file</h2>
+      <ul class="small muted" style="padding-left:18px;margin:0;display:grid;gap:8px">
+        <li>The file is read once and then discarded. Compass keeps only the list of skills it found.</li>
+        <li>A resume mention isn't proof of mastery, so suggestions start at Beginner or Developing. Raise them if you've done more.</li>
+        <li>Nothing changes on your Skillprint until you confirm.</li>
+      </ul>
+    </section>
+    {% if past %}
+    <section class="card">
+      <h2>Previous uploads</h2>
+      <div class="list">
+        {% for p in past %}
+        <div class="list-row"><div class="grow"><div class="title">{{ p.filename }}</div><div class="sub">{{ p.created_at|date:"M j, Y" }} · {{ p.detected|length }} skills found</div></div>
+          {% if p.applied %}<span class="pill p-green">Saved</span>{% else %}<a class="small" href="{% url 'resume_review' p.pk %}">Review</a>{% endif %}</div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var input = document.getElementById("{{ form.resume.id_for_label }}");
+  var drop = document.getElementById("drop"), fname = document.getElementById("fname");
+  if (!input || !drop) return;
+  input.addEventListener("change", function () { if (input.files[0]) fname.textContent = input.files[0].name; });
+  ["dragenter", "dragover"].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.add("over"); }); });
+  ["dragleave", "drop"].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.remove("over"); }); });
+  drop.addEventListener("drop", function (ev) { if (ev.dataTransfer.files.length) { input.files = ev.dataTransfer.files; fname.textContent = input.files[0].name; } });
+  document.getElementById("resume-form").addEventListener("submit", function () { var b = document.getElementById("go"); b.disabled = true; b.textContent = "Reading…"; });
+})();
+</script>
+{% endblock %}
