@@ -1,21 +1,21 @@
 # Compass — Digital Corsairs Senior Project
 
 Compass helps Jackson State University students connect coursework and skills to
-career opportunities. The team is building
-Django account authentication first, followed by skill comparisons and recommendations.
+career opportunities. This integration combines the test-launch student journey
+with the Docker/PostgreSQL account foundation.
 
 ## Current status
 
-The codebase has a conventional Django project (`config`) and
-feature apps (`core` and `accounts`). Django renders a minimal home page through
-shared templates. The original six-page HTML/CSS/JavaScript draft remains in
-`frontend/` for reference and can be replaced as the design develops.
+Django runs from `src/backend` using `config.settings`; PostgreSQL runs in Docker.
+`accounts` owns UUID accounts, student profiles, normalized email login and role
+assignments. `core` adds registration, dashboard, skills, coursework, resume review,
+career/posting comparisons, saved progress, Field Notes and JSON endpoints.
+Existing `/accounts/` routes and the `core:home` URL name remain available.
+The original frontend draft remains in `frontend/` for reference. Admin routes
+remain deferred.
 
-The first ERD section is now implemented: Account, Student, Role, and AccountRole.
-Email/password sign-in uses Django sessions and the local PostgreSQL container.
-Private student-profile reads enforce ownership. The student and maintainer demo
-accounts are created through an interactive command; public registration, profile
-editing, admin screens, skills, and comparisons remain future work.
+See [integration walkthrough](docs/integration.md) for branch comparisons,
+migration compatibility, setup, tests and reviewer steps.
 
 See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
 diagram's fields and relationships map to Django and PostgreSQL.
@@ -27,13 +27,13 @@ Compass/
 ├── src/backend/
 │   ├── manage.py
 │   ├── config/                 Settings, root URLs, WSGI and ASGI
-│   ├── core/                   Public pages and site layout assets
+│   ├── core/                   Student journey, API, services and launch assets
 │   │   ├── apps.py
 │   │   ├── urls.py
 │   │   ├── views.py
 │   │   ├── templates/core/     Feature-owned page templates
 │   │   ├── static/core/        Feature-owned static assets
-│   │   └── tests/              Database-free foundation tests
+│   │   └── tests/              Foundation, launch and integration tests
 │   ├── accounts/               Account/authentication implementation area
 │   │   ├── apps.py
 │   │   ├── urls.py             Login, POST logout, private student profiles
@@ -76,7 +76,7 @@ migration. No privileged account is automatically created.
 
 ## Run Django locally
 
-From the repository root with Python 3.12 or newer:
+From the repository root with Python 3.12 or newer (validated with Python 3.14):
 
 ```sh
 python3 -m venv .venv

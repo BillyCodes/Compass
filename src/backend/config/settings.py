@@ -45,6 +45,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.middleware.AccountStatusMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -118,3 +119,12 @@ CSRF_COOKIE_SAMESITE = "Lax"
 X_FRAME_OPTIONS = "DENY"
 # Development email prints to the console instead of sending real messages.
 MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
+
+# Test-launch upload bounds and session lifetime.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+COMPASS_MAX_RESUME_BYTES = 2 * 1024 * 1024
+COMPASS_MAX_TEXT_CHARS = 20000
+SESSION_COOKIE_AGE = 8 * 60 * 60
+
+AUTH_PASSWORD_VALIDATORS[1]["OPTIONS"] = {"min_length": 10}

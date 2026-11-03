@@ -1,0 +1,39 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Skill Explorer{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Skill Explorer</h1>
+    <p>Understand what each skill is, how your courses build it, and why it matters.</p>
+  </div>
+</div>
+<div class="tabs" role="navigation" aria-label="Filter by category">
+  <a class="chip {% if not current %}on{% endif %}" href="{% url 'explorer' %}">All</a>
+  {% for v, l in categories %}<a class="chip {% if current == v %}on{% endif %}" href="?category={{ v }}">{{ l }}</a>{% endfor %}
+</div>
+{% if query %}<p class="muted small">Showing results for “{{ query }}”. <a href="{% url 'explorer' %}">Clear</a></p>{% endif %}
+<div class="grid g-3">
+  {% for s in skills %}
+  <article class="card skill-card">
+    <div class="icon-tile {{ s.category|cat_tint }}" style="font-weight:800;font-size:14px">{{ s.name|initials }}</div>
+    <h3>{{ s.name }}</h3>
+    <p>{{ s.description }}</p>
+    <p><b style="color:var(--ink)">Why it matters:</b> {{ s.why_it_matters }}</p>
+    <div class="chips">
+      <span class="pill p-gray">{{ s.get_category_display }}</span>
+      {% if s.postings >= 2 %}<span class="pill p-amber">In demand</span>{% endif %}
+      {% for c in s.courses.all|slice:":2" %}<span class="pill p-violet">{{ c.course_code }}</span>{% endfor %}
+    </div>
+    <div class="foot">
+      {% with lv=mine|get_item:s.skill_id %}
+        {% if lv %}<span>You: {% dots lv %} <span class="muted">{{ lv|level_label }}</span></span>{% else %}<span class="muted">Not on your Skillprint</span>{% endif %}
+      {% endwith %}
+      <a href="{% url 'field_notes' %}?skill={{ s.skill_id }}">Field Notes →</a>
+    </div>
+  </article>
+  {% empty %}
+  <div class="card empty" style="grid-column:1/-1"><h3>No skills match</h3><p>Try a different word or category.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

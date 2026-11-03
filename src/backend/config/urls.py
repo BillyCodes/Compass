@@ -4,7 +4,8 @@ from django.urls import include, path
 urlpatterns = [
     # Each app owns the route names and views below its included prefix.
     path("", include("core.urls")),
-    # An included empty URL list reserves the app boundary; it exposes no page.
+    # Keep the foundation's namespaced links alongside launch URL names.
+    path("", include(("core.urls", "core"), namespace="core")),
     path("accounts/", include("accounts.urls")),
 ]
 

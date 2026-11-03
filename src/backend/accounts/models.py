@@ -59,6 +59,10 @@ class Student(TimestampedModel):
     class Meta:
         db_table = "student"
 
+    @property
+    def first_name(self):
+        return (self.display_name or "").split(" ")[0]
+
     def __str__(self):
         return self.display_name
 
