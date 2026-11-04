@@ -1,4 +1,4 @@
-"""Authorized draft creation/editing; publication awaits the review milestone."""
+"""Authorized reference editing, independent review, publication, and retirement."""
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 

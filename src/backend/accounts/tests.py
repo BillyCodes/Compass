@@ -66,7 +66,7 @@ class AccountTests(TestCase):
 
     def test_email_login_uses_case_insensitive_matching(self):
         response = self.login(email="  ALICE@EXAMPLE.TEST  ")
-        self.assertRedirects(response, reverse("accounts:profile"))
+        self.assertRedirects(response, reverse("core:dashboard"))
         self.assertIn("_auth_user_id", self.client.session)
 
     def test_invalid_and_disabled_credentials_have_same_generic_error(self):
@@ -156,7 +156,7 @@ class AccountTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_external_next_redirect_is_rejected(self):
-        self.assertRedirects(self.login(next="https://example.org/"), reverse("accounts:profile"))
+        self.assertRedirects(self.login(next="https://example.org/"), reverse("core:dashboard"))
 
     def test_password_never_echoed_and_auth_responses_not_cached(self):
         response = self.login(password="wrong-secret-sample")

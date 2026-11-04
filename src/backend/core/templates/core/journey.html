@@ -1,0 +1,26 @@
+{% extends "core/app_base.html" %}
+{% block title %}Your Journey{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>Your Journey</h1>
+<p>Each saved comparison preserves its target version, proficiency inputs, outcomes, and learning recommendations.</p>
+</div>
+<a class="btn" href="{% url 'comparisons:compare' %}">New comparison</a>
+</div>
+<section class="card">
+<h2>Comparison history</h2>{% for result in results %}<div class="list-row">
+<div class="grow">
+<a class="title" href="{% url 'comparisons:detail' result.pk %}">{{ result.target_version.title }}</a>
+<p class="small muted">{{ result.created_at|date:"M j, Y g:i A" }} · version {{ result.target_version.version_no }}</p>
+<p class="small">Mandatory: {{ result.get_mandatory_status_display }} · {{ result.reported_count }}/{{ result.relevant_count }} relevant inputs reported{% if result.is_provisional %} · Provisional{% endif %}</p>
+</div>
+<b class="tnum">{{ result.score|floatformat:2 }}%</b>
+<form method="post" action="{% url 'comparisons:delete' result.pk %}">{% csrf_token %}<button class="btn danger" aria-label="Delete comparison for {{ result.target_version.title }}">Delete</button>
+</form>
+</div>{% empty %}<div class="empty">
+<h3>No comparisons yet</h3>
+<p>Add your skills, then choose a published target to start your Journey.</p>
+<a href="{% url 'skills:skillprint' %}">Open your Skillprint</a>
+</div>{% endfor %}</section>
+{% endblock %}

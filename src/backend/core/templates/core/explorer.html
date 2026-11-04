@@ -1,0 +1,27 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Skill Explorer{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>Skill Explorer</h1>
+<p>Browse the active skill catalog, then report your proficiency in My Skillprint.</p>
+</div>
+</div>
+<form method="get" class="card form-row">
+<div class="field">
+<label for="query">Search skills</label>
+<input class="input" id="query" name="q" value="{{ query }}" maxlength="100">
+</div>
+<div class="field">
+<label for="category">Category</label>
+<select class="input" id="category" name="category">
+<option value="">All categories</option>{% for category in categories %}<option {% if category == current %}selected{% endif %}>{{ category }}</option>{% endfor %}</select>
+</div>
+<button class="btn">Search</button>
+</form>
+<div class="grid g-3" style="margin-top:18px">{% for skill in skills %}<article class="card">
+<span class="pill p-gray">{{ skill.category|default:"Other" }}</span>
+<h2>{{ skill.skill_name }}</h2>{% with level=mine|get_item:skill.pk %}{% if level != None %}<p>Your reported level: {{ level }} · {{ level|level_label }}</p>{% else %}<p class="muted">Proficiency unreported.</p>{% endif %}{% endwith %}<a href="{% url 'skills:skillprint' %}">Manage proficiency →</a>
+</article>{% empty %}<p class="muted">No active skills match your search.</p>{% endfor %}</div>
+{% endblock %}

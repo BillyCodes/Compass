@@ -1,0 +1,16 @@
+{% extends "core/app_base.html" %}
+{% block title %}Field Notes{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>Field Notes</h1>
+<p>Reviewed insights published for students.</p>
+</div>
+</div>
+<div class="grid g-2">{% for version in notes %}<article class="card note-card">
+<span class="pill p-gray">Reviewed insight · v{{ version.version_no }}</span>
+<h2>{{ version.title }}</h2>
+<p>{{ version.body|truncatewords:45 }}</p>
+<a href="{% url 'reference:note' version.pk %}">Read insight →</a>
+</article>{% empty %}<p class="muted">No published insights are available yet.</p>{% endfor %}</div>
+{% endblock %}

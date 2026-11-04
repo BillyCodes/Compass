@@ -1,4 +1,4 @@
-"""Validated catalog edits and owner-scoped student writes; no public routes yet."""
+"""Validated catalog edits and owner-scoped student writes."""
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 
@@ -85,4 +85,13 @@ def list_student_courses(*, actor):
 @transaction.atomic
 def remove_student_course(*, actor, course_item_id):
     deleted, _ = StudentCourse.objects.filter(student=_owned_student(actor), course_item_id=course_item_id).delete()
+    return bool(deleted)
+
+
+@transaction.atomic
+def remove_student_skill(*, actor, skill_id):
+    student = _owned_student(actor)
+    # Share the comparison/proficiency locking convention, including retirement.
+    Skill.objects.select_for_update().get(pk=skill_id)
+    deleted, _ = StudentSkill.objects.filter(student=student, skill_id=skill_id).delete()
     return bool(deleted)

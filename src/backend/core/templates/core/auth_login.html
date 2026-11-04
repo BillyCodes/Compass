@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+{% block title %}Log in{% endblock %}
+{% block body %}
+<div class="auth-wrap">
+  <aside class="auth-side">
+    {% include "core/partials/logo.html" %}
+    <div>
+      <span class="hand">Welcome back.</span>
+      <h2 style="margin-top:14px">See what changed <span class="grad">since last time.</span></h2>
+    </div>
+    <p class="muted small" style="margin:0">Your profile, skills and results are private to you.</p>
+  </aside>
+  <main class="auth-main" id="main-content">
+    <div class="auth-card">
+      <h1>Log in</h1>
+      <p class="sub">Use the email you signed up with.</p>
+      {% for m in messages %}<div class="alert {{ m.tags }}" role="status">{{ m }}</div>{% endfor %}
+      {% if throttled %}<div class="alert error" role="alert">Sign-in is temporarily unavailable. Please try again later.</div>{% endif %}
+      {% if form.non_field_errors %}<div class="alert error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="field"><label for="{{ form.username.id_for_label }}">Email</label>{{ form.username }}</div>
+        <div class="field"><label for="{{ form.password.id_for_label }}">Password</label>{{ form.password }}</div>
+        {{ form.username.errors }}{{ form.password.errors }}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <button class="btn block" type="submit">Log in</button>
+      </form>
+      <p class="small muted" style="margin-top:18px;text-align:center">New to Compass? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+
+    </div>
+  </main>
+</div>
+{% endblock %}

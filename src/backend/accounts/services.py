@@ -11,7 +11,7 @@ from .permissions import require_role_administrator
 
 @transaction.atomic
 def create_student(*, email, password, display_name, **profile_fields):
-    # Trusted setup service, not a public registration endpoint.
+    # Account/profile/initial role are atomic; public forms validate credentials first.
     account = Account.objects.create_user(email, password)
     student = Student.objects.create(account=account, display_name=display_name, **profile_fields)
     role = Role.objects.get(role_name=Role.Name.STUDENT)
@@ -54,3 +54,17 @@ def set_account_active(*, actor, account, is_active):
         _record_event(event_type=AuditEvent.Type.ACCOUNT_ACTIVATED if is_active else AuditEvent.Type.ACCOUNT_DISABLED,
                       actor=actor, subject=account)
     return account
+
+
+@transaction.atomic
+def update_student_profile(*, actor, display_name, major, career_interests, graduation_year):
+    from skills.services import _owned_student
+    owned = _owned_student(actor)
+    student = Student.objects.select_for_update().get(pk=owned.pk)
+    student.display_name = display_name
+    student.major = major
+    student.career_interests = career_interests
+    student.graduation_year = graduation_year
+    student.full_clean()
+    student.save(update_fields=["display_name", "major", "career_interests", "graduation_year", "updated_at"])
+    return student

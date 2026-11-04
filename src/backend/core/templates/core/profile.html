@@ -1,0 +1,29 @@
+{% extends "core/app_base.html" %}
+{% block title %}Your profile{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>Your profile</h1>
+<p>Signed in as {{ request.user.login_email }}</p>
+</div>{% if is_student and not form %}<a class="btn" href="{% url 'accounts:edit-profile' %}">Edit profile</a>{% endif %}</div>
+<div class="grid g-side">
+<section class="card">{% if form %}<form method="post" novalidate>{% csrf_token %}{{ form.non_field_errors }}{% for field in form %}<div class="field">
+<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}<button class="btn">Save profile</button>
+</form>{% elif student %}<h2>{{ student.display_name }}</h2>
+<dl>
+<dt>Major</dt>
+<dd>{{ student.major|default:"Not provided" }}</dd>
+<dt>Career interests</dt>
+<dd>{{ student.career_interests|default:"Not provided" }}</dd>
+<dt>Graduation year</dt>
+<dd>{{ student.graduation_year|default_if_none:"Not provided" }}</dd>
+</dl>{% if is_student %}<a href="{% url 'core:dashboard' %}">Go to dashboard →</a>{% endif %}{% else %}<p>This account does not have a student profile.</p>{% endif %}</section>
+<aside class="card">
+<h2>Account</h2>
+<p>{{ request.user.login_email }}</p>
+<p class="muted small">Member since {{ request.user.created_at|date:"M j, Y" }}</p>
+<form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="btn secondary">Sign out</button>
+</form>
+</aside>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-"""Compass settings for accounts, student skills, and reference-content foundations."""
+"""Compass settings for the PostgreSQL backend and integrated Django templates."""
 import os
 from pathlib import Path
 from secrets import token_urlsafe
@@ -63,12 +63,13 @@ TEMPLATES = [{
         "django.template.context_processors.request",
         "django.contrib.auth.context_processors.auth",
         "django.contrib.messages.context_processors.messages",
+        "core.context_processors.navigation",
     ]},
 }]
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-# The first ERD section is now configured against the local Compose database.
+# All feature apps share the local Compose PostgreSQL database.
 # Credentials stay in the ignored .env or process environment, not in source.
 if not os.environ.get("POSTGRES_PASSWORD"):
     raise ImproperlyConfigured("Set POSTGRES_PASSWORD in the root .env or environment.")

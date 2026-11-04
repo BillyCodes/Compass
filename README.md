@@ -7,15 +7,19 @@ Django account authentication first, followed by skill comparisons and recommend
 ## Current status
 
 The codebase has a conventional Django project (`config`) and
-feature apps (`core`, `accounts`, `skills`, `reference`, `comparisons`, and `auditing`). Django renders a minimal home page through
-shared templates. The original six-page HTML/CSS/JavaScript draft remains in
-`frontend/` for reference and can be replaced as the design develops.
+feature apps (`core`, `accounts`, `skills`, `reference`, `comparisons`, and `auditing`).
+The imported Compass design is connected to the approved backend: registration,
+sign-in, dashboard, owned profile editing, proficiency, selected courses, reviewed
+career/job comparisons, saved learning recommendations, history, and published
+insights. See the [frontend integration guide](docs/architecture/frontend-integration.md)
+for routes, rules, verification, and remaining feature boundaries.
+The standalone `frontend/` draft is retained as a historical reference.
 
 The first ERD section is now implemented: Account, Student, Role, and AccountRole.
 Email/password sign-in uses Django sessions and the local PostgreSQL container.
 Private student-profile reads enforce ownership. The student and maintainer demo
-accounts are created through an interactive command; public registration, profile
-editing and admin screens remain future work. The next schema batch now adds
+accounts can still be created through an interactive command. Student registration
+and profile editing now have forms; admin management screens remain future work. The next schema batch now adds
 skills, private student proficiency, and content item/version foundations.
 The second reference batch adds companies, sources, source links, typed details,
 career/job requirements, and course/resource skill mappings. Reference review/publication services and private course selections are now
@@ -23,7 +27,8 @@ implemented. Private comparisons, saved proficiency snapshots, skill outcomes, a
 ranked learning recommendations are now available through backend services.
 Audit events now record supported role/account and reference-content actions
 transactionally, with administrator-only reads and one-year retention. All 21
-planned ERD tables are implemented; new frontend management screens remain future work.
+planned ERD tables are implemented. Student screens are connected; privileged
+management screens and resume/private-posting import remain future work.
 
 See [ERD-to-Django mapping](docs/architecture/erd-django-mapping.md) for how the
 diagram's fields and relationships map to Django and PostgreSQL.
@@ -31,8 +36,8 @@ diagram's fields and relationships map to Django and PostgreSQL.
 See [Skills and reference-content foundation](docs/architecture/skills-reference-foundation.md)
 for the new tables, 0–5 proficiency scale, typed foreign key, and draft services.
 See [Reference data batch](docs/architecture/reference-data-batch.md) for the six
-additional tables and related draft-edit services. No new skill-entry or
-content-management screens are included yet. See
+additional tables and related draft-edit services. Skill entry is connected through
+the student interface; content-management screens remain deferred. See
 [Review/publication batch](docs/architecture/review-publication-batch.md) for the
 new course selections, independent approvals, and publication/history guards.
 See [Comparison batch](docs/architecture/comparison-batch.md) for the agreed scoring,
@@ -134,7 +139,7 @@ Or activate the environment, change into `src/backend`, and run
 `python manage.py test`. Explicit app labels from the repository root avoid
 missing tests beneath the non-package `src/` directory.
 
-The 199-test suite covers accounts/authentication, student skills, content
+The 217-test suite covers accounts/authentication, student skills, content
 versioning, comparisons, recommendation snapshots, audit history/retention, typed foreign keys, ownership, and role controls on an isolated
 PostgreSQL test database. The foundation tests
 also check routing, shared templates, and static asset discovery. Keep Docker's
@@ -147,7 +152,7 @@ python3 -m http.server 8001 --bind 127.0.0.1 --directory frontend
 ```
 
 Open <http://127.0.0.1:8001/pages/index.html>. These pages use mock data and are
-separate from Django's current minimal home page. Editing them does not update
+separate from the imported Django templates. Editing them does not update
 Django templates. Django can also discover their CSS/JS under `/static/draft/`.
 
 ## Team development conventions

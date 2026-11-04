@@ -1,0 +1,74 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>Welcome, {{ request.student.display_name }}</h1>
+<p>Your skills, selected courses, and saved comparisons in one place.</p>
+</div>
+<span class="muted">{{ today|date:"l, M j, Y" }}</span>
+</div>
+<div class="grid g-dash">
+<section class="card">
+<h2>Latest comparison</h2>
+{% if latest %}<h3>{{ latest.target_version.title }}</h3>{% ring latest.score "" "Skill match" %}
+<p class="tnum">{{ latest.score|floatformat:2 }}% skill match{% if latest.is_provisional %} · Provisional{% endif %}</p>
+<p>Mandatory requirements: <b>{{ latest.get_mandatory_status_display }}</b>
+</p>
+<p class="small muted">{{ latest.reported_count }} of {{ latest.relevant_count }} relevant skills reported.</p>
+<a class="btn small" href="{% url 'comparisons:detail' latest.pk %}">View breakdown</a>
+{% else %}<p>No comparisons yet. Report your proficiency, then choose a reviewed career or job.</p>
+<a class="btn" href="{% url 'comparisons:compare' %}">Choose a target</a>{% endif %}</section>
+<div class="card stat">
+<span class="num">{{ skill_count }}</span>
+<span class="lbl">Skills reported</span>
+<a href="{% url 'skills:skillprint' %}">Manage skills</a>
+</div>
+<div class="card stat">
+<span class="num">{{ course_count }}</span>
+<span class="lbl">Courses selected</span>
+<a href="{% url 'skills:skillprint' %}#courses">Select courses</a>
+</div>
+<div class="card stat">
+<span class="num">{{ match_count }}</span>
+<span class="lbl">Saved comparisons</span>
+<a href="{% url 'comparisons:journey' %}">View journey</a>
+</div>
+</div>
+<div class="grid g-2" style="margin-top:18px">
+<section class="card">
+<div class="card-head">
+<h2>Your Skillprint</h2>
+<a href="{% url 'skills:skillprint' %}">All skills →</a>
+</div>
+{% for record in top_skills %}<div class="list-row">
+<div class="grow">
+<b>{{ record.skill.skill_name }}</b>
+<p class="muted small">{{ record.skill.category|default:"Other" }}</p>
+</div>
+<span>{{ record.proficiency_level }} · {{ record.get_proficiency_level_display }}</span>
+</div>{% empty %}<p>Your Skillprint is empty. Add skills you have used and choose a level from 0 to 5.</p>
+<a class="btn" href="{% url 'skills:skillprint' %}">Add your first skill</a>{% endfor %}</section>
+<section class="card">
+<h2>Reviewed job postings</h2>{% for job in jobs %}<div class="list-row">
+<div class="grow">
+<b>{{ job.title }}</b>
+<p class="muted small">{{ job.details.company.company_name }}{% if job.details.location %} · {{ job.details.location }}{% endif %}</p>
+</div>
+<form method="post" action="{% url 'comparisons:run' job.pk %}">{% csrf_token %}<button class="btn small">Compare</button>
+</form>
+</div>{% empty %}<p class="muted">No published job postings are available yet.</p>{% endfor %}</section>
+<section class="card">
+<div class="card-head">
+<h2>Field Notes</h2>
+<a href="{% url 'reference:notes' %}">All notes →</a>
+</div>{% for note in notes %}<a class="list-row" href="{% url 'reference:note' note.pk %}">{{ note.title }}</a>{% empty %}<p class="muted">Reviewed insights will appear here when published.</p>{% endfor %}</section>
+<section class="card mission">
+<span class="eyebrow">Next step</span>
+<h2>Build on what you know</h2>
+<p>Keep your self-reported levels current. Selecting a course records your interest; it does not change your proficiency.</p>
+<a class="btn" href="{% url 'skills:explorer' %}">Explore skills</a>
+</section>
+</div>
+{% endblock %}

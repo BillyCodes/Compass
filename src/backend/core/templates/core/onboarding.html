@@ -1,0 +1,34 @@
+{% extends "core/app_base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<p class="eyebrow">Welcome, {{ request.student.display_name }}</p>
+<h1>Let's build your Skillprint</h1>
+<p>Start with what you know and explore where it can take you.</p>
+</div>
+</div>
+<div class="steps">
+<section class="card step">
+<span class="n">Step 1</span>
+<h2>Report your skills</h2>
+<p>Choose a proficiency from 0 (None) to 5 (Expert). An unreported skill remains unknown.</p>
+<a class="btn" href="{% url 'skills:skillprint' %}">Build My Skillprint</a>
+</section>
+<section class="card step">
+<span class="n">Step 2</span>
+<h2>Select courses</h2>
+<p>Record courses you want to explore. Course selection does not establish proficiency or completion.</p>
+<a class="btn secondary" href="{% url 'skills:skillprint' %}#courses">Explore courses</a>
+</section>
+<section class="card step">
+<span class="n">Step 3</span>
+<h2>Compare and learn</h2>
+<p>Choose a reviewed career or job, inspect your gaps, and follow saved learning recommendations.</p>
+<a class="btn secondary" href="{% url 'comparisons:compare' %}">Choose a target</a>
+</section>
+</div>
+<p style="margin-top:22px">
+<a href="{% url 'core:dashboard' %}">Go to dashboard →</a>
+</p>
+{% endblock %}

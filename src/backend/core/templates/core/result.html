@@ -1,0 +1,60 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Comparison result{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<a href="{% url 'comparisons:compare' %}">← Compare</a>
+<h1>{{ r.target_version.title }}</h1>
+<p>Saved {{ r.created_at|date:"M j, Y g:i A" }} · reference version {{ r.target_version.version_no }}</p>
+</div>
+<form method="post" action="{% url 'comparisons:run' r.target_version_id %}">{% csrf_token %}<button class="btn secondary">Compare current skills</button>
+</form>
+</div>
+{% if changed_since %}<div class="alert">Your Skillprint has changed. This result still uses your saved inputs.</div>{% endif %}
+<section class="card result-hero">
+<div>{% ring r.score "" "Skill match" %}<p class="tnum">{{ r.score|floatformat:2 }}% skill match</p>
+</div>
+<div>
+<h2>Mandatory requirements: {{ r.get_mandatory_status_display }}</h2>
+<p>{{ r.reported_count }} of {{ r.relevant_count }} relevant skills reported.</p>{% if r.is_provisional %}<span class="pill p-amber">Provisional</span>
+<p>Some relevant proficiency inputs are unreported. They earn no credit until reported.</p>{% else %}<span class="pill p-green">Inputs complete</span>{% endif %}</div>
+</section>
+<div class="grid g-3" style="margin-top:18px">
+<section class="card">
+<h2>Requirements met</h2>{% for row in groups.met %}<div class="list-row">
+<div>
+<b>{{ row.name }}</b>
+<p class="small">You: {{ row.label }} · requires {{ row.required_level }} {{ row.required_label }}{% if row.mandatory %} · Mandatory{% endif %}</p>
+</div>
+</div>{% empty %}<p class="muted">No requirements met yet.</p>{% endfor %}</section>
+<section class="card">
+<h2>Known skill gaps</h2>{% for row in groups.gap %}<div class="list-row">
+<div>
+<b>{{ row.name }}</b>{% if row.mandatory %} <span class="pill p-amber">Mandatory</span>{% endif %}<p class="small">You: {{ row.level }} {{ row.label }} · requires {{ row.required_level }} {{ row.required_label }} · gap {{ row.gap }}</p>
+</div>
+</div>{% empty %}<p class="muted">No known gaps.</p>{% endfor %}</section>
+<section class="card">
+<h2>Unreported proficiency</h2>{% for row in groups.unreported %}<div class="list-row">
+<div>
+<b>{{ row.name }}</b>{% if row.mandatory %} <span class="pill p-amber">Mandatory</span>{% endif %}<p class="small">Requires {{ row.required_level }} {{ row.required_label }}. Report a level before deciding whether this is a gap.</p>
+</div>
+</div>{% empty %}<p class="muted">All target inputs are reported.</p>{% endfor %}{% if groups.unreported %}<a href="{% url 'skills:skillprint' %}">Report proficiency →</a>{% endif %}</section>
+</div>
+<div class="grid g-side" style="margin-top:18px">
+<section class="card">
+<h2>Your learning route</h2>
+<p class="muted small">Saved recommendations prioritize known mandatory gaps, then other known gaps.</p>{% for recommendation in recommendations %}<div class="route-step">
+<span class="n">{{ recommendation.record.priority_rank }}</span>
+<div>
+<h3>{{ recommendation.record.resource_version.title }}</h3>
+<p class="small">Targets {{ recommendation.skills|join:", " }}.</p>{% if recommendation.available %}<a href="{% url 'reference:learning' recommendation.record.resource_version_id %}">View {{ recommendation.record.get_resource_kind_display|lower }} →</a>{% else %}<span class="pill p-gray">No longer available</span>{% endif %}</div>
+</div>{% empty %}<p>No saved learning recommendations. Report unknown skills first; relevant reviewed courses or resources may also need to be published.</p>{% endfor %}</section>
+<aside class="card">
+<h2>How this score works</h2>
+<p>For each scored skill, credit is your reported level divided by the required level, capped at 100%. Credits are weighted and averaged. Unreported inputs earn zero credit.</p>
+<p>Mandatory requirements are evaluated separately. A missing mandatory input leaves their status undetermined unless a known mandatory gap already exists.</p>
+<p class="small muted">Algorithm {{ r.alg_version }}. This is skill alignment, not a hiring prediction.</p>
+</aside>
+</div>
+{% endblock %}

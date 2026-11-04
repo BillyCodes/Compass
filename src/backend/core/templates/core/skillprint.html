@@ -1,0 +1,56 @@
+{% extends "core/app_base.html" %}
+{% block title %}My Skillprint{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>My Skillprint</h1>
+<p>0 None · 1 Awareness · 2 Beginner · 3 Intermediate · 4 Advanced · 5 Expert.</p>
+</div>
+<a class="btn secondary" href="{% url 'comparisons:journey' %}">Comparison history</a>
+</div>
+<div class="grid g-side">
+<div class="stack">
+<section class="card">
+<h2>Add or update a skill</h2>
+<p class="small muted">Choose 0 to report no proficiency. Leaving a skill unreported keeps it unknown.</p>
+<form method="post" novalidate>{% csrf_token %}{{ form.non_field_errors }}{% for field in form %}<div class="field">
+<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}<button class="btn">Save skill</button>
+</form>
+</section>
+<section class="card">
+<h2>Your skills</h2>{% for category, records in groups %}<div class="cat-block">
+<h3>{{ category }}</h3>{% for record in records %}<div class="skill-line">
+<div class="grow">
+<b>{{ record.skill.skill_name }}</b>{% if record.evidence_text %}<p class="small muted">{{ record.evidence_text }}</p>{% endif %}{% if record.skill.status == 'retired' %}<span class="pill p-gray">Retired skill</span>{% endif %}</div>
+{% if record.skill.status == 'active' %}<form class="level-form" method="post" action="{% url 'skills:update-skill' record.skill_id %}">{% csrf_token %}<label class="sr-only" for="level-{{ record.pk }}">Proficiency for {{ record.skill.skill_name }}</label>
+<select class="input" name="level" id="level-{{ record.pk }}">{% for value, label in levels %}<option value="{{ value }}" {% if value == record.proficiency_level %}selected{% endif %}>{{ value }} · {{ label }}</option>{% endfor %}</select>
+<button class="btn secondary small">Update</button>
+</form>{% else %}<span>{{ record.get_proficiency_level_display }}</span>{% endif %}
+<form method="post" action="{% url 'skills:remove-skill' record.skill_id %}">{% csrf_token %}<button class="btn danger" aria-label="Remove {{ record.skill.skill_name }}">Remove</button>
+</form>
+</div>{% endfor %}</div>{% empty %}<p class="muted">No skills reported yet.</p>{% endfor %}</section>
+</div>
+<div class="stack">
+<section class="card" id="courses">
+<h2>Selected courses</h2>
+<form method="post" action="{% url 'skills:add-course' %}">{% csrf_token %}<div class="field">
+<label for="{{ course_form.course.id_for_label }}">Published course</label>{{ course_form.course }}</div>
+<button class="btn secondary">Select course</button>
+</form>
+<p class="how">Selecting a course does not establish completion or change your proficiency.</p>
+{% for course in courses %}<div class="list-row">
+<div class="grow">
+<b>{{ course.version.title|default:"Selected course" }}</b>
+<p class="muted small">Selected {{ course.selection.selected_at|date:"M j, Y" }}{% if course.selection.course_item.retired_at or course.version.status == 'retired' %} · No longer available{% endif %}</p>
+</div>
+<form method="post" action="{% url 'skills:remove-course' course.selection.course_item_id %}">{% csrf_token %}<button class="btn danger">Remove</button>
+</form>
+</div>{% empty %}<p class="muted">No courses selected.</p>{% endfor %}</section>
+<section class="card">
+<h2>Ready to compare?</h2>
+<p>Saved comparisons preserve the proficiency you reported at that time. Later edits will not change them.</p>
+<a class="btn" href="{% url 'comparisons:compare' %}">Choose a career or job</a>
+</section>
+</div>
+</div>
+{% endblock %}

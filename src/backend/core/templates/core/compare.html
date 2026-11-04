@@ -1,0 +1,36 @@
+{% extends "core/app_base.html" %}
+{% load compass_tags %}
+{% block title %}Compare{% endblock %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>Compare your skills</h1>
+<p>Choose a reviewed career or job. Your result describes skill alignment, not employment eligibility.</p>
+</div>
+</div>
+{% if not has_skills %}<div class="alert warning">Report at least one relevant proficiency before saving a comparison. <a href="{% url 'skills:skillprint' %}">Update your Skillprint</a>.</div>{% endif %}
+<h2>Career profiles</h2>
+<div class="grid g-2">{% for version in careers %}<article class="card target">
+<div class="co">
+<div class="co-logo">{{ version.title|initials }}</div>
+<h3>{{ version.title }}</h3>
+</div>
+<p>{{ version.body|truncatewords:35 }}</p>
+<div class="foot">
+<span class="small muted">Reviewed version {{ version.version_no }}</span>
+<form method="post" action="{% url 'comparisons:run' version.pk %}">{% csrf_token %}<button class="btn">Compare</button>
+</form>
+</div>
+</article>{% empty %}<p class="muted">No published career profiles are available yet.</p>{% endfor %}</div>
+<h2 style="margin-top:24px">Job postings</h2>
+<div class="grid g-2">{% for version in jobs %}<article class="card target">
+<h3>{{ version.title }}</h3>
+<p class="muted">{{ version.details.company.company_name }}{% if version.details.location %} · {{ version.details.location }}{% endif %}</p>
+<p>{{ version.body|truncatewords:35 }}</p>
+<div class="foot">
+<span class="small muted">Reviewed version {{ version.version_no }}</span>
+<form method="post" action="{% url 'comparisons:run' version.pk %}">{% csrf_token %}<button class="btn">Compare</button>
+</form>
+</div>
+</article>{% empty %}<p class="muted">No published job postings are available yet.</p>{% endfor %}</div>
+{% endblock %}
