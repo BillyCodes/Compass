@@ -1,3 +1,4 @@
+import os
 from django.contrib.staticfiles import finders
 from django.test import SimpleTestCase
 from django.urls import resolve, reverse
@@ -24,7 +25,7 @@ class FoundationTests(SimpleTestCase):
         response = self.client.get(reverse("core:home"))
         for asset in ["draft/css/style.css", "core/css/layout.css"]:
             with self.subTest(asset=asset):
-                self.assertIsNotNone(finders.find(asset))
+                self.assertIsNotNone(finders.find(os.path.normpath(asset)))
                 self.assertContains(response, f'/static/{asset}')
 
     def test_login_is_public_and_admin_is_not_exposed(self):

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My courses | Compass</title>
+</head>
+<body>
+    <main>
+        <h1>My courses</h1>
+
+        <p>
+            Keep a personal list of selected courses.
+            Selection does not record enrollment, completion,
+            or verified proficiency.
+        </p>
+
+        <nav aria-label="Student navigation">
+            <a href="{% url 'accounts:profile' %}">My profile</a>
+            |
+            <a href="{% url 'skills:student-skills' %}">My skills</a>
+        </nav>
+
+        <h2>Select a course</h2>
+
+        {% if has_available_courses %}
+            <form
+                method="post"
+                action="{% url 'skills:student-courses' %}"
+            >
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Add course</button>
+            </form>
+        {% else %}
+            <p>
+                There are currently no available published courses.
+            </p>
+
+            {% if form.is_bound %}
+                {{ form.errors }}
+            {% endif %}
+        {% endif %}
+
+        <h2>Selected courses</h2>
+
+        <ul>
+            {% for record in records %}
+                <li>
+                    {% if record.selection_title %}
+                        {{ record.selection_title }}
+                    {% else %}
+                        Course {{ record.course_item_id }}
+                        — no published edition currently available
+                    {% endif %}
+
+                    {% if record.course_item.retired_at %}
+                        <span> — retired from the catalog</span>
+                    {% endif %}
+
+                    <p>
+                        Selected:
+                        {{ record.selected_at|date:"Y-m-d H:i" }}
+                    </p>
+
+                    <form
+                        method="post"
+                        action="{% url 'skills:student-course-remove' record.course_item_id %}"
+                    >
+                        {% csrf_token %}
+                        <button type="submit">Remove selection</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li>You have not selected any courses yet.</li>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html>

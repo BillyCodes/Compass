@@ -6,6 +6,8 @@ urlpatterns = [
     path("", include("core.urls")),
     # An included empty URL list reserves the app boundary; it exposes no page.
     path("accounts/", include("accounts.urls")),
+    path("skills/", include("skills.urls")),
+    path("comparisons/", include("comparisons.urls")),
 ]
 
 # Add admin.site.urls after the agreed user model and database are configured.

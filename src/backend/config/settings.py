@@ -110,8 +110,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = REPOSITORY_ROOT / "staticfiles"
 # Keep draft assets available alongside conventional app-owned static files.
 STATICFILES_DIRS = [
-    ("draft/css", REPOSITORY_ROOT / "frontend" / "css"),
-    ("draft/js", REPOSITORY_ROOT / "frontend" / "js"),
+    ("draft", REPOSITORY_ROOT / "frontend"),
 ]
 # Non-debug session/CSRF cookies require HTTPS; deployment needs further configuration.
 SESSION_COOKIE_HTTPONLY = True

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}My comparisons | Compass{% endblock %}
+
+{% block content %}
+<section aria-labelledby="comparison-heading">
+    <h1 id="comparison-heading">My comparisons</h1>
+
+    <p>
+        Compare your saved skill levels with the requirements
+        of a published career or job.
+    </p>
+
+    <p>
+        <a href="{% url 'skills:student-skills' %}">
+            Review my skills
+        </a>
+    </p>
+
+    <h2>Choose a career or job</h2>
+
+    {% if has_targets %}
+        {{ form.as_p }}
+
+        <p>
+            Target selection is available.
+            Comparison submission will be connected in the next step.
+        </p>
+    {% else %}
+        <p>
+            No published careers or jobs are currently available.
+        </p>
+    {% endif %}
+
+    <h2>Saved comparisons</h2>
+
+    <ul>
+        {% for match in matches %}
+            <li>
+                {{ match.target_version.title }}
+                - v{{ match.target_version.version_no }}
+                - {{ match.score }}%
+                - {{ match.created_at|date:"Y-m-d H:i" }}
+
+                {% if match.is_provisional %}
+                    (Provisional)
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>You have not created any comparisons yet.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

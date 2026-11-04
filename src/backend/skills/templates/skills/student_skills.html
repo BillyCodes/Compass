@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My skills | Compass</title>
+</head>
+<body>
+    <main>
+        <h1>My skills</h1>
+
+        <p>
+            Add or update your self-reported proficiency.
+            Supporting descriptions are not verified evidence.
+        </p>
+
+        <form method="post" action="{% url 'skills:student-skills' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save skill</button>
+        </form>
+
+        <h2>Saved skills</h2>
+
+        <ul>
+            {% for record in records %}
+                <li>
+                    <strong>{{ record.skill.skill_name }}</strong>
+                    — {{ record.get_proficiency_level_display }}
+
+                    {% if record.evidence_text %}
+                        <p>{{ record.evidence_text }}</p>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>You have not added any skills yet.</li>
+            {% endfor %}
+        </ul>
+
+        <p>
+            <a href="{% url 'accounts:profile' %}">Back to profile</a>
+        </p>
+        <p>
+    <a href="{% url 'skills:student-courses' %}">
+        My selected courses
+    </a>
+</p>
+
+
+
+    </main>
+</body>
+</html>
