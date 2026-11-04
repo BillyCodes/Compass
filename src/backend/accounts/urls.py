@@ -2,10 +2,12 @@
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 
-from .views import EmailLoginView, profile
+from .views import EmailLoginView, profile, register, edit_profile
 
 app_name = "accounts"
 urlpatterns = [
+    path("register/", register, name="register"),
+    path("profile/edit/", edit_profile, name="edit-profile"),
     path("login/", EmailLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("profile/", profile, name="profile"),

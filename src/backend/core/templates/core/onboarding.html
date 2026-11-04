@@ -2,34 +2,33 @@
 {% block title %}Welcome{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div>
-    <p class="eyebrow">Welcome, {{ request.student.first_name }}</p>
-    <h1>Let's build your Skillprint</h1>
-    <p>Three quick steps. You can do them in any order and come back any time.</p>
-  </div>
+<div>
+<p class="eyebrow">Welcome, {{ request.student.display_name }}</p>
+<h1>Let's build your Skillprint</h1>
+<p>Start with what you know and explore where it can take you.</p>
+</div>
 </div>
 <div class="steps">
-  <div class="card step">
-    <span class="n">Step 1</span>
-    <div class="icon-tile t-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg></div>
-    <h3>Upload your resume</h3>
-    <p>We read it, find the skills you mention, and let you confirm each level. The file itself isn't stored.</p>
-    <a class="btn" href="{% url 'resume_upload' %}">Upload resume</a>
-  </div>
-  <div class="card step">
-    <span class="n">Step 2</span>
-    <div class="icon-tile t-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 19V6a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2"/><path d="M8 8h6"/></svg></div>
-    <h3>Add courses and skills</h3>
-    <p>Add classes you've taken. Each one adds the skills it teaches, and you can adjust any level.</p>
-    <a class="btn secondary" href="{% url 'skillprint' %}">Open My Skillprint</a>
-  </div>
-  <div class="card step">
-    <span class="n">Step 3</span>
-    <div class="icon-tile t-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
-    <h3>Compare to a job</h3>
-    <p>Pick a career, a sample posting, or paste a real one. See your strengths and the gaps worth closing.</p>
-    <a class="btn secondary" href="{% url 'compare' %}">Compare</a>
-  </div>
+<section class="card step">
+<span class="n">Step 1</span>
+<h2>Report your skills</h2>
+<p>Choose a proficiency from 0 (None) to 5 (Expert). An unreported skill remains unknown.</p>
+<a class="btn" href="{% url 'skills:skillprint' %}">Build My Skillprint</a>
+</section>
+<section class="card step">
+<span class="n">Step 2</span>
+<h2>Select courses</h2>
+<p>Record courses you want to explore. Course selection does not establish proficiency or completion.</p>
+<a class="btn secondary" href="{% url 'skills:skillprint' %}#courses">Explore courses</a>
+</section>
+<section class="card step">
+<span class="n">Step 3</span>
+<h2>Compare and learn</h2>
+<p>Choose a reviewed career or job, inspect your gaps, and follow saved learning recommendations.</p>
+<a class="btn secondary" href="{% url 'comparisons:compare' %}">Choose a target</a>
+</section>
 </div>
-<p class="muted small" style="margin-top:22px"><a href="{% url 'dashboard' %}">Skip to dashboard →</a></p>
+<p style="margin-top:22px">
+<a href="{% url 'core:dashboard' %}">Go to dashboard →</a>
+</p>
 {% endblock %}

@@ -6,6 +6,9 @@ urlpatterns = [
     path("", include("core.urls")),
     # Account routes expose sign-in, POST-only sign-out, and owned profiles.
     path("accounts/", include("accounts.urls")),
+    path("", include("skills.urls")),
+    path("", include("comparisons.urls")),
+    path("", include("reference.urls")),
 ]
 
 # Admin routes remain deferred until the corresponding forms and access rules are ready.

@@ -98,7 +98,8 @@ accounts, without echoing or storing it in repository files:
 
 It refuses to modify existing demo accounts on repeat runs. No administrator,
 staff, or superuser account is created. Use a synthetic password, not a personal
-password. Public registration and privileged role-management screens are deferred.
+password. Public student registration and profile editing now use the integrated
+forms; privileged role-management screens remain deferred.
 
 Open <http://127.0.0.1:8000/accounts/login/>. A valid email/password opens the
 account's profile; logout uses POST and ends access. Login is case-insensitive for
@@ -130,11 +131,12 @@ configuration remain future work.
 
 ## Frontend integration
 
-Keep the programming lead's design as the source for the eventual UI. Put common
-page structure in `src/backend/templates/base.html` and includes; put feature
-templates and static assets in their owning apps. Use named Django URLs, static
-tags, and CSRF tokens when connecting forms. The current placeholder layout is
-replaceable. No separate API frontend, React migration, or Django REST Framework
+The programming lead's design is now connected through `core/base.html` and
+`core/app_base.html`. Feature views/forms call the approved backend services with
+namespaced URLs and CSRF protection. See the
+[frontend integration guide](architecture/frontend-integration.md) for the route
+map and supported workflow. The old project-level layout and standalone draft
+are retained as references. No separate API frontend, React migration, or Django REST Framework
 dependency is required by this decision.
 
 ## Schema and sample-data workflow

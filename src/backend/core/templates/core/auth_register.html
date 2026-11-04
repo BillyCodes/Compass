@@ -10,10 +10,10 @@
     </div>
     <p class="muted small" style="margin:0">Test Launch 01 uses synthetic data. Use a test email, and don't enter real student records.</p>
   </aside>
-  <main class="auth-main">
+  <main class="auth-main" id="main-content">
     <div class="auth-card">
       <h1>Create your account</h1>
-      <p class="sub">It takes a minute. You can upload your resume right after.</p>
+      <p class="sub">Start with your profile, then add your self-reported skills.</p>
       <form method="post" novalidate>
         {% csrf_token %}
         {% if form.non_field_errors %}<div class="alert error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
@@ -27,7 +27,7 @@
         {% endfor %}
         <button class="btn block" type="submit">Create account</button>
       </form>
-      <p class="small muted" style="margin-top:18px;text-align:center">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+      <p class="small muted" style="margin-top:18px;text-align:center">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
     </div>
   </main>
 </div>

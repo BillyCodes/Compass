@@ -1,4 +1,4 @@
-"""Compass backend settings; imported frontend templates await route integration."""
+"""Compass settings for the PostgreSQL backend and integrated Django templates."""
 import os
 from pathlib import Path
 from secrets import token_urlsafe
@@ -63,6 +63,7 @@ TEMPLATES = [{
         "django.template.context_processors.request",
         "django.contrib.auth.context_processors.auth",
         "django.contrib.messages.context_processors.messages",
+        "core.context_processors.navigation",
     ]},
 }]
 WSGI_APPLICATION = "config.wsgi.application"

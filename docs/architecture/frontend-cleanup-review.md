@@ -2,7 +2,10 @@
 
 Reviewed November 3, 2026 on `integration/frontend-main`, after importing the
 presentation directories from `integration/docker-test-launch` onto `main`.
-This is a cleanup checkpoint before route/view integration, not a completed UI.
+This document records the historical cleanup checkpoint before route/view
+integration. The subsequent [frontend integration](frontend-integration.md) resolves
+the missing routes and connects the new student interface; validation failures
+and active-legacy-layout statements below describe the earlier checkpoint.
 
 ## Findings and safe cleanup applied
 

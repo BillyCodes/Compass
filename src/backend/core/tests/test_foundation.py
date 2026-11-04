@@ -1,18 +1,18 @@
 from django.contrib.staticfiles import finders
-from django.test import SimpleTestCase
+from django.test import TestCase
 from django.urls import resolve, reverse
 
 
-class FoundationTests(SimpleTestCase):
-    """Foundation checks intentionally forbid database queries."""
+class FoundationTests(TestCase):
+    """Landing page, namespaced routes, and integrated design assets."""
 
     def test_home_uses_app_template_and_shared_layout(self):
         # Confirm the app page composes the shared shell, not a standalone draft.
         response = self.client.get(reverse("core:home"))
         self.assertEqual(response.status_code, 200)
-        for template in ["core/home.html", "base.html", "includes/header.html", "includes/footer.html"]:
+        for template in ["core/home.html", "core/base.html", "core/partials/logo.html"]:
             self.assertTemplateUsed(response, template)
-        self.assertContains(response, "Chart your path from classroom to career.")
+        self.assertContains(response, "Find Your Direction.")
         self.assertContains(response, 'id="main-content"')
 
     def test_route_belongs_to_core_app(self):
@@ -22,7 +22,7 @@ class FoundationTests(SimpleTestCase):
         # Check both retained draft assets and app-owned assets through finders.
         # This verifies Django discovery, not visual layout in a browser.
         response = self.client.get(reverse("core:home"))
-        for asset in ["draft/css/style.css", "core/css/layout.css"]:
+        for asset in ["core/compass.css"]:
             with self.subTest(asset=asset):
                 self.assertIsNotNone(finders.find(asset))
                 self.assertContains(response, f'/static/{asset}')

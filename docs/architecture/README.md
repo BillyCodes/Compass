@@ -1,8 +1,10 @@
 # Django architecture
 
-Current frontend checkpoint: new templates and assets are imported but not yet
-connected to the backend routes/forms. The [cleanup review](frontend-cleanup-review.md)
-records active legacy dependencies, safe removals, and known rendering blockers.
+Current frontend checkpoint: the imported design is connected to the approved
+backend services. See the [integration guide](frontend-integration.md) for routes,
+permissions, tests, and feature boundaries. The [cleanup review](frontend-cleanup-review.md)
+records the earlier import checkpoint and the legacy assets that can be retired
+once the team accepts the design.
 
 Foundation established on `django-structure`, October 28, 2026. This branch contains
 project wiring, a placeholder home page, and the first account/authentication
@@ -64,12 +66,12 @@ migrations now live in `accounts/migrations/`.
 
 `config/urls.py` includes an app's URL configuration. The app maps a named route
 to a view. The view handles the request and renders a template or returns data.
-Templates extend the shared `base.html`; account models now provide persistence
-for the account section. Skills and content item/version models now extend
-that foundation without introducing new frontend routes.
+Connected screens extend `core/base.html` and `core/app_base.html`. Account,
+skill, comparison, and reference views own their feature routes and call the
+established services; `core` owns the landing page, dashboard, and onboarding.
 
 The public home route is `core:home`. `accounts/urls.py` provides email login,
-POST-only logout, and private profile reads. `/admin/` is still not exposed;
+POST-only logout, registration, private profile reads, and owned profile editing. `/admin/` is still not exposed;
 privileged model-management screens are deferred.
 
 ## Configuration and identity
