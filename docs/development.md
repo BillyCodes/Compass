@@ -1,5 +1,10 @@
 # Team development stack
 
+For first-time setup on **macOS/Linux or Windows PowerShell**, follow the
+[README](../README.md). Detailed examples below use macOS/Linux interpreter paths;
+on Windows, invoke `.\.venv\Scripts\python.exe` and use `src\backend\manage.py`.
+No virtual-environment activation is required.
+
 Agreed direction, October 28, 2026:
 
 - Django is the backend, with its ORM and migrations defining the shared schema.
