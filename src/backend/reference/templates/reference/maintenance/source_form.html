@@ -1,0 +1,84 @@
+{% extends "core/app_base.html" %}
+
+{% block title %}Add source | Compass{% endblock %}
+
+{% block content %}
+<section>
+    <p>Content maintenance</p>
+    <h1>Add source</h1>
+
+    <p>
+        Add a reference to the draft:
+        <strong>{{ version.title }}</strong>
+    </p>
+
+    <p>
+        Use a source title and a URL or reference identifier.
+        Clearly label synthetic test sources.
+    </p>
+
+    <p>
+        <a href="{% url 'maintenance:edit_content' version_id=version.pk %}">
+            Back to draft
+        </a>
+    </p>
+
+    <h2>Source details</h2>
+
+    <form
+        method="post"
+        action="{% url 'maintenance:add_source' version_id=version.pk %}"
+    >
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div role="alert" style="margin-bottom: 20px; color: #b42318;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+
+            {% if hidden.errors %}
+                <div role="alert" style="color: #b42318;">
+                    {{ hidden.errors }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% for field in form.visible_fields %}
+            <div style="margin-bottom: 20px;">
+                <label
+                    for="{{ field.id_for_label }}"
+                    style="display: block; margin-bottom: 8px;"
+                >
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.help_text %}
+                    <p>{{ field.help_text }}</p>
+                {% endif %}
+
+                {% if field.errors %}
+                    <div role="alert" style="color: #b42318;">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <button type="submit" class="btn">
+                Add source
+            </button>
+
+            <a href="{% url 'maintenance:edit_content' version_id=version.pk %}">
+                Cancel
+            </a>
+        </div>
+    </form>
+</section>
+{% endblock %}
