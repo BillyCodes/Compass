@@ -153,6 +153,7 @@ Tests use a separate PostgreSQL test database.
 
 - [Frontend integration](docs/architecture/frontend-integration.md): routes, supported screens, and remaining work.
 - [Development setup](docs/development.md): database settings and troubleshooting.
+- [Django command reference](docs/django-commands.md): migrations, tests, accounts, and audit cleanup.
 - [Django architecture](docs/architecture/README.md): app responsibilities and service conventions.
 - [ERD mapping](docs/architecture/erd-django-mapping.md): account models and database relationships.
 
