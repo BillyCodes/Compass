@@ -36,7 +36,7 @@
       <div class="list">
         {% for p in past %}
         <div class="list-row"><div class="grow"><div class="title">{{ p.filename }}</div><div class="sub">{{ p.created_at|date:"M j, Y" }} · {{ p.detected|length }} skills found</div></div>
-          {% if p.applied %}<span class="pill p-green">Saved</span>{% else %}<a class="small" href="{% url 'resume_review' p.pk %}">Review</a>{% endif %}</div>
+          {% if p.applied %}<span class="pill p-green">Saved</span>{% else %}<a class="small" href="{% url 'pilot:resume-review' p.pk %}">Review</a>{% endif %}</div>
         {% endfor %}
       </div>
     </section>

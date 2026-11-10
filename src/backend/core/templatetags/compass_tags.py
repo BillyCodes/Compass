@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from skills.models import ProficiencyLevel
+from pilot.services.skillprint import CATEGORY_LABELS, category_key
 
 register = template.Library()
 
@@ -33,7 +34,23 @@ def level_pct(level):
 
 @register.filter
 def cat_tint(cat):
-    return CAT_TINT.get(cat, "t-blue")
+    return CAT_TINT.get(category_key(cat), "t-blue")
+
+
+@register.filter
+def cat_key(cat):
+    """Stable CSS/chart key for a free-text skill category."""
+    return category_key(cat) or "other"
+
+
+@register.filter
+def cat_label(cat):
+    return CATEGORY_LABELS.get(category_key(cat), cat or "Other")
+
+
+@register.filter
+def first_word(text):
+    return str(text or "").split(" ")[0]
 
 
 @register.filter

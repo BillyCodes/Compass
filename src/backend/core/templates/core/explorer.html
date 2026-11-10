@@ -3,25 +3,37 @@
 {% block title %}Skill Explorer{% endblock %}
 {% block content %}
 <div class="page-head">
-<div>
-<h1>Skill Explorer</h1>
-<p>Browse the active skill catalog, then report your proficiency in My Skillprint.</p>
+  <div>
+    <h1>Skill Explorer</h1>
+    <p>Understand what each skill is, how your courses build it, and why it matters.</p>
+  </div>
 </div>
+<div class="tabs" role="navigation" aria-label="Filter by category">
+  <a class="chip {% if not current %}on{% endif %}" href="{% url 'skills:explorer' %}">All</a>
+  {% for v, l in categories %}<a class="chip {% if current == v %}on{% endif %}" href="?category={{ v|urlencode }}">{{ l }}</a>{% endfor %}
 </div>
-<form method="get" class="card form-row">
-<div class="field">
-<label for="query">Search skills</label>
-<input class="input" id="query" name="q" value="{{ query }}" maxlength="100">
+{% if query %}<p class="muted small">Showing results for “{{ query }}”. <a href="{% url 'skills:explorer' %}">Clear</a></p>{% endif %}
+<div class="grid g-3">
+  {% for s in skills %}
+  <article class="card skill-card">
+    <div class="icon-tile {{ s.category|cat_tint }}" style="font-weight:800;font-size:14px">{{ s.skill_name|initials }}</div>
+    <h3>{{ s.skill_name }}</h3>
+    {% if s.detail.description %}<p>{{ s.detail.description }}</p>{% endif %}
+    {% if s.detail.why_it_matters %}<p><b style="color:var(--ink)">Why it matters:</b> {{ s.detail.why_it_matters }}</p>{% endif %}
+    <div class="chips">
+      {% if s.category %}<span class="pill p-gray">{{ s.category|cat_label }}</span>{% endif %}
+      {% if s.postings >= 2 %}<span class="pill p-amber">In demand</span>{% endif %}
+      {% for code in s.course_codes|slice:":2" %}<span class="pill p-violet">{{ code }}</span>{% endfor %}
+    </div>
+    <div class="foot">
+      {% with lv=mine|get_item:s.skill_id %}
+        {% if lv is not None %}<span>You: {% dots lv %} <span class="muted">{{ lv }} · {{ lv|level_label }}</span></span>{% else %}<span class="muted">Not on your Skillprint</span>{% endif %}
+      {% endwith %}
+      <a href="{% url 'reference:notes' %}?skill={{ s.skill_id }}">Field Notes →</a>
+    </div>
+  </article>
+  {% empty %}
+  <div class="card empty" style="grid-column:1/-1"><h3>No skills match</h3><p>Try a different word or category.</p></div>
+  {% endfor %}
 </div>
-<div class="field">
-<label for="category">Category</label>
-<select class="input" id="category" name="category">
-<option value="">All categories</option>{% for category in categories %}<option {% if category == current %}selected{% endif %}>{{ category }}</option>{% endfor %}</select>
-</div>
-<button class="btn">Search</button>
-</form>
-<div class="grid g-3" style="margin-top:18px">{% for skill in skills %}<article class="card">
-<span class="pill p-gray">{{ skill.category|default:"Other" }}</span>
-<h2>{{ skill.skill_name }}</h2>{% with level=mine|get_item:skill.pk %}{% if level != None %}<p>Your reported level: {{ level }} · {{ level|level_label }}</p>{% else %}<p class="muted">Proficiency unreported.</p>{% endif %}{% endwith %}<a href="{% url 'skills:skillprint' %}">Manage proficiency →</a>
-</article>{% empty %}<p class="muted">No active skills match your search.</p>{% endfor %}</div>
 {% endblock %}

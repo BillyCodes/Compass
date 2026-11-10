@@ -1,11 +1,47 @@
 {% extends "core/app_base.html" %}
-{% block title %}{{ version.title }}{% endblock %}
+{% load compass_tags %}
+{% block title %}{{ note.headline }} · Field Note{% endblock %}
 {% block content %}
-<a href="{% url 'reference:notes' %}">← Field Notes</a>
-<article class="card" style="margin-top:18px">
-<p class="eyebrow">Reviewed insight · version {{ version.version_no }}</p>
-<h1>{{ version.title }}</h1>
-<div>{{ version.body|linebreaks }}</div>
-<p class="small muted">Published {{ version.published_at|date:"M j, Y" }}</p>
-</article>
+<p class="eyebrow" style="margin-top:8px"><a href="{% url 'reference:notes' %}">← Field Notes</a></p>
+<div class="grid g-side" style="margin-top:10px">
+  <article class="card note-body">
+    {% if note.author_name %}<div class="note-card"><div class="person"><div class="avatar {{ note.author_name|av }}">{{ note.initials }}</div><div><b>{{ note.author_name }}</b><span>{{ note.author_role }} · {{ note.author_org }} · {{ note.years_experience }} years</span></div></div></div>{% endif %}
+    {% if note.quote %}<p class="big-quote">“{{ note.quote }}”</p>{% endif %}
+    <h2 style="font-size:22px;margin:0 0 10px">{{ note.headline }}</h2>
+    <div>{{ note.body|linebreaks }}</div>
+    {% if note.working_on %}<h3>What my team is working on right now</h3><div>{{ note.working_on|linebreaks }}</div>{% endif %}
+    {% if note.learn_next %}<h3>What I'd learn next if I were you</h3><div>{{ note.learn_next|linebreaks }}</div>{% endif %}
+    <p class="small muted" style="margin-top:22px">Published {{ note.published_at|date:"M j, Y" }}{% if note.is_sample %} · Sample Field Note for Test Launch 01; author and company are fictional.{% endif %}</p>
+  </article>
+  <aside class="stack">
+    {% if note.skills %}
+    <section class="card">
+      <h2>Skills in this note</h2>
+      <div class="list">
+        {% for s in note.skills %}
+        {% with lv=mine|get_item:s.skill_id %}
+        <div class="list-row">
+          <div class="icon-tile {{ s.category|cat_tint }}" style="width:34px;height:34px;font-weight:800;font-size:12px">{{ s.skill_name|initials }}</div>
+          <div class="grow"><div class="title">{{ s.skill_name }}</div><div class="sub">{% if lv is not None %}You: {{ lv|level_label }}{% else %}Not on your Skillprint{% endif %}</div></div>
+          {% if lv is not None %}{% dots lv %}{% endif %}
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+      <a class="btn secondary block" style="margin-top:14px" href="{% url 'skills:skillprint' %}">Update my Skillprint</a>
+    </section>
+    {% endif %}
+    <section class="card">
+      <h2>More notes</h2>
+      <div class="list">
+        {% for n in more %}
+        <a class="list-row" href="{% url 'reference:note' n.pk %}" style="color:inherit;text-decoration:none">
+          {% if n.author_name %}<div class="avatar {{ n.author_name|av }}" style="width:34px;height:34px;font-size:12px">{{ n.initials }}</div>{% endif %}
+          <div class="grow"><div class="title">{{ n.headline }}</div>{% if n.author_role %}<div class="sub">{{ n.author_role }}</div>{% endif %}</div>
+        </a>
+        {% empty %}<p class="muted small">No other notes yet.</p>{% endfor %}
+      </div>
+    </section>
+  </aside>
+</div>
 {% endblock %}

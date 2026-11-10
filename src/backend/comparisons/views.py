@@ -1,24 +1,41 @@
+from decimal import Decimal
+from types import SimpleNamespace
+from uuid import UUID
+
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
+
 from core.security import student_required
-from reference.services import available_content_versions
+from pilot.forms import PostingForm
+from pilot.models import PostingMatch, ProgressSnapshot
+from pilot.services import postings, presenter, skillprint
 from reference.selectors import latest_available
-from skills.services import list_student_skills
+from reference.services import available_content_versions
 from skills.models import ProficiencyLevel
+from skills.services import list_student_skills
 from .models import MatchResult
-from .services import create_comparison, delete_match, get_match, list_matches
+from .scoring import Outcome, Requirement
+from .services import _recommendations, create_comparison, delete_match, get_match, list_matches
+
+
+def render_compare(request, form=None):
+    careers = latest_available("career").prefetch_related("requirements")
+    jobs = latest_available("job").prefetch_related("requirements")
+    return render(request, "core/compare.html", {"active": "compare", "careers": careers, "jobs": jobs,
+        "mine": postings.list_postings(actor=request.user)[:postings.MAX_POSTINGS_SHOWN], "form": form or PostingForm(),
+        "has_skills": list_student_skills(actor=request.user).exists()})
 
 
 @student_required
 @require_GET
 def compare(request):
-    return render(request, "core/compare.html", {"active": "compare",
-        "careers": latest_available("career"), "jobs": latest_available("job"),
-        "has_skills": list_student_skills(actor=request.user).exists()})
+    return render_compare(request)
 
 
 @student_required
@@ -39,41 +56,101 @@ def run(request, version_id):
     return redirect("comparisons:detail", match_id=result.pk)
 
 
+def _related_notes(skill_ids):
+    skill_ids = set(skill_ids)
+    return [n for n in presenter.available_notes() if skill_ids & {s.pk for s in n["skills"]}][:3]
+
+
+def _reference_detail(request, result):
+    groups = presenter.reference_groups(result)
+    version = result.target_version
+    details = getattr(version, "details", None)
+    company = details.company.company_name if details and details.company else ""
+    suggestions = list(result.recommendations.all())
+    available_ids = presenter.reference_available([r.resource_version_id for r in suggestions])
+    names = {str(o.skill_id): o.skill.skill_name for o in result.outcomes.all()}
+    recommendations = [{"rank": r.priority_rank, "title": r.resource_version.title, "pk": r.resource_version_id,
+        "kind": r.get_resource_kind_display().lower(), "available": r.resource_version_id in available_ids,
+        "skills": [names.get(row["skill_id"], "Skill") for row in r.reason.get("skills", [])]} for r in suggestions]
+    levels = dict(result.inputs.values_list("skill_id", "level_used"))
+    current = dict(list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level"))
+    rerun = available_content_versions().filter(pk=version.pk, kind__in=["career", "job"]).exists()
+    summary = presenter.summary_for(
+        title=version.title, subtitle=company or "Reviewed career profile", company=company,
+        location=details.location if details else "", created_at=result.created_at, score=result.score,
+        mandatory_status=result.mandatory_status, reported_count=result.reported_count, relevant_count=result.relevant_count,
+        is_provisional=result.is_provisional, alg_version=result.alg_version, version_label=f"reference version {version.version_no}",
+        groups=groups, rerun_url=reverse("comparisons:run", args=[version.pk]) if rerun else "",
+        delete_url=reverse("comparisons:delete", args=[result.pk]), private=False)
+    notes = _related_notes(r["skill_id"] for g in ("gap", "unreported") for r in groups[g])
+    return render(request, "core/result.html", {"active": "compare", "summary": summary, "groups": groups,
+        "recommendations": recommendations, "notes": notes,
+        "changed_since": any(current.get(skill_id) != level for skill_id, level in levels.items())})
+
+
+def _posting_detail(request, match):
+    groups = presenter.posting_groups(match)
+    requirements = [Requirement(UUID(d["skill_id"]), d["required_level"], Decimal(d["weight"]), d["mandatory"]) for d in match.detail]
+    calculation = SimpleNamespace(outcomes=[Outcome(UUID(d["skill_id"]), d["status"], d["gap"]) for d in match.detail])
+    names = {d["skill_id"]: d["name"] for d in match.detail}
+    recommendations = [{"rank": rank, "title": version.title, "pk": version.pk, "kind": version.get_kind_display().lower(), "available": True,
+                        "skills": [names.get(row["skill_id"], "Skill") for row in reason["skills"]]}
+                       for rank, (version, reason) in enumerate(_recommendations(requirements, calculation), start=1)]
+    current = {str(k): v for k, v in list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level")}
+    rerun = reverse("pilot:posting-run", args=[match.posting_id]) if match.posting_id else ""
+    summary = presenter.summary_for(
+        title=match.target_title, subtitle=match.target_company, company=match.target_company, location="",
+        created_at=match.created_at, score=match.score, mandatory_status=match.mandatory_status,
+        reported_count=match.reported_count, relevant_count=match.relevant_count, is_provisional=match.is_provisional,
+        alg_version=match.alg_version, version_label="pasted posting", groups=groups, rerun_url=rerun,
+        delete_url=reverse("comparisons:delete", args=[match.pk]), private=True)
+    notes = _related_notes(UUID(r["skill_id"]) for g in ("gap", "unreported") for r in groups[g])
+    return render(request, "core/result.html", {"active": "compare", "summary": summary, "groups": groups,
+        "recommendations": recommendations, "notes": notes,
+        "changed_since": any(current.get(d["skill_id"]) != d["level_used"] for d in match.detail)})
+
+
 @student_required
 @require_GET
 def detail(request, match_id):
     try:
-        result = get_match(actor=request.user, match_id=match_id)
+        return _reference_detail(request, get_match(actor=request.user, match_id=match_id))
     except MatchResult.DoesNotExist:
+        pass
+    try:
+        return _posting_detail(request, postings.get_posting_match(actor=request.user, match_id=match_id))
+    except PostingMatch.DoesNotExist:
         raise Http404 from None
-    levels = dict(result.inputs.values_list("skill_id", "level_used"))
-    requirements = {r.skill_id: r for r in result.target_version.requirements.all()}
-    labels = dict(ProficiencyLevel.choices)
-    groups = {"met": [], "gap": [], "unreported": []}
-    for outcome in result.outcomes.all():
-        requirement = requirements[outcome.skill_id]
-        level = levels[outcome.skill_id]
-        groups[outcome.status].append({"name": outcome.skill.skill_name,
-            "level": level, "label": "Unreported" if level is None else labels[level],
-            "required_label": labels[requirement.required_level], "required_level": requirement.required_level,
-            "mandatory": requirement.mandatory, "weight": requirement.weight, "gap": outcome.gap})
-    for rows in groups.values():
-        rows.sort(key=lambda row: (not row["mandatory"], -row["weight"], row["name"]))
-    suggestions = list(result.recommendations.all())
-    available_ids = set(available_content_versions().exclude(skill_mappings__skill__status="retired").filter(pk__in=[r.resource_version_id for r in suggestions]).values_list("pk", flat=True))
-    names = {str(o.skill_id): o.skill.skill_name for o in result.outcomes.all()}
-    recommendations = [{"record": r, "available": r.resource_version_id in available_ids,
-        "skills": [names.get(row["skill_id"], "Skill") for row in r.reason.get("skills", [])]} for r in suggestions]
-    current = dict(list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level"))
-    changed = any(current.get(skill_id) != level for skill_id, level in levels.items())
-    return render(request, "core/result.html", {"active": "compare", "r": result,
-        "groups": groups, "recommendations": recommendations, "changed_since": changed})
 
 
 @student_required
 @require_GET
 def journey(request):
-    return render(request, "core/journey.html", {"active": "journey", "results": list_matches(actor=request.user)})
+    student = request.student
+    snaps = list(ProgressSnapshot.objects.filter(student=student)[:12])
+    timeline = []
+    for i, snap in enumerate(snaps):
+        prev = snaps[i + 1] if i + 1 < len(snaps) else None
+        changes = []
+        if prev:
+            for key, label in skillprint.CATEGORIES:
+                diff = round(snap.categories.get(key, 0) - prev.categories.get(key, 0), 1)
+                if diff:
+                    changes.append((label, diff))
+        timeline.append({"snap": snap, "changes": changes, "skill_total": len(snap.skills)})
+    history = []
+    for m in (list_matches(actor=request.user).annotate(met=Count("outcomes", filter=Q(outcomes__status="met")), total=Count("outcomes"))[:12]):
+        history.append({"title": m.target_version.title, "created_at": m.created_at, "score": m.score, "is_provisional": m.is_provisional,
+            "status": presenter.match_status(m.score, m.mandatory_status), "requirements_met": m.met, "requirements_total": m.total,
+            "url": reverse("comparisons:detail", args=[m.pk]), "delete_url": reverse("comparisons:delete", args=[m.pk])})
+    for m in postings.list_posting_matches(actor=request.user)[:12]:
+        history.append({"title": f"{m.target_title} — {m.target_company}", "created_at": m.created_at, "score": m.score, "is_provisional": m.is_provisional,
+            "status": presenter.match_status(m.score, m.mandatory_status), "requirements_met": sum(d["status"] == "met" for d in m.detail),
+            "requirements_total": len(m.detail), "url": reverse("comparisons:detail", args=[m.pk]), "delete_url": reverse("comparisons:delete", args=[m.pk])})
+    history.sort(key=lambda r: r["created_at"], reverse=True)
+    oldest = snaps[-1] if snaps else None
+    return render(request, "core/journey.html", {"active": "journey", "timeline": timeline, "results": history[:12], "oldest": oldest,
+        "radar": skillprint.radar_svg(skillprint.scores_for_student(student), oldest.categories if oldest else None)})
 
 
 @student_required
@@ -82,6 +159,9 @@ def remove(request, match_id):
     try:
         delete_match(actor=request.user, match_id=match_id)
     except MatchResult.DoesNotExist:
-        raise Http404 from None
+        try:
+            postings.delete_posting_match(actor=request.user, match_id=match_id)
+        except PostingMatch.DoesNotExist:
+            raise Http404 from None
     messages.success(request, "Comparison deleted.")
     return redirect("comparisons:journey")

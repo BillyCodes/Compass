@@ -1,6 +1,11 @@
+import uuid
+
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 from core.security import student_required
+from pilot.services import presenter
+from skills.models import Skill
+from skills.services import list_student_skills
 from .selectors import latest_available
 from .services import available_content_versions
 
@@ -8,14 +13,24 @@ from .services import available_content_versions
 @student_required
 @require_GET
 def field_notes(request):
-    return render(request, "core/field_notes.html", {"active": "notes", "notes": latest_available("insight")})
+    try:
+        skill_id = uuid.UUID(request.GET.get("skill", ""))
+    except ValueError:
+        skill_id = None
+    available_ids = list(latest_available("insight").values_list("pk", flat=True))
+    notes = presenter.available_notes(skill_id=skill_id)
+    tagged = Skill.objects.filter(field_notes__version_id__in=available_ids).distinct().order_by("skill_name")
+    return render(request, "core/field_notes.html", {"active": "notes", "notes": notes, "tagged": tagged,
+                  "current": str(skill_id) if skill_id else "", "has_sample": any(n["is_sample"] for n in notes)})
 
 
 @student_required
 @require_GET
 def field_note_detail(request, version_id):
-    version = get_object_or_404(available_content_versions(kind="insight"), pk=version_id)
-    return render(request, "core/field_note_detail.html", {"active": "notes", "version": version})
+    version = get_object_or_404(available_content_versions(kind="insight").select_related("field_note"), pk=version_id)
+    mine = dict(list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level"))
+    more = [n for n in presenter.available_notes() if n["pk"] != version.pk][:3]
+    return render(request, "core/field_note_detail.html", {"active": "notes", "note": presenter.note_card(version), "mine": mine, "more": more})
 
 
 @student_required

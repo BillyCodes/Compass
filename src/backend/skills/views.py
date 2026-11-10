@@ -1,11 +1,13 @@
-from itertools import groupby
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from core.security import student_required
-from reference.models import ContentVersion
+from pilot.services import skillprint as sp
+from reference.models import ContentSkill, ContentVersion
+from reference.selectors import latest_available
+from reference.services import available_content_versions
 from .forms import CourseForm, LevelForm, SkillForm
 from .models import ProficiencyLevel, Skill
 from .services import (list_student_courses, list_student_skills, remove_student_course,
@@ -26,7 +28,15 @@ def skillprint(request):
             messages.success(request, "Skill saved.")
             return redirect("skills:skillprint")
     records = list(list_student_skills(actor=request.user).order_by("skill__category", "skill__skill_name"))
-    groups = [(category or "Other", list(items)) for category, items in groupby(records, key=lambda r: r.skill.category)]
+    by_category = {}
+    for record in records:
+        record.from_resume = record.evidence_text.startswith("Resume:")
+        by_category.setdefault(sp.category_key(record.skill.category) or "other", []).append(record)
+    scores = sp.scores_for_student(request.student)
+    groups = [(key, label, scores[key], by_category.get(key, [])) for key, label in sp.CATEGORIES]
+    if by_category.get("other"):
+        groups.append(("other", "Other", None, by_category["other"]))
+    last_snap = sp.last_snapshot(request.student)
     selections = list(list_student_courses(actor=request.user))
     editions = ContentVersion.objects.filter(item_id__in=[s.course_item_id for s in selections], status__in=["published", "retired"]).order_by("item_id", "-version_no")
     latest = {}
@@ -34,7 +44,8 @@ def skillprint(request):
         latest.setdefault(version.item_id, version)
     courses = [{"selection": s, "version": latest.get(s.course_item_id)} for s in selections]
     return render(request, "core/skillprint.html", {"active": "skillprint", "form": form,
-        "course_form": CourseForm(prefix="course"), "groups": groups, "levels": ProficiencyLevel.choices, "courses": courses})
+        "course_form": CourseForm(prefix="course"), "groups": groups, "levels": ProficiencyLevel.choices, "courses": courses,
+        "radar": sp.radar_svg(scores, last_snap.categories if last_snap else None), "last_snap": last_snap})
 
 
 @student_required
@@ -93,12 +104,25 @@ def remove_course(request, item_id):
 def explorer(request):
     query = request.GET.get("q", "").strip()[:100]
     category = request.GET.get("category", "").strip()[:100]
-    catalog = Skill.objects.filter(status="active")
-    categories = list(catalog.exclude(category="").values_list("category", flat=True).order_by("category").distinct())
+    active = Skill.objects.filter(status="active")
+    categories = [(c, sp.CATEGORY_LABELS.get(sp.category_key(c), c))
+                  for c in active.exclude(category="").values_list("category", flat=True).order_by("category").distinct()]
+    job_versions = available_content_versions(kind="job").values("pk")
+    catalog = (active.select_related("detail")
+               .annotate(postings=Count("content_requirements", filter=Q(content_requirements__version__in=job_versions), distinct=True)))
     if category:
         catalog = catalog.filter(category=category)
     if query:
-        catalog = catalog.filter(Q(skill_name__icontains=query) | Q(category__icontains=query))
+        catalog = catalog.filter(Q(skill_name__icontains=query) | Q(category__icontains=query)
+                                 | Q(detail__description__icontains=query) | Q(detail__aliases__icontains=query))
+    skills = list(catalog)
+    course_versions = list(latest_available("course").values_list("pk", flat=True))
+    codes = {}
+    for skill_id, code in (ContentSkill.objects.filter(version_id__in=course_versions, skill_id__in=[s.pk for s in skills])
+                           .exclude(version__details__course_code="").values_list("skill_id", "version__details__course_code")):
+        codes.setdefault(skill_id, []).append(code)
+    for skill in skills:
+        skill.course_codes = sorted(codes.get(skill.pk, []))
     mine = dict(list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level"))
-    return render(request, "core/explorer.html", {"active": "explorer", "skills": catalog,
+    return render(request, "core/explorer.html", {"active": "explorer", "skills": skills,
         "categories": categories, "current": category, "query": query, "mine": mine})
