@@ -203,7 +203,142 @@
   </section>
 {% endif %}
 
-    <section aria-labelledby="sources-heading"
+        {% if version.kind == "course" %}
+      <section
+        aria-labelledby="course-details-heading"
+        style="margin-bottom: 32px;"
+      >
+        <h2 id="course-details-heading">Course details</h2>
+
+        <p>
+          Save title and description changes before leaving this page.
+        </p>
+
+        <p>
+          Manage the course code, credits, provider, link, and cost.
+        </p>
+
+        <a
+          class="btn btn-secondary"
+          href="{% url 'maintenance:edit_course_details' version_id=version.pk %}"
+        >
+          Edit course details
+        </a>
+      </section>
+    {% endif %}
+
+        {% if version.kind == "course" or version.kind == "resource" %}
+      <section
+        aria-labelledby="skill-coverage-heading"
+        style="margin-bottom: 32px;"
+      >
+        <h2 id="skill-coverage-heading">Skill coverage</h2>
+
+        <p>
+          Skills this learning content is intended to develop.
+        </p>
+
+        <p>
+          Save title and description changes before managing skills.
+        </p>
+
+        <p>
+          <a
+            class="btn btn-primary"
+            href="{% url 'maintenance:add_skill_mapping' version_id=version.pk %}"
+          >
+            Add or update skill coverage
+          </a>
+        </p>
+
+        {% with mappings=version.skill_mappings.all %}
+          {% if mappings %}
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th style="padding: 12px; text-align: left;">
+                      Skill
+                    </th>
+                    <th style="padding: 12px; text-align: left;">
+                      Coverage level
+                    </th>
+                    <th style="padding: 12px; text-align: left;">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for mapping in mappings %}
+                    <tr>
+                      <td style="padding: 12px;">
+                        {{ mapping.skill.skill_name }}
+                      </td>
+
+                      <td style="padding: 12px;">
+                        {{ mapping.get_coverage_level_display }}
+                      </td>
+
+                      <td style="padding: 12px;">
+                        <form
+                          method="post"
+                          action="{% url 'maintenance:remove_skill_mapping' version_id=version.pk skill_id=mapping.skill_id %}"
+                          onsubmit="return confirm('Remove this skill mapping from the draft? The skill will remain in the catalog.');"
+                        >
+                          {% csrf_token %}
+
+                          <input
+                            type="hidden"
+                            name="expected_revision"
+                            value="{{ version.draft_revision }}"
+                          >
+
+                          <button
+                            type="submit"
+                            class="btn btn-secondary"
+                          >
+                            Remove skill mapping
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p>No skill mappings added yet.</p>
+          {% endif %}
+        {% endwith %}
+      </section>
+    {% endif %}
+        {% if version.kind == "resource" %}
+      <section
+        aria-labelledby="resource-details-heading"
+        style="margin-bottom: 32px;"
+      >
+        <h2 id="resource-details-heading">
+          Learning resource details
+        </h2>
+
+        <p>
+          Save title and description changes before leaving this page.
+        </p>
+
+        <p>
+          Manage the provider, resource link, and cost.
+        </p>
+
+        <a
+          class="btn btn-secondary"
+          href="{% url 'maintenance:edit_resource_details' version_id=version.pk %}"
+        >
+          Edit resource details
+        </a>
+      </section>
+    {% endif %}
+    <section aria-labelledby="sources-heading">
       <h2 id="sources-heading">Sources</h2>
 
       <p>References attached to this draft.</p>

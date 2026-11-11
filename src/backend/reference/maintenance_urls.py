@@ -4,11 +4,12 @@ from . import maintenance_source_views, maintenance_views
 
 from . import maintenance_publication_views
 
-from . import maintenance_publication_views
 
 from . import maintenance_requirement_views
 
 from . import maintenance_detail_views
+
+from . import maintenance_skill_views
 
 app_name = "maintenance"
 
@@ -48,11 +49,6 @@ urlpatterns = [
         maintenance_publication_views.publish_content,
         name="publish_content",
     ),
-    path(
-        "publish/<uuid:version_id>/",
-        maintenance_publication_views.publish_content,
-        name="publish_content",
-    ),
      path(
         "edit/<uuid:version_id>/requirements/add/",
         maintenance_requirement_views.add_requirement,
@@ -72,6 +68,26 @@ urlpatterns = [
         "edit/<uuid:version_id>/job-details/",
         maintenance_detail_views.edit_job_details,
         name="edit_job_details",
+    ),
+        path(
+        "edit/<uuid:version_id>/course-details/",
+        maintenance_detail_views.edit_course_details,
+        name="edit_course_details",
+    ),
+        path(
+        "edit/<uuid:version_id>/skills/add/",
+        maintenance_skill_views.add_skill_mapping,
+        name="add_skill_mapping",
+    ),
+    path(
+        "edit/<uuid:version_id>/skills/<uuid:skill_id>/remove/",
+        maintenance_skill_views.remove_skill_mapping,
+        name="remove_skill_mapping",
+    ),
+        path(
+        "edit/<uuid:version_id>/resource-details/",
+        maintenance_detail_views.edit_resource_details,
+        name="edit_resource_details",
     ),
 
 ]

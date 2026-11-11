@@ -1,0 +1,71 @@
+{% extends "core/app_base.html" %}
+
+{% block title %}Edit course details | Compass{% endblock %}
+
+{% block content %}
+<section class="maintenance-page">
+  <header style="margin-bottom: 24px;">
+    <p>Content maintenance</p>
+    <h1>Edit course details</h1>
+
+    <p>Course draft: {{ version.title }}</p>
+
+    <p>
+      Add the course code, credits, provider, link, and cost.
+    </p>
+  </header>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+
+      {% if hidden.errors %}
+        <div role="alert">
+          {{ hidden.errors }}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    {% if form.non_field_errors %}
+      <div role="alert">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    {% for field in form.visible_fields %}
+      <div style="margin-bottom: 18px;">
+        <label
+          for="{{ field.id_for_label }}"
+          style="display: block; margin-bottom: 6px;"
+        >
+          {{ field.label }}
+        </label>
+
+        {{ field }}
+
+        {% if field.help_text %}
+          <p>{{ field.help_text }}</p>
+        {% endif %}
+
+        {% if field.errors %}
+          <div role="alert">
+            {{ field.errors }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <div style="display: flex; gap: 16px; align-items: center;">
+      <button type="submit" class="btn btn-primary">
+        Save course details
+      </button>
+
+      <a href="{% url 'maintenance:edit_content' version_id=version.pk %}">
+        Back to draft
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}
