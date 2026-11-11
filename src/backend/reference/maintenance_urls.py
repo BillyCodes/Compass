@@ -1,7 +1,14 @@
 from django.urls import path
 
-from . import maintenance_views
+from . import maintenance_source_views, maintenance_views
 
+from . import maintenance_publication_views
+
+from . import maintenance_publication_views
+
+from . import maintenance_requirement_views
+
+from . import maintenance_detail_views
 
 app_name = "maintenance"
 
@@ -26,4 +33,45 @@ urlpatterns = [
         maintenance_views.add_source,
         name="add_source",
     ),
+    path(
+        "edit/<uuid:version_id>/sources/<uuid:source_id>/remove/",
+        maintenance_source_views.remove_source,
+        name="remove_source",
+    ),
+    path(
+        "edit/<uuid:version_id>/sources/<uuid:source_id>/edit/",
+        maintenance_source_views.edit_source,
+        name="edit_source",
+    ),
+    path(
+        "publish/<uuid:version_id>/",
+        maintenance_publication_views.publish_content,
+        name="publish_content",
+    ),
+    path(
+        "publish/<uuid:version_id>/",
+        maintenance_publication_views.publish_content,
+        name="publish_content",
+    ),
+     path(
+        "edit/<uuid:version_id>/requirements/add/",
+        maintenance_requirement_views.add_requirement,
+        name="add_requirement",
+    ),
+     path(
+        "edit/<uuid:version_id>/requirements/<uuid:skill_id>/remove/",
+        maintenance_requirement_views.remove_requirement,
+        name="remove_requirement",
+    ),
+        path(
+        "edit/<uuid:version_id>/companies/add/",
+        maintenance_detail_views.add_company,
+        name="add_company",
+    ),
+        path(
+        "edit/<uuid:version_id>/job-details/",
+        maintenance_detail_views.edit_job_details,
+        name="edit_job_details",
+    ),
+
 ]

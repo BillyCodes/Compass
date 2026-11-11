@@ -66,16 +66,27 @@
                             </td>
 
                             <td style="padding: 12px;">
-                                {% if version.status == "draft" and not version.item.retired_at %}
-                                    <a
-                                        class="btn"
-                                        href="{% url 'maintenance:edit_content' version_id=version.pk %}"
-                                    >
-                                        Edit
-                                    </a>
-                                {% else %}
-                                    <span>Not editable</span>
-                                {% endif %}
+                               {% if version.status == "draft" and not version.item.retired_at %}
+    <div
+        style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
+    >
+        <a
+            class="btn"
+            href="{% url 'maintenance:edit_content' version_id=version.pk %}"
+        >
+            Edit
+        </a>
+
+        <a
+            class="btn btn-primary"
+            href="{% url 'maintenance:publish_content' version_id=version.pk %}"
+        >
+            Publish
+        </a>
+    </div>
+{% else %}
+    <span>Not editable</span>
+{% endif %}
                             </td>
                         </tr>
                     {% endfor %}

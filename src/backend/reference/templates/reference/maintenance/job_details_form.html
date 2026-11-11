@@ -1,0 +1,83 @@
+{% extends "core/app_base.html" %}
+
+{% block title %}Edit job details | Compass{% endblock %}
+
+{% block content %}
+<section class="maintenance-page">
+  <header style="margin-bottom: 24px;">
+    <p>Content maintenance</p>
+    <h1>Edit job details</h1>
+
+    <p>Job draft: {{ version.title }}</p>
+
+    <p>
+      Enter the expiration date and time in:
+      {{ current_time_zone }}.
+    </p>
+  </header>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+
+      {% if hidden.errors %}
+        <div role="alert">
+          {{ hidden.errors }}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    {% if form.non_field_errors %}
+      <div role="alert">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    {% for field in form.visible_fields %}
+      <div style="margin-bottom: 18px;">
+        <label
+          for="{{ field.id_for_label }}"
+          style="display: block; margin-bottom: 6px;"
+        >
+          {{ field.label }}
+        </label>
+
+        {{ field }}
+
+        {% if field.help_text %}
+          <p>{{ field.help_text }}</p>
+        {% endif %}
+
+        {% if field.errors %}
+          <div role="alert">
+            {{ field.errors }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <div style="display: flex; gap: 16px; align-items: center;">
+      <button type="submit" class="btn btn-primary">
+        Save job details
+      </button>
+
+      <a href="{% url 'maintenance:edit_content' version_id=version.pk %}">
+        Back to draft
+      </a>
+    </div>
+  </form>
+
+  <hr style="margin: 24px 0;">
+
+  <p>
+    If the company is missing, save your changes before
+    leaving this page to create it.
+  </p>
+
+  <a href="{% url 'maintenance:add_company' version_id=version.pk %}">
+    Create company
+  </a>
+</section>
+{% endblock %}

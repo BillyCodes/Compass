@@ -1,0 +1,56 @@
+{% extends "core/app_base.html" %}
+
+{% block title %}Create company | Compass{% endblock %}
+
+{% block content %}
+<section class="maintenance-page">
+  <header style="margin-bottom: 24px;">
+    <p>Content maintenance</p>
+    <h1>Create company</h1>
+
+    <p>
+      Add a company to the reference catalog.
+      This does not create an employer account.
+    </p>
+
+    <p>Job draft: {{ version.title }}</p>
+  </header>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div role="alert">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    {% for field in form.visible_fields %}
+      <div style="margin-bottom: 18px;">
+        <label
+          for="{{ field.id_for_label }}"
+          style="display: block; margin-bottom: 6px;"
+        >
+          {{ field.label }}
+        </label>
+
+        {{ field }}
+
+        {% if field.errors %}
+          <div role="alert">{{ field.errors }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <div style="display: flex; gap: 16px; align-items: center;">
+      <button type="submit" class="btn btn-primary">
+        Create company
+      </button>
+
+      <a href="{% url 'maintenance:edit_content' version_id=version.pk %}">
+        Back to draft
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}
