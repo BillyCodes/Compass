@@ -63,6 +63,11 @@ reusing a configured database. Each teammate uses their own `.env`; never commit
 
 ### 3. Start PostgreSQL and apply migrations 
 
+### *Make sure to change directory to backend when using Django commands
+```diff
+- Command: cd src/backend
+```
+
 **macOS / Linux**
 
 ```sh
