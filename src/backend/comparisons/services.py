@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import connection, transaction
-from django.db.models import Prefetch
+from django.db.models import Exists, OuterRef, Prefetch, Q, Subquery
 from django.utils import timezone
 
 from reference.models import ContentItem, ContentSkill, ContentVersion
@@ -41,19 +41,26 @@ def _recommendations(requirements, calculation):
             (by_skill[o.skill_id].mandatory or by_skill[o.skill_id].weight > 0)}
     if not gaps:
         return []
-    active_mappings = ContentSkill.objects.select_related("skill").order_by("skill_id")
-    versions = (available_content_versions().filter(kind__in=["course", "resource"])
-                .order_by("item_id", "-version_no").distinct("item_id")
-                .prefetch_related(Prefetch("skill_mappings", queryset=active_mappings)))
+    useful_coverage = Q()
+    for skill_id, gap in gaps.items():
+        reported_level = by_skill[skill_id].required_level - gap
+        useful_coverage |= Q(skill_id=skill_id, coverage_level__gt=reported_level)
+    useful_mappings = ContentSkill.objects.filter(useful_coverage).order_by("skill_id")
+    # Choose the latest available edition BEFORE testing usefulness/retired skills.
+    # Filtering first would incorrectly fall back to an older, more useful edition.
+    latest_ids = (available_content_versions().filter(kind__in=["course", "resource"])
+                  .order_by("item_id", "-version_no").distinct("item_id").values("pk"))
+    retired_mappings = ContentSkill.objects.filter(version_id=OuterRef("pk"), skill__status=Skill.Status.RETIRED)
+    versions = (ContentVersion.objects.filter(pk__in=Subquery(latest_ids))
+                .filter(Exists(useful_mappings.filter(version_id=OuterRef("pk"))))
+                .filter(~Exists(retired_mappings))
+                .only("version_id", "kind")
+                .prefetch_related(Prefetch("skill_mappings", queryset=useful_mappings)))
     candidates = []
     for version in versions:
         mappings = list(version.skill_mappings.all())
-        if any(m.skill.status != Skill.Status.ACTIVE for m in mappings):
-            continue
         covered = []
         for mapping in mappings:
-            if mapping.skill_id not in gaps:
-                continue
             r = by_skill[mapping.skill_id]
             reported_level = r.required_level - gaps[r.skill_id]
             improvement = max(0, min(mapping.coverage_level, r.required_level) - reported_level)

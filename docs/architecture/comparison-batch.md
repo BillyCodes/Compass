@@ -82,6 +82,16 @@ zero-weight mandatory gap still takes priority. The rule supplies useful coverag
 suggestions, not verified proficiency gains or a guarantee of course completion.
 Selected courses never automatically increase skill levels.
 
+Candidate filtering runs in PostgreSQL before loading editions into Python. A
+subquery chooses the latest available edition per item, then existence checks
+reject editions with retired skill mappings or no coverage above a known gap's
+reported level. Only useful mappings are prefetched; unrelated mappings and
+edition bodies are not loaded. Choosing the latest edition first prevents an
+older edition from being recommended when its available successor is unsuitable.
+The existing transaction and lock order remain in place to protect snapshots;
+this reduces work while holding locks but does not remove contention between
+comparisons that share target items or skills.
+
 No recommendation limit or pagination is added in this backend milestone. A
 later interface may paginate saved ranks. Recommendation availability is checked
 when selecting and inserting its snapshot; later withdrawal is permitted and

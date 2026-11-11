@@ -8,12 +8,13 @@ from django.db.models.deletion import ProtectedError
 from django.test import TestCase
 from django.utils import timezone
 
-from reference.models import ContentItem, ContentVersion
-from reference.services import retire_content_version, set_content_details
+from reference.models import ContentItem, ContentSkill, ContentVersion
+from reference.services import retire_content_version, set_content_details, set_skill_mapping
 from skills.models import Skill, StudentSkill
 from skills.services import set_student_skill
 from comparisons.models import MatchInputSkill, MatchResult, MatchSkillResult, Recommendation
-from comparisons.services import create_comparison, delete_match, get_match, list_matches
+from comparisons.services import _recommendations, create_comparison, delete_match, get_match, list_matches
+from comparisons.scoring import Requirement, calculate
 from .factories import approve, draft, learning, setup_actors, target
 
 
@@ -200,6 +201,55 @@ class ComparisonServiceTests(ComparisonFixture):
 
 
 class RecommendationTests(ComparisonFixture):
+    def test_only_useful_editions_and_mappings_are_loaded(self):
+        useful = learning(self, self.python, coverage=4)
+        learning(self, self.python, coverage=2)
+        for _ in range(8):
+            learning(self, self.sql, coverage=3)
+        requirements = [Requirement(self.python.pk, 4, Decimal("2"), True)]
+        calculation = calculate(requirements, {self.python.pk: 3})
+        loaded_versions, loaded_skills = [], []
+        version_from_db = ContentVersion.from_db
+        mapping_from_db = ContentSkill.from_db
+
+        def load_version(cls, *args):
+            version = version_from_db(*args)
+            loaded_versions.append(version.pk)
+            return version
+
+        def load_mapping(cls, *args):
+            mapping = mapping_from_db(*args)
+            loaded_skills.append(mapping.skill_id)
+            return mapping
+
+        with patch.object(ContentVersion, "from_db", classmethod(load_version)), \
+             patch.object(ContentSkill, "from_db", classmethod(load_mapping)), \
+             self.assertNumQueries(2):
+            suggestions = _recommendations(requirements, calculation)
+        self.assertEqual([version.pk for version, _ in suggestions], [useful.pk])
+        self.assertEqual(loaded_versions, [useful.pk])
+        self.assertEqual(loaded_skills, [self.python.pk])
+
+    def test_latest_unhelpful_edition_does_not_fall_back_to_older_coverage(self):
+        old = learning(self, self.python, coverage=4)
+        learning(self, self.sql, coverage=3, item=old.item)
+        self.set_level(level=3)
+        self.assertFalse(self.compare().recommendations.exists())
+
+    def test_latest_edition_with_unrelated_retired_skill_does_not_fall_back(self):
+        old = learning(self, self.python, coverage=4)
+        latest = draft(self, "course", item=old.item)
+        retired = Skill.objects.create(skill_name="Later retired learning skill")
+        for skill in (self.python, retired):
+            latest.refresh_from_db()
+            set_skill_mapping(actor=self.author, version_id=latest.pk,
+                              expected_revision=latest.draft_revision,
+                              skill_id=skill.pk, coverage_level=4)
+        approve(self, latest)
+        Skill.objects.filter(pk=retired.pk).update(status="retired")
+        self.set_level(level=3)
+        self.assertFalse(self.compare().recommendations.exists())
+
     def test_mandatory_gap_precedes_larger_optional_gap(self):
         mandatory = learning(self,self.python,coverage=4)
         optional = learning(self,self.sql,coverage=3,kind="resource")
