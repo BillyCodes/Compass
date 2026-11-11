@@ -1,0 +1,119 @@
+{% extends "core/app_base.html" %}
+
+{% block title %}Maintainer | Compass{% endblock %}
+
+{% block content %}
+<section>
+    <p>Content maintenance</p>
+    <h1>Maintainer dashboard</h1>
+    <p>Manage Compass reference content and its editions.</p>
+
+    <p>
+        <a class="btn" href="{% url 'maintenance:create_content' %}">
+            Create content
+        </a>
+    </p>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; margin: 24px 0;">
+        <div>
+            <h2>{{ totals.drafts }}</h2>
+            <p>Draft versions</p>
+        </div>
+
+        <div>
+            <h2>{{ totals.published }}</h2>
+            <p>Published versions</p>
+        </div>
+
+        <div>
+            <h2>{{ totals.retired }}</h2>
+            <p>Retired versions</p>
+        </div>
+    </div>
+
+    <h2>Content versions</h2>
+
+    {% if page.object_list %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Title</th>
+                        <th style="padding: 12px; text-align: left;">Type</th>
+                        <th style="padding: 12px; text-align: left;">Version</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for version in page %}
+                        <tr>
+                            <td style="padding: 12px;">
+                                {{ version.title }}
+                            </td>
+
+                            <td style="padding: 12px;">
+                                {{ version.get_kind_display }}
+                            </td>
+
+                            <td style="padding: 12px;">
+                                {{ version.version_no }}
+                            </td>
+
+                            <td style="padding: 12px;">
+                                {{ version.get_status_display }}
+                            </td>
+
+                            <td style="padding: 12px;">
+                               {% if version.status == "draft" and not version.item.retired_at %}
+    <div
+        style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
+    >
+        <a
+            class="btn"
+            href="{% url 'maintenance:edit_content' version_id=version.pk %}"
+        >
+            Edit
+        </a>
+
+        <a
+            class="btn btn-primary"
+            href="{% url 'maintenance:publish_content' version_id=version.pk %}"
+        >
+            Publish
+        </a>
+    </div>
+{% else %}
+    <span>Not editable</span>
+{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Content pages" style="margin-top: 24px;">
+            {% if page.has_previous %}
+                <a href="?page={{ page.previous_page_number }}">
+                    Previous
+                </a>
+            {% endif %}
+
+            <span>
+                Page {{ page.number }} of {{ page.paginator.num_pages }}
+            </span>
+
+            {% if page.has_next %}
+                <a href="?page={{ page.next_page_number }}">
+                    Next
+                </a>
+            {% endif %}
+        </nav>
+    {% else %}
+        <h3>No content yet</h3>
+        <p>Content versions will appear here once drafts are created.</p>
+    {% endif %}
+</section>
+{% endblock %}

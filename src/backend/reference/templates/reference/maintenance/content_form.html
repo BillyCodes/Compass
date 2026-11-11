@@ -1,0 +1,403 @@
+{% extends "core/app_base.html" %}
+
+{% block title %}
+  {% if is_edit %}Edit draft{% else %}Create content{% endif %} | Compass
+{% endblock %}
+
+{% block content %}
+<section class="maintenance-page">
+  <header style="margin-bottom: 24px;">
+    <p>Content maintenance</p>
+
+    {% if is_edit %}
+      <h1>Edit draft</h1>
+      <p>
+        Update the title and description. This content will remain a draft.
+      </p>
+      <p>
+        Content type: {{ version.get_kind_display }}
+        &middot;
+        Version: {{ version.version_no }}
+      </p>
+    {% else %}
+      <h1>Create content</h1>
+      <p>Save a first draft. Nothing will be published yet.</p>
+    {% endif %}
+
+    <a href="{% url 'maintenance:dashboard' %}">
+      Back to dashboard
+    </a>
+  </header>
+
+  <section
+    aria-labelledby="content-details-heading"
+    style="margin-bottom: 32px;"
+  >
+    <h2 id="content-details-heading">Content details</h2>
+
+    <form method="post">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div role="alert">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% if hidden.errors %}
+          <div role="alert">
+            {{ hidden.errors }}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% for field in form.visible_fields %}
+        <div style="margin-bottom: 18px;">
+          <label
+            for="{{ field.id_for_label }}"
+            style="display: block; margin-bottom: 6px;"
+          >
+            {{ field.label }}
+          </label>
+
+          {{ field }}
+
+          {% if field.help_text %}
+            <p>{{ field.help_text }}</p>
+          {% endif %}
+
+          {% if field.errors %}
+            <div role="alert">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <div
+        style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;"
+      >
+        <button type="submit" class="btn btn-primary">
+          {% if is_edit %}Save changes{% else %}Save draft{% endif %}
+        </button>
+
+        <a href="{% url 'maintenance:dashboard' %}">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </section>
+
+{% if is_edit %}
+
+    {% if version.kind == "career" or version.kind == "job" %}
+      <section
+        aria-labelledby="requirements-heading"
+        style="margin-bottom: 32px;"
+      >
+        <h2 id="requirements-heading">Skill requirements</h2>
+
+        <p>
+          Save title and description changes before managing requirements.
+        </p>
+
+        <p>
+          <a
+            class="btn btn-primary"
+            href="{% url 'maintenance:add_requirement' version_id=version.pk %}"
+          >
+            Add or update requirement
+          </a>
+        </p>
+
+        <p>
+          Publication requires at least one requirement with
+          a proficiency level greater than 0 and a weight greater than 0.
+        </p>
+
+        {% with requirements=version.requirements.all %}
+          {% if requirements %}
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th style="padding: 12px; text-align: left;">Skill</th>
+                    <th style="padding: 12px; text-align: left;">Level</th>
+                    <th style="padding: 12px; text-align: left;">Mandatory</th>
+                    <th style="padding: 12px; text-align: left;">Weight</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for requirement in requirements %}
+                    <tr>
+                      <td style="padding: 12px;">
+                        {{ requirement.skill.skill_name }}
+                      </td>
+                      <td style="padding: 12px;">
+                        {{ requirement.get_required_level_display }}
+                      </td>
+                      <td style="padding: 12px;">
+                        {{ requirement.mandatory|yesno:"Yes,No" }}
+                      </td>
+                      <td style="padding: 12px;">
+                        {{ requirement.weight }}
+                      </td>
+                      <td style="padding: 12px;">
+  <form
+    method="post"
+    action="{% url 'maintenance:remove_requirement' version_id=version.pk skill_id=requirement.skill_id %}"
+    onsubmit="return confirm('Remove this requirement from the draft? The skill will remain in the catalog.');"
+  >
+    {% csrf_token %}
+
+    <input
+      type="hidden"
+      name="expected_revision"
+      value="{{ version.draft_revision }}"
+    >
+
+    <button type="submit" class="btn btn-secondary">
+      Remove requirement
+    </button>
+  </form>
+</td>
+
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p>No skill requirements added yet.</p>
+          {% endif %}
+        {% endwith %}
+      </section>
+    {% endif %}
+
+{% if version.kind == "job" %}
+  <section style="margin-bottom: 32px;">
+    <h2>Job details</h2>
+
+    <p>
+      Save title and description changes before leaving this page.
+    </p>
+
+    <div style="display: flex; gap: 16px; align-items: center;">
+      <a
+        class="btn btn-secondary"
+        href="{% url 'maintenance:edit_job_details' version_id=version.pk %}"
+      >
+        Edit job details
+      </a>
+
+      <a
+        href="{% url 'maintenance:add_company' version_id=version.pk %}"
+      >
+        Create company
+      </a>
+    </div>
+  </section>
+{% endif %}
+
+        {% if version.kind == "course" %}
+      <section
+        aria-labelledby="course-details-heading"
+        style="margin-bottom: 32px;"
+      >
+        <h2 id="course-details-heading">Course details</h2>
+
+        <p>
+          Save title and description changes before leaving this page.
+        </p>
+
+        <p>
+          Manage the course code, credits, provider, link, and cost.
+        </p>
+
+        <a
+          class="btn btn-secondary"
+          href="{% url 'maintenance:edit_course_details' version_id=version.pk %}"
+        >
+          Edit course details
+        </a>
+      </section>
+    {% endif %}
+
+        {% if version.kind == "course" or version.kind == "resource" %}
+      <section
+        aria-labelledby="skill-coverage-heading"
+        style="margin-bottom: 32px;"
+      >
+        <h2 id="skill-coverage-heading">Skill coverage</h2>
+
+        <p>
+          Skills this learning content is intended to develop.
+        </p>
+
+        <p>
+          Save title and description changes before managing skills.
+        </p>
+
+        <p>
+          <a
+            class="btn btn-primary"
+            href="{% url 'maintenance:add_skill_mapping' version_id=version.pk %}"
+          >
+            Add or update skill coverage
+          </a>
+        </p>
+
+        {% with mappings=version.skill_mappings.all %}
+          {% if mappings %}
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th style="padding: 12px; text-align: left;">
+                      Skill
+                    </th>
+                    <th style="padding: 12px; text-align: left;">
+                      Coverage level
+                    </th>
+                    <th style="padding: 12px; text-align: left;">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for mapping in mappings %}
+                    <tr>
+                      <td style="padding: 12px;">
+                        {{ mapping.skill.skill_name }}
+                      </td>
+
+                      <td style="padding: 12px;">
+                        {{ mapping.get_coverage_level_display }}
+                      </td>
+
+                      <td style="padding: 12px;">
+                        <form
+                          method="post"
+                          action="{% url 'maintenance:remove_skill_mapping' version_id=version.pk skill_id=mapping.skill_id %}"
+                          onsubmit="return confirm('Remove this skill mapping from the draft? The skill will remain in the catalog.');"
+                        >
+                          {% csrf_token %}
+
+                          <input
+                            type="hidden"
+                            name="expected_revision"
+                            value="{{ version.draft_revision }}"
+                          >
+
+                          <button
+                            type="submit"
+                            class="btn btn-secondary"
+                          >
+                            Remove skill mapping
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p>No skill mappings added yet.</p>
+          {% endif %}
+        {% endwith %}
+      </section>
+    {% endif %}
+        {% if version.kind == "resource" %}
+      <section
+        aria-labelledby="resource-details-heading"
+        style="margin-bottom: 32px;"
+      >
+        <h2 id="resource-details-heading">
+          Learning resource details
+        </h2>
+
+        <p>
+          Save title and description changes before leaving this page.
+        </p>
+
+        <p>
+          Manage the provider, resource link, and cost.
+        </p>
+
+        <a
+          class="btn btn-secondary"
+          href="{% url 'maintenance:edit_resource_details' version_id=version.pk %}"
+        >
+          Edit resource details
+        </a>
+      </section>
+    {% endif %}
+    <section aria-labelledby="sources-heading">
+      <h2 id="sources-heading">Sources</h2>
+
+      <p>References attached to this draft.</p>
+      <p>
+        Save any title or description changes before adding or removing
+        a source. Unsaved text changes will not be saved by those actions.
+      </p>
+
+      <p>
+        <a
+          href="{% url 'maintenance:add_source' version_id=version.pk %}"
+          class="btn btn-primary"
+        >
+          Add source
+        </a>
+      </p>
+
+      {% if sources %}
+        <ul style="list-style: none; padding: 0;">
+          {% for link in sources %}
+            <li
+              style="padding: 16px 0; border-bottom: 1px solid #d1d5db;"
+            >
+              <h3>{{ link.source.source_title }}</h3>
+              <p>
+  <a
+    href="{% url 'maintenance:edit_source' version_id=version.pk source_id=link.source_id %}"
+    class="btn btn-secondary"
+  >
+    Edit source
+  </a>
+</p>
+
+              <p style="overflow-wrap: anywhere; white-space: pre-wrap;">{{ link.source.source_url_or_identifier }}</p>
+
+              <form
+                method="post"
+                action="{% url 'maintenance:remove_source' version_id=version.pk source_id=link.source_id %}"
+                onsubmit="return confirm('Remove this source from the draft? The source will remain in the catalog.');"
+              >
+                {% csrf_token %}
+
+                <input
+                  type="hidden"
+                  name="expected_revision"
+                  value="{{ version.draft_revision }}"
+                >
+
+                <button type="submit" class="btn btn-secondary">
+                  Remove source
+                </button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No sources attached yet.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+</section>
+{% endblock %}

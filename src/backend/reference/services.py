@@ -294,3 +294,58 @@ def available_content_versions(*, kind=None):
     if kind is not None:
         versions = versions.filter(kind=kind)
     return versions
+
+
+@transaction.atomic
+def edit_draft_source(
+    *,
+    actor,
+    version_id,
+    source_id,
+    expected_revision,
+    source_title,
+    source_url_or_identifier,
+):
+    """Replace a draft's source with a corrected, separate catalog entry."""
+    version = _lock_draft(actor, version_id, expected_revision)
+
+    link = (
+        ContentSource.objects
+        .select_related("source")
+        .filter(version=version, source_id=source_id)
+        .first()
+    )
+
+    if link is None:
+        raise ValidationError(
+            "This source is no longer attached to the draft. Reload the page."
+        )
+
+    title = _text(source_title, "source_title")
+    identifier = _text(
+        source_url_or_identifier,
+        "source_url_or_identifier",
+    )
+
+    original = link.source
+
+    if (
+        title == original.source_title
+        and identifier == original.source_url_or_identifier
+    ):
+        return original
+
+    corrected = create_reference_source(
+        actor=actor,
+        source_title=title,
+        source_url_or_identifier=identifier,
+        collected_at=original.collected_at,
+    )
+
+    link.source = corrected
+    link.full_clean()
+    link.save(update_fields=["source"])
+
+    _touch_revision(version)
+
+    return corrected
