@@ -1,7 +1,9 @@
 """Skillprint: six category scores, the radar chart, and saved-progress snapshots.
 
-Category score (0–100) = average of the student's three strongest skill levels
-in that category (empty slots count as 0), scaled so level 5 = 100.
+Category score (0–100) = average of the student's (up to) three strongest reported
+skill levels in that category, scaled so level 5 = 100. Slots with no skill are not
+counted, so one Expert skill scores 100 and one Beginner skill scores 40. A category
+with no skills scores 0.
 """
 import math
 
@@ -98,6 +100,8 @@ def radar_svg(scores, compare_scores=None, size=300, label_class="rl"):
         parts.append(f'<line class="radar-axis" x1="{cx:.1f}" y1="{cy:.1f}" x2="{x:.1f}" y2="{y:.1f}"/>')
 
     def shape(vals, cls):
+        # Drawing only: values are floored at 3% of the radius so an all-zero profile
+        # still renders a visible shape. Tooltips and page text show the true score.
         pts = " ".join(f"{x:.1f},{y:.1f}" for x, y in (pt(i, max(vals.get(c, 0), 3) / 100) for i, c in enumerate(cats)))
         return f'<polygon class="{cls}" points="{pts}"/>'
 
