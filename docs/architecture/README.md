@@ -1,5 +1,8 @@
 # Django architecture
 
+The [branch integration checklist](integration-checklist.md) tracks decisions,
+review findings, and verification for the pilot UI and maintainer dashboard work.
+
 Current frontend checkpoint: the imported design is connected to the approved
 backend services. See the [integration guide](frontend-integration.md) for routes,
 permissions, tests, and feature boundaries. The [cleanup review](frontend-cleanup-review.md)

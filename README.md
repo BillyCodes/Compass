@@ -154,6 +154,7 @@ Tests use a separate PostgreSQL test database.
 
 ## Project guides
 
+- [Branch integration checklist](docs/architecture/integration-checklist.md): shared decisions, lead-specific findings, and merge verification.
 - [Frontend integration](docs/architecture/frontend-integration.md): routes, supported screens, and remaining work.
 - [Development setup](docs/development.md): database settings and troubleshooting.
 - [Django command reference](docs/django-commands.md): migrations, tests, accounts, and audit cleanup.
