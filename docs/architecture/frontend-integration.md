@@ -37,6 +37,27 @@ field names and status/scoring explanations were replaced on connected pages.
 
 ## Business rules retained
 
+### List pagination
+
+Student lists show 20 entries per page with shared Previous/Next navigation.
+Pagination slices ordered querysets before rendering; links preserve search,
+category, and the page positions of other lists on the same screen.
+
+| Screen / list | Query parameter |
+| --- | --- |
+| Skill Explorer, Journey, Field Notes | `page` |
+| Compare: careers / jobs | `careers_page` / `jobs_page` |
+| My Skillprint: reported skills / selected courses | `skills_page` / `courses_page` |
+| Saved result: learning recommendations | `page` |
+
+Searching the explorer starts at page 1. Missing or nonnumeric page numbers use
+page 1; out-of-range numbers use the last page. Empty lists retain their existing
+empty-state messages and omit navigation. Ownership and publication filters run
+before pagination. Recommendation pages retain their saved global ranks, and
+course edition lookups are limited to selections on the displayed page.
+
+### Access and data rules
+
 - The scale is 0–5: None, Awareness, Beginner, Intermediate, Advanced, Expert.
 - Student identity comes from the authenticated session and active student role.
   Private views use `core.security.student_required` and ownership-scoped services.

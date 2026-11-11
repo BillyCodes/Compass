@@ -382,3 +382,4 @@ a.chip:hover { text-decoration: none; color: var(--ink); }
 .skip-link { position: absolute; left: 12px; top: -100px; z-index: 1000; padding: 12px; background: white; color: #0f2352; }
 .skip-link:focus { top: 12px; }
 .errorlist { color: #9b1c1c; padding-left: 20px; }
+.pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }

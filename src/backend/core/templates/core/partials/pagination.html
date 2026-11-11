@@ -1,0 +1,8 @@
+{% load compass_tags %}
+{% if page.has_other_pages %}
+<nav class="pagination" aria-label="{{ label }} pagination">
+{% if page.has_previous %}<a class="btn secondary small" rel="prev" href="{% pagination_url parameter page.previous_page_number %}">Previous</a>{% endif %}
+<span class="small" aria-current="page">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+{% if page.has_next %}<a class="btn secondary small" rel="next" href="{% pagination_url parameter page.next_page_number %}">Next</a>{% endif %}
+</nav>
+{% endif %}

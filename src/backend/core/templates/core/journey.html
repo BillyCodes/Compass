@@ -23,4 +23,5 @@
 <p>Add your skills, then choose a published target to start your Journey.</p>
 <a href="{% url 'skills:skillprint' %}">Open your Skillprint</a>
 </div>{% endfor %}</section>
+{% include "core/partials/pagination.html" with page=results parameter="page" label="Comparison history" %}
 {% endblock %}

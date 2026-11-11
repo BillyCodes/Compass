@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 from core.security import student_required
+from core.pagination import paginate
 from .selectors import latest_available
 from .services import available_content_versions
 
@@ -8,7 +9,7 @@ from .services import available_content_versions
 @student_required
 @require_GET
 def field_notes(request):
-    return render(request, "core/field_notes.html", {"active": "notes", "notes": latest_available("insight")})
+    return render(request, "core/field_notes.html", {"active": "notes", "notes": paginate(request, latest_available("insight"))})
 
 
 @student_required

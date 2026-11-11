@@ -24,4 +24,5 @@
 <span class="pill p-gray">{{ skill.category|default:"Other" }}</span>
 <h2>{{ skill.skill_name }}</h2>{% with level=mine|get_item:skill.pk %}{% if level != None %}<p>Your reported level: {{ level }} · {{ level|level_label }}</p>{% else %}<p class="muted">Proficiency unreported.</p>{% endif %}{% endwith %}<a href="{% url 'skills:skillprint' %}">Manage proficiency →</a>
 </article>{% empty %}<p class="muted">No active skills match your search.</p>{% endfor %}</div>
+{% include "core/partials/pagination.html" with page=skills parameter="page" label="Skills" %}
 {% endblock %}

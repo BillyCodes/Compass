@@ -13,4 +13,5 @@
 <p>{{ version.body|truncatewords:45 }}</p>
 <a href="{% url 'reference:note' version.pk %}">Read insight →</a>
 </article>{% empty %}<p class="muted">No published insights are available yet.</p>{% endfor %}</div>
+{% include "core/partials/pagination.html" with page=notes parameter="page" label="Field Notes" %}
 {% endblock %}

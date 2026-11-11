@@ -20,7 +20,7 @@ def list_matches(*, actor):
 
 def get_match(*, actor, match_id):
     # Lookup and all child traversal begin from an owner-scoped result.
-    return list_matches(actor=actor).prefetch_related("inputs__skill", "outcomes__skill", "recommendations__resource_version").get(pk=match_id)
+    return list_matches(actor=actor).prefetch_related("inputs__skill", "outcomes__skill").get(pk=match_id)
 
 
 @transaction.atomic

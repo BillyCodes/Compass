@@ -28,7 +28,9 @@
 </form>{% else %}<span>{{ record.get_proficiency_level_display }}</span>{% endif %}
 <form method="post" action="{% url 'skills:remove-skill' record.skill_id %}">{% csrf_token %}<button class="btn danger" aria-label="Remove {{ record.skill.skill_name }}">Remove</button>
 </form>
-</div>{% endfor %}</div>{% empty %}<p class="muted">No skills reported yet.</p>{% endfor %}</section>
+</div>{% endfor %}</div>{% empty %}<p class="muted">No skills reported yet.</p>{% endfor %}
+{% include "core/partials/pagination.html" with page=skill_page parameter="skills_page" label="Your skills" %}
+</section>
 </div>
 <div class="stack">
 <section class="card" id="courses">
@@ -45,7 +47,9 @@
 </div>
 <form method="post" action="{% url 'skills:remove-course' course.selection.course_item_id %}">{% csrf_token %}<button class="btn danger">Remove</button>
 </form>
-</div>{% empty %}<p class="muted">No courses selected.</p>{% endfor %}</section>
+</div>{% empty %}<p class="muted">No courses selected.</p>{% endfor %}
+{% include "core/partials/pagination.html" with page=course_page parameter="courses_page" label="Selected courses" %}
+</section>
 <section class="card">
 <h2>Ready to compare?</h2>
 <p>Saved comparisons preserve the proficiency you reported at that time. Later edits will not change them.</p>

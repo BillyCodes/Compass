@@ -8,6 +8,13 @@ from skills.models import ProficiencyLevel
 
 register = template.Library()
 
+
+@register.simple_tag(takes_context=True)
+def pagination_url(context, parameter, number):
+    query = context["request"].GET.copy()
+    query[parameter] = number
+    return "?" + query.urlencode()
+
 # Presentation labels follow the established backend scale; no pilot models.
 LEVEL_LABELS = dict(ProficiencyLevel.choices)
 CAT_TINT = {"programming": "t-blue", "data": "t-violet", "systems": "t-green", "security": "t-red", "cloud": "t-amber", "professional": "t-violet"}

@@ -92,8 +92,9 @@ The existing transaction and lock order remain in place to protect snapshots;
 this reduces work while holding locks but does not remove contention between
 comparisons that share target items or skills.
 
-No recommendation limit or pagination is added in this backend milestone. A
-later interface may paginate saved ranks. Recommendation availability is checked
+All matching recommendations are saved without a recommendation limit. The
+student interface paginates saved ranks in groups of 20 without loading the
+entire recommendation list. Recommendation availability is checked
 when selecting and inserting its snapshot; later withdrawal is permitted and
 retains that historical recommendation. Interfaces should check current
 availability before presenting an actionable learning link. If a candidate is

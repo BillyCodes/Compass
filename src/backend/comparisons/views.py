@@ -5,6 +5,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
 from core.security import student_required
+from core.pagination import paginate
 from reference.services import available_content_versions
 from reference.selectors import latest_available
 from skills.services import list_student_skills
@@ -17,7 +18,8 @@ from .services import create_comparison, delete_match, get_match, list_matches
 @require_GET
 def compare(request):
     return render(request, "core/compare.html", {"active": "compare",
-        "careers": latest_available("career"), "jobs": latest_available("job"),
+        "careers": paginate(request, latest_available("career"), "careers_page"),
+        "jobs": paginate(request, latest_available("job"), "jobs_page"),
         "has_skills": list_student_skills(actor=request.user).exists()})
 
 
@@ -59,7 +61,8 @@ def detail(request, match_id):
             "mandatory": requirement.mandatory, "weight": requirement.weight, "gap": outcome.gap})
     for rows in groups.values():
         rows.sort(key=lambda row: (not row["mandatory"], -row["weight"], row["name"]))
-    suggestions = list(result.recommendations.all())
+    recommendation_page = paginate(request, result.recommendations.select_related("resource_version"))
+    suggestions = list(recommendation_page)
     available_ids = set(available_content_versions().exclude(skill_mappings__skill__status="retired").filter(pk__in=[r.resource_version_id for r in suggestions]).values_list("pk", flat=True))
     names = {str(o.skill_id): o.skill.skill_name for o in result.outcomes.all()}
     recommendations = [{"record": r, "available": r.resource_version_id in available_ids,
@@ -67,13 +70,14 @@ def detail(request, match_id):
     current = dict(list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level"))
     changed = any(current.get(skill_id) != level for skill_id, level in levels.items())
     return render(request, "core/result.html", {"active": "compare", "r": result,
-        "groups": groups, "recommendations": recommendations, "changed_since": changed})
+        "groups": groups, "recommendations": recommendations,
+        "recommendation_page": recommendation_page, "changed_since": changed})
 
 
 @student_required
 @require_GET
 def journey(request):
-    return render(request, "core/journey.html", {"active": "journey", "results": list_matches(actor=request.user)})
+    return render(request, "core/journey.html", {"active": "journey", "results": paginate(request, list_matches(actor=request.user))})
 
 
 @student_required

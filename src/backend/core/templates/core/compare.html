@@ -22,6 +22,7 @@
 </form>
 </div>
 </article>{% empty %}<p class="muted">No published career profiles are available yet.</p>{% endfor %}</div>
+{% include "core/partials/pagination.html" with page=careers parameter="careers_page" label="Career profiles" %}
 <h2 style="margin-top:24px">Job postings</h2>
 <div class="grid g-2">{% for version in jobs %}<article class="card target">
 <h3>{{ version.title }}</h3>
@@ -33,4 +34,5 @@
 </form>
 </div>
 </article>{% empty %}<p class="muted">No published job postings are available yet.</p>{% endfor %}</div>
+{% include "core/partials/pagination.html" with page=jobs parameter="jobs_page" label="Job postings" %}
 {% endblock %}

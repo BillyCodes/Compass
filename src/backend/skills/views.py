@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from core.security import student_required
+from core.pagination import paginate
 from reference.models import ContentVersion
 from .forms import CourseForm, LevelForm, SkillForm
 from .models import ProficiencyLevel, Skill
@@ -25,16 +26,19 @@ def skillprint(request):
         else:
             messages.success(request, "Skill saved.")
             return redirect("skills:skillprint")
-    records = list(list_student_skills(actor=request.user).order_by("skill__category", "skill__skill_name"))
+    skill_page = paginate(request, list_student_skills(actor=request.user).order_by("skill__category", "skill__skill_name", "skill_id"), "skills_page")
+    records = list(skill_page)
     groups = [(category or "Other", list(items)) for category, items in groupby(records, key=lambda r: r.skill.category)]
-    selections = list(list_student_courses(actor=request.user))
-    editions = ContentVersion.objects.filter(item_id__in=[s.course_item_id for s in selections], status__in=["published", "retired"]).order_by("item_id", "-version_no")
+    course_page = paginate(request, list_student_courses(actor=request.user).order_by("-selected_at", "pk"), "courses_page")
+    selections = list(course_page)
+    editions = ContentVersion.objects.filter(item_id__in=[s.course_item_id for s in selections], status__in=["published", "retired"]).order_by("item_id", "-version_no").distinct("item_id")
     latest = {}
     for version in editions:
         latest.setdefault(version.item_id, version)
     courses = [{"selection": s, "version": latest.get(s.course_item_id)} for s in selections]
     return render(request, "core/skillprint.html", {"active": "skillprint", "form": form,
-        "course_form": CourseForm(prefix="course"), "groups": groups, "levels": ProficiencyLevel.choices, "courses": courses})
+        "course_form": CourseForm(prefix="course"), "groups": groups, "levels": ProficiencyLevel.choices,
+        "courses": courses, "skill_page": skill_page, "course_page": course_page})
 
 
 @student_required
@@ -99,6 +103,7 @@ def explorer(request):
         catalog = catalog.filter(category=category)
     if query:
         catalog = catalog.filter(Q(skill_name__icontains=query) | Q(category__icontains=query))
-    mine = dict(list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level"))
-    return render(request, "core/explorer.html", {"active": "explorer", "skills": catalog,
+    skill_page = paginate(request, catalog.order_by("skill_name", "skill_id"))
+    mine = dict(list_student_skills(actor=request.user).filter(skill_id__in=[skill.pk for skill in skill_page]).values_list("skill_id", "proficiency_level"))
+    return render(request, "core/explorer.html", {"active": "explorer", "skills": skill_page,
         "categories": categories, "current": category, "query": query, "mine": mine})
