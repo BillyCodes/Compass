@@ -10,6 +10,7 @@ urlpatterns = [
     path("", include("comparisons.urls")),
     path("", include("reference.urls")),
     path("maintainer/", include("reference.maintenance_urls")),
+    path("", include("pilot.urls")),
 ]
 
 # Admin routes remain deferred until the corresponding forms and access rules are ready.

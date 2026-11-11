@@ -1,5 +1,12 @@
 # Frontend integration with the approved backend
 
+Current integration: the `pilot` UI/features from `5c3752e` are combined with
+maintainer content management, direct publication, role-aware login, optimized
+recommendations, and 20-entry pagination. See [pilot integration](pilot-ui-sync.md)
+for the current routes, migrations, privacy behavior, and verification. The notes
+below document the original student integration; its deferred pilot features are
+now implemented as described in that guide.
+
 Implemented November 3, 2026 on `integration/frontend-main`. The imported Compass
 visual design now uses the approved accounts, skills, reference, comparisons,
 and auditing apps. No pilot models, migrations, alternate score engine, REST

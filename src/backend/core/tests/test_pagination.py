@@ -7,6 +7,7 @@ from django.urls import reverse
 from comparisons.services import create_comparison, list_matches
 from comparisons.tests.factories import approve, draft, learning, setup_actors, target
 from reference.selectors import latest_available
+from pilot.services.presenter import note_versions
 from skills.models import Skill
 from skills.services import select_student_course, set_student_skill
 
@@ -85,12 +86,12 @@ class PaginationTests(TestCase):
             self.assertEqual(page.paginator.count, 3)
             self.assertLessEqual(len(page), 2)
             seen.extend(version.pk for version in page)
-        self.assertEqual(seen, list(latest_available("insight").values_list("pk", flat=True)))
+        self.assertEqual(seen, list(note_versions().values_list("pk", flat=True)))
 
     def test_skillprint_lists_have_independent_pages_and_latest_courses(self):
         response = self.client.get(reverse("skills:skillprint"), {"skills_page": 2, "courses_page": 1})
         self.assertEqual(len(response.context["skill_page"]), 1)
-        self.assertEqual(sum(len(records) for _, records in response.context["groups"]), 1)
+        self.assertEqual(sum(len(records) for _, _, _, records in response.context["groups"]), 1)
         self.assertEqual(len(response.context["course_page"]), 2)
         self.assertContains(response, 'href="?skills_page=2&amp;courses_page=2"')
         editions = []
@@ -119,5 +120,5 @@ class PaginationTests(TestCase):
             self.assertEqual(response.context["results"].number, expected)
         response = self.client.get(reverse("skills:explorer"), {"q": "no matching skill", "page": 999})
         self.assertEqual(response.context["skills"].paginator.count, 0)
-        self.assertContains(response, "No active skills match your search.")
+        self.assertContains(response, "No skills match")
         self.assertNotContains(response, 'aria-label="Skills pagination"')

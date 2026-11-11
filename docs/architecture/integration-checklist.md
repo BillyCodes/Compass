@@ -6,6 +6,29 @@ items are pending. Suggested owners below are coordination proposals, not
 assignments agreed by the team. This document does not authorize a merge or
 change existing publication rules.
 
+## Current integration update
+
+The project owner selected direct publication on November 11, 2026. Maintainer
+work through `1740efc` and pilot UI/features from `5c3752e` are now combined in the
+integration working tree. Historical review findings below remain useful for
+coordination; the current behavior is documented in [pilot integration](pilot-ui-sync.md).
+
+Implemented during integration:
+
+- [x] Preserve role-aware login, shared login wording, maintainer routes, and student-only registration.
+- [x] Preserve PostgreSQL recommendation filtering and paginated student lists.
+- [x] Save private-posting recommendations and prevent saved-result mutation.
+- [x] Support explicit zero in resume review and disclose retained excerpts.
+- [x] Freeze published Field Note metadata/tags and attach seed metadata before publication.
+- [x] Add API pagination and preserve ownership/CSRF boundaries.
+- [x] Verify synthetic PDF/DOCX parsing, encrypted PDF rejection, and migration of legacy private results.
+- [x] Check rendered student dashboard/Compare previews at a true 390-pixel viewport with no horizontal overflow, plus desktop student/maintainer previews.
+
+The previews render Django responses using synthetic data in a disposable test
+database. They validate layout rather than a complete interactive browser journey.
+Remaining work includes the full browser demo flow, broader maintainer form request
+coverage, and the generic Mockaroo importer if the team still needs it.
+
 ## Scope and ownership
 
 | Workstream | Reviewed commits | Suggested owner |
@@ -29,7 +52,7 @@ Record the chosen behavior, decision date, and agreeing reviewers for each item.
 
 | Decision | Current behavior and branch difference | Decision record |
 | --- | --- | --- |
-| Independent review | Current publication requires independent approval of the exact draft revision. Maintainer migration `0008_direct_publication` removes this requirement globally, including after a reviewer requests changes. Its confirmation screen and revised tests deliberately allow direct publication. | Pending |
+| Independent review | Maintainer migration `0008_direct_publication` removes the former independent-approval requirement. Completeness, revision, role, immutable-history and audit checks remain. | Direct publication selected by project owner, November 11, 2026. |
 | Private comparison history | Reference comparisons preserve saved recommendations. Pilot `_posting_detail()` regenerates private-posting recommendations on every read. Decide whether private history has the same snapshot contract or explicitly shows current suggestions. | Pending |
 | Resume proficiency | Current proficiency is 0–5, with zero distinct from unknown. Pilot review choices and `apply_import()` accept only 1–5. Define zero, unchecked skills, existing proficiency, and repeat-import behavior. | Pending |
 | Resume data retention | Pilot discards the file but saves its filename and detected-skill context excerpts. Decide whether to retain excerpts, how to describe retention, and how a student removes an import. | Pending |
@@ -42,7 +65,7 @@ Record the chosen behavior, decision date, and agreeing reviewers for each item.
 - [ ] Update architecture notes, UI wording, migrations and tests together for any
       accepted behavior change. Retain existing behavior until a change is agreed.
 
-## Programming lead: pilot findings
+## Programming lead: original pilot findings (review history)
 
 - [ ] Resolve private-posting history behavior in
       `comparisons/views.py::_posting_detail()`. If recommendations are snapshots,
@@ -73,7 +96,7 @@ Record the chosen behavior, decision date, and agreeing reviewers for each item.
       behavior, ownership, field allowlists, and bounded list responses. Keep
       authentication behavior consistent across both interfaces.
 
-## Software engineering lead: maintainer findings
+## Software engineering lead: original maintainer findings (review history)
 
 - [ ] Resolve direct publication before integrating migration
       `reference/migrations/0008_direct_publication.py`. Preserve independent

@@ -142,6 +142,9 @@ class ContentAuditTests(AuditFixture):
         version = draft(self)
         with self.assertRaises(ValidationError):
             review_content_version(actor=self.author,version_id=version.pk,expected_revision=version.draft_revision,decision="approved")
+        # Direct publication is allowed, but incomplete content must still fail.
+        version.source_links.all().delete()
+        version.refresh_from_db()
         with self.assertRaises(ValidationError):
             publish_content_version(actor=self.author,version_id=version.pk,expected_revision=version.draft_revision)
         self.assertFalse(AuditEvent.objects.filter(content_version=version).exists())

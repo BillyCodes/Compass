@@ -130,9 +130,28 @@ account. To create two demo students and a maintainer:
 This optional command prompts for a demo password and refuses to overwrite existing
 accounts. It creates no administrator or reference content.
 
-**Skill, course, career/job, and insight lists start empty.** A synthetic-data importer
-is still planned. Reference content must use the existing review/publication workflow;
-see [sample-data conventions](seeds/README.md).
+**Skill, course, career/job, and insight lists start empty.** To load the optional
+synthetic demonstration catalog, run from the project root:
+
+**macOS / Linux**
+
+```sh
+.venv/bin/python src/backend/manage.py seed_compass
+```
+
+**Windows ? PowerShell**
+
+```powershell
+.\.venv\Scripts\python.exe src\backend\manage.py seed_compass
+```
+
+The command creates sample reference content through validated publication services;
+it creates no student login or student proficiency by default. Re-running it skips
+existing content by kind/title. Use only synthetic data. The optional
+`--demo-student EMAIL` argument overwrites that existing student's sample skill
+levels/evidence, selects courses, and creates another comparison each run.
+See [pilot integration](docs/architecture/pilot-ui-sync.md) and
+[sample-data conventions](seeds/README.md).
 
 ## Run tests
 
@@ -141,13 +160,13 @@ Keep PostgreSQL running, then use the appropriate command.
 **macOS / Linux**
 
 ```sh
-.venv/bin/python src/backend/manage.py test core accounts skills reference comparisons auditing
+.venv/bin/python src/backend/manage.py test core accounts skills reference comparisons auditing pilot
 ```
 
 **Windows — PowerShell**
 
 ```powershell
-.\.venv\Scripts\python.exe src\backend\manage.py test core accounts skills reference comparisons auditing
+.\.venv\Scripts\python.exe src\backend\manage.py test core accounts skills reference comparisons auditing pilot
 ```
 
 Tests use a separate PostgreSQL test database.

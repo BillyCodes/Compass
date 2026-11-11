@@ -1,27 +1,50 @@
 {% extends "core/app_base.html" %}
-{% block title %}Your Journey{% endblock %}
+{% load compass_tags %}
+{% block title %}Journey{% endblock %}
 {% block content %}
 <div class="page-head">
-<div>
-<h1>Your Journey</h1>
-<p>Each saved comparison preserves its target version, proficiency inputs, outcomes, and learning recommendations.</p>
+  <div>
+    <h1>Your Journey</h1>
+    <p>Every time you save progress, Compass keeps a copy of your Skillprint so you can see how far you've come.</p>
+  </div>
+  <form method="post" action="{% url 'pilot:save-progress' %}">{% csrf_token %}<button class="btn" type="submit">Save progress now</button></form>
 </div>
-<a class="btn" href="{% url 'comparisons:compare' %}">New comparison</a>
+
+<div class="grid g-main">
+  <section class="card" aria-labelledby="then-h">
+    <h2 id="then-h">{% if oldest %}Then and now{% else %}Now{% endif %}</h2>
+    {{ radar|safe }}
+    <div class="legend"><span><i></i>Now</span>{% if oldest %}<span><i class="prev"></i>{{ oldest.label|default:"First save" }} · {{ oldest.created_at|date:"M j, Y" }}</span>{% endif %}</div>
+  </section>
+
+  <section class="card" aria-labelledby="tl-h">
+    <h2 id="tl-h">Saved progress</h2>
+    {% if timeline %}
+    <div class="timeline">
+      {% for t in timeline %}
+      <div class="tl-item">
+        <div class="when">{{ t.snap.created_at|date:"M j, Y" }}</div>
+        <div class="what">{{ t.snap.label|default:"Saved progress" }}</div>
+        <div class="small muted">{{ t.skill_total }} skills{% if t.snap.readiness is not None %} · readiness {{ t.snap.readiness|floatformat:0 }}%{% endif %}</div>
+        {% if t.changes %}<div class="chips" style="margin-top:6px">{% for name, diff in t.changes %}<span class="pill {% if diff > 0 %}p-green{% else %}p-red{% endif %}">{{ name }} {% if diff > 0 %}+{% endif %}{{ diff|floatformat:0 }}</span>{% endfor %}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty"><h3>No saves yet</h3><p>Save your progress to start your Journey.</p></div>
+    {% endif %}
+{% include "core/partials/pagination.html" with page=snapshot_page parameter="snapshots_page" label="Saved progress" %}
+  </section>
 </div>
-<section class="card">
-<h2>Comparison history</h2>{% for result in results %}<div class="list-row">
-<div class="grow">
-<a class="title" href="{% url 'comparisons:detail' result.pk %}">{{ result.target_version.title }}</a>
-<p class="small muted">{{ result.created_at|date:"M j, Y g:i A" }} · version {{ result.target_version.version_no }}</p>
-<p class="small">Mandatory: {{ result.get_mandatory_status_display }} · {{ result.reported_count }}/{{ result.relevant_count }} relevant inputs reported{% if result.is_provisional %} · Provisional{% endif %}</p>
-</div>
-<b class="tnum">{{ result.score|floatformat:2 }}%</b>
-<form method="post" action="{% url 'comparisons:delete' result.pk %}">{% csrf_token %}<button class="btn danger" aria-label="Delete comparison for {{ result.target_version.title }}">Delete</button>
-</form>
-</div>{% empty %}<div class="empty">
-<h3>No comparisons yet</h3>
-<p>Add your skills, then choose a published target to start your Journey.</p>
-<a href="{% url 'skills:skillprint' %}">Open your Skillprint</a>
-</div>{% endfor %}</section>
+
+<section class="card" style="margin-top:18px" aria-labelledby="hist-h">
+  <h2 id="hist-h">Comparison history</h2>
+{% include "core/partials/history_rows.html" with rows=history %}
 {% include "core/partials/pagination.html" with page=results parameter="page" label="Comparison history" %}
+
+</section>
+<section class="card" style="margin-top:18px"><h2>Pasted posting comparisons</h2>
+{% include "core/partials/history_rows.html" with rows=posting_history %}
+{% include "core/partials/pagination.html" with page=posting_page parameter="posting_matches_page" label="Pasted posting comparisons" %}
+</section>
 {% endblock %}

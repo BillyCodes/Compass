@@ -3,60 +3,96 @@
 {% block title %}Comparison result{% endblock %}
 {% block content %}
 <div class="page-head">
-<div>
-<a href="{% url 'comparisons:compare' %}">← Compare</a>
-<h1>{{ r.target_version.title }}</h1>
-<p>Saved {{ r.created_at|date:"M j, Y g:i A" }} · reference version {{ r.target_version.version_no }}</p>
+  <div>
+    <p class="eyebrow"><a href="{% url 'comparisons:compare' %}">← Compare</a></p>
+    <h1>Compare to a job</h1>
+    <p>See how your skillset matches and get a plan to close the gap.</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    {% if summary.rerun_url %}<form method="post" action="{{ summary.rerun_url }}">{% csrf_token %}<button class="btn secondary" type="submit">Run again with my current skills</button></form>{% endif %}
+    <form method="post" action="{{ summary.delete_url }}" onsubmit="return confirm('Delete this saved comparison?')">{% csrf_token %}<button class="btn ghost" type="submit">Delete</button></form>
+  </div>
 </div>
-<form method="post" action="{% url 'comparisons:run' r.target_version_id %}">{% csrf_token %}<button class="btn secondary">Compare current skills</button>
-</form>
-</div>
-{% if changed_since %}<div class="alert">Your Skillprint has changed. This result still uses your saved inputs.</div>{% endif %}
+
+{% if changed_since %}<div class="alert">Your Skillprint has changed since this comparison. This result still uses the skills you had on {{ summary.created_at|date:"M j, Y" }}.</div>{% endif %}
+
 <section class="card result-hero">
-<div>{% ring r.score "" "Skill match" %}<p class="tnum">{{ r.score|floatformat:2 }}% skill match</p>
-</div>
-<div>
-<h2>Mandatory requirements: {{ r.get_mandatory_status_display }}</h2>
-<p>{{ r.reported_count }} of {{ r.relevant_count }} relevant skills reported.</p>{% if r.is_provisional %}<span class="pill p-amber">Provisional</span>
-<p>Some relevant proficiency inputs are unreported. They earn no credit until reported.</p>{% else %}<span class="pill p-green">Inputs complete</span>{% endif %}</div>
+  <div>
+    <div class="co" style="display:flex;gap:14px;align-items:center">
+      <div class="co-logo" style="width:56px;height:56px;font-size:18px">{{ summary.company|default:summary.title|initials }}</div>
+      <div>
+        <h2 style="font-size:20px;margin:0">{{ summary.title }}</h2>
+        <p class="muted" style="margin:2px 0 0">{{ summary.subtitle }}{% if summary.location %} · {{ summary.location }}{% endif %}</p>
+      </div>
+    </div>
+    <div class="chips" style="margin-top:14px">
+      {% if summary.is_provisional %}<span class="pill p-amber">Provisional</span>{% else %}<span class="pill p-green">Inputs complete</span>{% endif %}
+      {% if summary.private %}<span class="pill p-violet">Your posting</span>{% endif %}
+    </div>
+  </div>
+  <div class="right">
+    {% ring summary.score "sm" "Match" %}
+    <div>
+      <p class="status {{ summary.status|status_class }}" style="margin:0">{{ summary.status }}{% if summary.status == "Strong Match" %}!{% endif %}</p>
+      <p class="tnum" style="margin:4px 0 0;font-weight:700">{{ summary.score|floatformat:2 }}% skill match</p>
+      <p class="muted small" style="margin:4px 0 0">You meet {{ summary.requirements_met }} of {{ summary.requirements_total }} skills{% if summary.mandatory_total %}, including {{ summary.mandatory_met }} of {{ summary.mandatory_total }} mandatory{% endif %}. Mandatory requirements: {{ summary.mandatory_label }}.</p>
+      <p class="muted small" style="margin:4px 0 0">{{ summary.reported_count }} of {{ summary.relevant_count }} relevant skills reported.{% if summary.is_provisional %} Unreported skills earn no credit until you report them.{% endif %}</p>
+    </div>
+  </div>
 </section>
-<div class="grid g-3" style="margin-top:18px">
-<section class="card">
-<h2>Requirements met</h2>{% for row in groups.met %}<div class="list-row">
-<div>
-<b>{{ row.name }}</b>
-<p class="small">You: {{ row.label }} · requires {{ row.required_level }} {{ row.required_label }}{% if row.mandatory %} · Mandatory{% endif %}</p>
+
+<div class="grid outcomes" style="margin-top:18px">
+  <section class="card">
+    <h2>Your strong areas</h2>
+    <ul class="outcome-list">
+      {% for d in groups.met %}<li><span class="mk met">✓</span><span>{{ d.name }}{% if d.mandatory %} <span class="pill p-gray">Mandatory</span>{% endif %}<span class="lv">You: {{ d.label }} · needs {{ d.required_label }}</span></span></li>
+      {% empty %}<li class="muted">None yet. Every skill below is a place to start.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Skills to improve</h2>
+    <ul class="outcome-list">
+      {% for d in groups.gap %}<li><span class="mk below">+</span><span>{{ d.name }}{% if d.mandatory %} <span class="pill p-amber">Mandatory</span>{% endif %}<span class="lv">You: {{ d.label }} · needs {{ d.required_label }} · gap {{ d.gap }}</span></span></li>
+      {% empty %}<li class="muted">No known gaps.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Unreported proficiency</h2>
+    <ul class="outcome-list">
+      {% for d in groups.unreported %}<li><span class="mk missing">!</span><span>{{ d.name }}{% if d.mandatory %} <span class="pill p-red">Mandatory</span>{% endif %}<span class="lv">Not on your Skillprint · needs {{ d.required_label }}. Report a level before deciding whether this is a gap.</span></span></li>
+      {% empty %}<li class="muted">All target inputs are reported.</li>{% endfor %}
+    </ul>
+    {% if groups.unreported %}<p class="small" style="margin:10px 0 0"><a href="{% url 'skills:skillprint' %}">Report proficiency →</a></p>{% endif %}
+  </section>
 </div>
-</div>{% empty %}<p class="muted">No requirements met yet.</p>{% endfor %}</section>
-<section class="card">
-<h2>Known skill gaps</h2>{% for row in groups.gap %}<div class="list-row">
-<div>
-<b>{{ row.name }}</b>{% if row.mandatory %} <span class="pill p-amber">Mandatory</span>{% endif %}<p class="small">You: {{ row.level }} {{ row.label }} · requires {{ row.required_level }} {{ row.required_label }} · gap {{ row.gap }}</p>
-</div>
-</div>{% empty %}<p class="muted">No known gaps.</p>{% endfor %}</section>
-<section class="card">
-<h2>Unreported proficiency</h2>{% for row in groups.unreported %}<div class="list-row">
-<div>
-<b>{{ row.name }}</b>{% if row.mandatory %} <span class="pill p-amber">Mandatory</span>{% endif %}<p class="small">Requires {{ row.required_level }} {{ row.required_label }}. Report a level before deciding whether this is a gap.</p>
-</div>
-</div>{% empty %}<p class="muted">All target inputs are reported.</p>{% endfor %}{% if groups.unreported %}<a href="{% url 'skills:skillprint' %}">Report proficiency →</a>{% endif %}</section>
-</div>
+
 <div class="grid g-side" style="margin-top:18px">
-<section class="card">
-<h2>Your learning route</h2>
-<p class="muted small">Saved recommendations prioritize known mandatory gaps, then other known gaps.</p>{% for recommendation in recommendations %}<div class="route-step">
-<span class="n">{{ recommendation.record.priority_rank }}</span>
-<div>
-<h3>{{ recommendation.record.resource_version.title }}</h3>
-<p class="small">Targets {{ recommendation.skills|join:", " }}.</p>{% if recommendation.available %}<a href="{% url 'reference:learning' recommendation.record.resource_version_id %}">View {{ recommendation.record.get_resource_kind_display|lower }} →</a>{% else %}<span class="pill p-gray">No longer available</span>{% endif %}</div>
-</div>{% empty %}<p>No saved learning recommendations. Report unknown skills first; relevant reviewed courses or resources may also need to be published.</p>{% endfor %}
+  <section class="card" aria-labelledby="route-h">
+    <h2 id="route-h">Your learning route</h2>
+    <p class="muted small">Saved with this result: mandatory gaps first, then other known gaps.</p>
+    {% for rec in recommendations %}
+    <div class="route-step">
+      <span class="n">{{ rec.rank }}</span>
+      <div>
+        <p style="margin:0;font-weight:700">{{ rec.title }}</p>
+        <p class="small muted" style="margin:4px 0 0">Targets {{ rec.skills|join:", " }}.
+          {% if rec.available %}<a href="{% url 'reference:learning' rec.pk %}">View {{ rec.kind }} →</a>{% else %}<span class="pill p-gray">No longer available</span>{% endif %}</p>
+      </div>
+    </div>
+    {% empty %}
+    <p>No learning recommendations{% if summary.private %} match these gaps right now{% endif %}. Report unknown skills first; relevant published courses or resources may also need to be published.</p>
+    {% endfor %}
 {% include "core/partials/pagination.html" with page=recommendation_page parameter="page" label="Learning route" %}
-</section>
-<aside class="card">
-<h2>How this score works</h2>
-<p>For each scored skill, credit is your reported level divided by the required level, capped at 100%. Credits are weighted and averaged. Unreported inputs earn zero credit.</p>
-<p>Mandatory requirements are evaluated separately. A missing mandatory input leaves their status undetermined unless a known mandatory gap already exists.</p>
-<p class="small muted">Algorithm {{ r.alg_version }}. This is skill alignment, not a hiring prediction.</p>
-</aside>
+    {% if notes %}
+    <h3 style="font-size:15px;margin:18px 0 8px">Related Field Notes</h3>
+    {% for n in notes %}<p class="small" style="margin:0 0 6px"><a href="{% url 'reference:note' n.pk %}">{{ n.headline }}</a>{% if n.author_name %} <span class="muted">· {{ n.author_name }}</span>{% endif %}</p>{% endfor %}
+    {% endif %}
+  </section>
+  <aside class="card" aria-labelledby="how-h">
+    <h2 id="how-h">How this score works</h2>
+    <p class="how">For each scored skill, credit is your reported level divided by the required level, capped at 100%. Credits are weighted by importance and averaged. Unreported skills earn zero credit.</p>
+    <p class="how">Mandatory skills are evaluated separately so a high score can't hide a critical gap. A missing mandatory input leaves their status undetermined unless a known mandatory gap already exists. This score describes skill alignment. It isn't a hiring prediction.</p>
+    <p class="how" style="margin:0">Algorithm <code>{{ summary.alg_version }}</code> · {{ summary.version_label }} · saved {{ summary.created_at|date:"M j, Y g:i A" }}</p>
+  </aside>
 </div>
 {% endblock %}

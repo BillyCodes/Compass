@@ -4,7 +4,7 @@
 <div class="page-head">
   <div>
     <h1>Upload your resume</h1>
-    <p>Compass finds the skills you mention and suggests a starting level for each. You confirm everything before it's saved.</p>
+    <p>Compass finds the skills you mention and suggests a starting level for each. You confirm proficiency levels before they update your Skillprint.</p>
   </div>
 </div>
 <div class="grid g-side">
@@ -25,8 +25,8 @@
     <section class="card">
       <h2>What happens to the file</h2>
       <ul class="small muted" style="padding-left:18px;margin:0;display:grid;gap:8px">
-        <li>The file is read once and then discarded. Compass keeps only the list of skills it found.</li>
-        <li>A resume mention isn't proof of mastery, so suggestions start at Beginner or Developing. Raise them if you've done more.</li>
+        <li>The file is read once and then discarded. Compass retains the filename, detected skills, and short surrounding text excerpts with your account. Use a synthetic resume for this demonstration.</li>
+        <li>A resume mention isn't proof of mastery, so suggestions start at Beginner or Intermediate. Raise them if you've done more.</li>
         <li>Nothing changes on your Skillprint until you confirm.</li>
       </ul>
     </section>
@@ -36,7 +36,7 @@
       <div class="list">
         {% for p in past %}
         <div class="list-row"><div class="grow"><div class="title">{{ p.filename }}</div><div class="sub">{{ p.created_at|date:"M j, Y" }} · {{ p.detected|length }} skills found</div></div>
-          {% if p.applied %}<span class="pill p-green">Saved</span>{% else %}<a class="small" href="{% url 'resume_review' p.pk %}">Review</a>{% endif %}</div>
+          {% if p.applied %}<span class="pill p-green">Saved</span>{% else %}<a class="small" href="{% url 'pilot:resume-review' p.pk %}">Review</a>{% endif %}</div>
         {% endfor %}
       </div>
     </section>

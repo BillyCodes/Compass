@@ -21,12 +21,12 @@
       <tr>
         <td><input type="checkbox" name="keep_{{ r.skill_id }}" id="keep_{{ r.skill_id }}" checked aria-label="Keep {{ r.name }}"></td>
         <td><label for="keep_{{ r.skill_id }}" style="margin:0;font-size:14px">{{ r.name }}</label><span class="muted small">{{ r.category_label }} · mentioned {{ r.hits }}×</span>
-          {% if r.current %}<br><span class="pill p-blue">Now {{ r.current|level_label }}</span>{% endif %}</td>
+          {% if r.current is not None %}<br><span class="pill p-blue">Now {{ r.current|level_label }}</span>{% endif %}</td>
         <td class="ctx">{{ r.context }}</td>
         <td>
           <label class="sr-only" for="level_{{ r.skill_id }}">Level for {{ r.name }}</label>
           <select class="input" name="level_{{ r.skill_id }}" id="level_{{ r.skill_id }}" style="min-width:150px">
-            {% for v, l in levels %}<option value="{{ v }}" {% if r.current %}{% if v == r.current %}selected{% endif %}{% elif v == r.suggested_level %}selected{% endif %}>{{ v }} · {{ l }}</option>{% endfor %}
+            {% for v, l in levels %}<option value="{{ v }}" {% if r.current is not None %}{% if v == r.current %}selected{% endif %}{% elif v == r.suggested_level %}selected{% endif %}>{{ v }} · {{ l }}</option>{% endfor %}
           </select>
         </td>
       </tr>
@@ -35,7 +35,7 @@
     </table>
   </div>
   <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap">
-    <a class="btn secondary" href="{% url 'resume_upload' %}">Cancel</a>
+    <a class="btn secondary" href="{% url 'pilot:resume-upload' %}">Cancel</a>
     <button class="btn" type="submit">Save to my Skillprint</button>
   </div>
 </form>

@@ -6,6 +6,12 @@ This directory has no Mockaroo importer yet. The separate
 `create_demo_accounts` management command creates the initial synthetic login
 accounts, and the account data migration installs the three fixed role names.
 
+The optional `seed_compass` command now supplies a fixed synthetic demonstration
+catalog through the publication services. See [pilot integration](../docs/architecture/pilot-ui-sync.md)
+for setup and repeat-run behavior. It complements the maintainer interface and is
+separate from the planned Mockaroo importer below. Publication now permits an
+active content maintainer to publish directly; an independent review is optional.
+
 ## Database lead workflow
 
 1. Align the ERD with reviewed Django models and committed migrations. Django

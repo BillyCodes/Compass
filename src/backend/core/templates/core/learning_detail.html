@@ -3,7 +3,7 @@
 {% block content %}
 <a href="{% url 'comparisons:journey' %}">← Your Journey</a>
 <article class="card" style="margin-top:18px">
-<p class="eyebrow">Reviewed {{ version.get_kind_display|lower }} · version {{ version.version_no }}</p>
+<p class="eyebrow">Published {{ version.get_kind_display|lower }} · version {{ version.version_no }}</p>
 <h1>{{ version.title }}</h1>
 <div>{{ version.body|linebreaks }}</div>{% if details.provider %}<p>Provider: {{ details.provider }}</p>{% endif %}{% if details.course_code %}<p>Course: {{ details.course_code }}</p>{% endif %}{% if resource_url %}<a class="btn" href="{{ resource_url }}" target="_blank" rel="noopener noreferrer">Open learning resource</a>{% endif %}<p class="how">This resource may help you develop a skill. It does not automatically change your reported proficiency.</p>
 </article>

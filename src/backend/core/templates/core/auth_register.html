@@ -13,7 +13,7 @@
   <main class="auth-main" id="main-content">
     <div class="auth-card">
       <h1>Create your account</h1>
-      <p class="sub">Start with your profile, then add your self-reported skills.</p>
+      <p class="sub">Start with your profile, then add your self-reported skills. You can upload your resume right after.</p>
       <form method="post" novalidate>
         {% csrf_token %}
         {% if form.non_field_errors %}<div class="alert error">{{ form.non_field_errors|join:" " }}</div>{% endif %}

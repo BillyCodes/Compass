@@ -1,0 +1,13 @@
+{% load compass_tags %}
+  <div class="list">
+    {% for r in rows %}
+    <div class="list-row">
+      <a class="list-row" href="{{ r.url }}" style="color:inherit;text-decoration:none;flex:1;padding:0;border:0">
+        <div class="co-logo">{{ r.title|initials }}</div>
+        <div class="grow"><div class="title">{{ r.title }}</div><div class="sub">{{ r.created_at|date:"M j, Y" }} · {{ r.requirements_met }} of {{ r.requirements_total }} met{% if r.is_provisional %} · provisional{% endif %}</div></div>
+        <span class="pill {% if r.status == 'Strong Match' %}p-green{% elif r.status == 'Developing Match' %}p-amber{% else %}p-blue{% endif %} tnum">{{ r.score|floatformat:2 }}% · {{ r.status }}</span>
+      </a>
+      <form method="post" action="{{ r.delete_url }}" onsubmit="return confirm('Delete this saved comparison?')">{% csrf_token %}<button class="btn ghost small" type="submit" aria-label="Delete comparison {{ r.title }}">Delete</button></form>
+    </div>
+    {% empty %}<p class="muted">No comparisons yet. <a href="{% url 'comparisons:compare' %}">Run your first one.</a></p>{% endfor %}
+  </div>

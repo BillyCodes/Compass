@@ -4,4 +4,5 @@ from accounts.permissions import has_role
 
 
 def navigation(request):
-    return {"is_student": has_role(request.user, Role.Name.STUDENT)}
+    return {"is_student": has_role(request.user, Role.Name.STUDENT),
+            "can_manage_content": has_role(request.user, Role.Name.MAINTAINER) or has_role(request.user, Role.Name.ADMINISTRATOR)}
