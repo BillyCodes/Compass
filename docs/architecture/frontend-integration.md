@@ -27,8 +27,10 @@ framework, or new database tables were added.
 | Learning detail | `/library/<version_uuid>/` | Available course/resource edition and validated HTTP(S) resource link |
 
 Named URLs are namespaced by feature app. Existing `/accounts/` URLs remain
-available. A successful student sign-in now defaults to the dashboard; other
-accounts land on their owned account/profile page. Django still validates safe
+available. Maintainers and administrators default to the maintainer dashboard;
+this takes precedence for accounts that also have a student role. Students default
+to the student dashboard; other accounts land on their owned account/profile page.
+An explicit safe `next` destination takes precedence over role defaults. Django validates safe
 `next` destinations. Nonstudent accounts do not receive student navigation/access.
 
 The shared design lives in `core/base.html`, `core/app_base.html`, and the logo

@@ -115,9 +115,32 @@ class AccountTests(TestCase):
 
     def test_maintainer_does_not_need_student_profile(self):
         response = self.login(email=self.maintainer.login_email)
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("maintenance:dashboard"))
         self.assertContains(self.client.get(reverse("accounts:profile")), "does not have a student profile")
         self.assertEqual(self.client.get(reverse("accounts:student-detail", args=[self.a.pk])).status_code, 404)
+
+    def test_administrator_login_defaults_to_maintainer_dashboard(self):
+        self.assertRedirects(self.login(email=self.admin.login_email), reverse("maintenance:dashboard"))
+
+    def test_content_editor_role_takes_precedence_over_student_default(self):
+        AccountRole.objects.create(account=self.a.account, role=Role.objects.get(role_name="maintainer"))
+        self.assertRedirects(self.login(), reverse("maintenance:dashboard"))
+
+    def test_maintainer_safe_next_destination_takes_precedence(self):
+        self.assertRedirects(
+            self.login(email=self.maintainer.login_email, next=reverse("accounts:profile")),
+            reverse("accounts:profile"),
+        )
+
+    def test_maintainer_external_next_falls_back_to_maintainer_dashboard(self):
+        self.assertRedirects(
+            self.login(email=self.maintainer.login_email, next="https://example.org/"),
+            reverse("maintenance:dashboard"),
+        )
+
+    def test_account_without_business_role_defaults_to_profile(self):
+        account = Account.objects.create_superuser("login.operator@example.test", "Sample-test-only!42")
+        self.assertRedirects(self.login(email=account.login_email), reverse("accounts:profile"))
 
     def test_role_assignment_requires_business_administrator(self):
         role = Role.objects.get(role_name="maintainer")

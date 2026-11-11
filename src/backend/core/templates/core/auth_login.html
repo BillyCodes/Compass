@@ -8,12 +8,12 @@
       <span class="hand">Welcome back.</span>
       <h2 style="margin-top:14px">See what changed <span class="grad">since last time.</span></h2>
     </div>
-    <p class="muted small" style="margin:0">Your profile, skills and results are private to you.</p>
+    <p class="muted small" style="margin:0">Access your Compass workspace.</p>
   </aside>
   <main class="auth-main" id="main-content">
     <div class="auth-card">
       <h1>Log in</h1>
-      <p class="sub">Use the email you signed up with.</p>
+      <p class="sub">Sign in with your Compass account.</p>
       {% for m in messages %}<div class="alert {{ m.tags }}" role="status">{{ m }}</div>{% endfor %}
       {% if throttled %}<div class="alert error" role="alert">Sign-in is temporarily unavailable. Please try again later.</div>{% endif %}
       {% if form.non_field_errors %}<div class="alert error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
@@ -25,7 +25,7 @@
         {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
         <button class="btn block" type="submit">Log in</button>
       </form>
-      <p class="small muted" style="margin-top:18px;text-align:center">New to Compass? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+      <p class="small muted" style="margin-top:18px;text-align:center">New to Compass? <a href="{% url 'accounts:register' %}">Create a student account</a></p>
 
     </div>
   </main>

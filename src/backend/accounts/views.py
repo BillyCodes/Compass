@@ -28,6 +28,8 @@ class EmailLoginView(LoginView):
         target = self.get_redirect_url()
         if target:
             return target
+        if has_role(self.request.user, Role.Name.MAINTAINER) or has_role(self.request.user, Role.Name.ADMINISTRATOR):
+            return reverse("maintenance:dashboard")
         if has_role(self.request.user, Role.Name.STUDENT) and Student.objects.filter(account=self.request.user).exists():
             return reverse("core:dashboard")
         return reverse("accounts:profile")
