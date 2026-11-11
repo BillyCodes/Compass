@@ -24,7 +24,7 @@ virtual-environment activation or PowerShell execution-policy changes.
 ```sh
 python3 --version
 python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 **Windows — PowerShell**
@@ -32,7 +32,7 @@ python3 -m venv .venv
 ```powershell
 python --version
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 Confirm the reported Python version is at least 3.12. If Windows cannot find
@@ -61,22 +61,24 @@ if (-not (Test-Path -LiteralPath '.env')) {
 Edit `.env` and set a nonempty `POSTGRES_PASSWORD`. Keep existing settings when
 reusing a configured database. Each teammate uses their own `.env`; never commit it.
 
-### 3. Start PostgreSQL and apply migrations
+### 3. Start PostgreSQL and apply migrations 
 
 **macOS / Linux**
 
 ```sh
 docker compose up -d --wait db
-.venv/bin/python src/backend/manage.py migrate
-.venv/bin/python src/backend/manage.py check
+cd src/backend
+python3 manage.py migrate
+python3 manage.py check
 ```
 
 **Windows — PowerShell**
 
 ```powershell
 docker compose up -d --wait db
-.\.venv\Scripts\python.exe src\backend\manage.py migrate
-.\.venv\Scripts\python.exe src\backend\manage.py check
+cd src\backend
+python manage.py migrate
+python manage.py check
 ```
 
 ### 4. Run Compass
@@ -84,13 +86,13 @@ docker compose up -d --wait db
 **macOS / Linux**
 
 ```sh
-.venv/bin/python src/backend/manage.py runserver 127.0.0.1:8000
+python3 manage.py runserver 127.0.0.1:8000
 ```
 
 **Windows — PowerShell**
 
 ```powershell
-.\.venv\Scripts\python.exe src\backend\manage.py runserver 127.0.0.1:8000
+python manage.py runserver 127.0.0.1:8000
 ```
 
 Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/). Choose **Get started** to
@@ -115,13 +117,13 @@ account. To create two demo students and a maintainer:
 **macOS / Linux**
 
 ```sh
-.venv/bin/python src/backend/manage.py create_demo_accounts
+python3 manage.py create_demo_accounts
 ```
 
 **Windows — PowerShell**
 
 ```powershell
-.\.venv\Scripts\python.exe src\backend\manage.py create_demo_accounts
+python manage.py create_demo_accounts
 ```
 
 This optional command prompts for a demo password and refuses to overwrite existing
@@ -138,13 +140,13 @@ Keep PostgreSQL running, then use the appropriate command.
 **macOS / Linux**
 
 ```sh
-.venv/bin/python src/backend/manage.py test core accounts skills reference comparisons auditing
+python3 manage.py test core accounts skills reference comparisons auditing
 ```
 
 **Windows — PowerShell**
 
 ```powershell
-.\.venv\Scripts\python.exe src\backend\manage.py test core accounts skills reference comparisons auditing
+python manage.py test core accounts skills reference comparisons auditing
 ```
 
 Tests use a separate PostgreSQL test database.
