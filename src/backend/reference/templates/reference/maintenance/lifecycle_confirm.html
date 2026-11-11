@@ -1,0 +1,16 @@
+{% extends "core/app_base.html" %}
+{% block title %}{{ title }} | Compass{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ title }}</h1>
+  <h2>{{ version.title }}</h2>
+  <p>{{ version.get_kind_display }} · version {{ version.version_no }}</p>
+  <p>{{ description }}</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <button class="btn" type="submit">{{ button }}</button>
+    <a class="btn secondary" href="{% url 'maintenance:dashboard' %}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

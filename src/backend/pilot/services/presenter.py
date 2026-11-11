@@ -98,7 +98,10 @@ def live_job_matches(levels, limit=3):
         company = version.details.company.company_name if getattr(version, "details", None) and version.details.company else ""
         out.append({"pk": version.pk, "title": version.title, "company": company,
                     "location": version.details.location if getattr(version, "details", None) else "",
-                    "score": calc.score, "status": match_status(calc.score, calc.mandatory_status)})
+                    "score": calc.score, "status": match_status(calc.score, calc.mandatory_status),
+                    "is_provisional": calc.is_provisional, "reported_count": calc.reported_count,
+                    "relevant_count": calc.relevant_count, "mandatory_status": calc.mandatory_status,
+                    "mandatory_label": MANDATORY_LABELS[calc.mandatory_status]})
     out.sort(key=lambda m: -m["score"])
     return out[:limit]
 

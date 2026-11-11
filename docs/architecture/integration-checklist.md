@@ -29,6 +29,12 @@ database. They validate layout rather than a complete interactive browser journe
 Remaining work includes the full browser demo flow, broader maintainer form request
 coverage, and the generic Mockaroo importer if the team still needs it.
 
+Post-integration analysis priorities 1–3 are implemented: confirmed successor-draft
+and retirement actions, dashboard job completeness/mandatory labels, and progress
+snapshots derived from a single input read. Regression tests cover immutable
+history, copied content across all types, role/CSRF checks, copy rollback, partial
+high-scoring job cards, and an edit interleaved with snapshot capture.
+
 ## Scope and ownership
 
 | Workstream | Reviewed commits | Suggested owner |

@@ -36,13 +36,17 @@ def category_scores(levels_by_category):
     return scores
 
 
-def scores_for_student(student):
+def _scores_for_levels(levels):
     buckets = {}
-    for category, level in StudentSkill.objects.filter(student=student).values_list("skill__category", "proficiency_level"):
+    for category, level in levels:
         key = category_key(category)
         if key:
             buckets.setdefault(key, []).append(level)
     return category_scores(buckets)
+
+
+def scores_for_student(student):
+    return _scores_for_levels(StudentSkill.objects.filter(student=student).values_list("skill__category", "proficiency_level"))
 
 
 def latest_readiness(student):
@@ -58,9 +62,12 @@ def current_levels(student):
 def save_snapshot(*, actor, label=""):
     student = _owned_student(actor)
     latest = latest_readiness(student)
+    # One SQL read captures each level and its category together. Derive both
+    # saved representations from these rows, even if proficiency changes next.
+    rows = list(StudentSkill.objects.filter(student=student).values_list("skill_id", "skill__category", "proficiency_level"))
     return ProgressSnapshot.objects.create(
-        student=student, label=(label or "")[:80], skills=current_levels(student),
-        categories=scores_for_student(student), readiness=latest.score if latest else None,
+        student=student, label=(label or "")[:80], skills={str(skill_id): level for skill_id, _, level in rows},
+        categories=_scores_for_levels((category, level) for _, category, level in rows), readiness=latest.score if latest else None,
     )
 
 

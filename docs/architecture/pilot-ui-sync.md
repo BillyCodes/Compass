@@ -29,6 +29,28 @@ the standalone `frontend/` directory remains a design reference.
 | Field Notes | Published insight cards with optional author metadata and skill tags |
 | Maintainer | `/maintainer/`; existing content-management workflows retained |
 
+### Correcting and withdrawing published content
+
+The maintainer dashboard offers **Create successor draft** on published/retired
+editions of active items, and **Retire edition** on published editions. Both routes
+show a confirmation page on GET and mutate only on a CSRF-protected POST:
+
+- `/maintainer/successor/<uuid>/` copies text, sources, details, requirements,
+  learning mappings, and any Field Note metadata/tags into the same item's next
+  draft. An existing draft is opened instead of creating another one. Reviews and
+  publication attribution are not copied; current publication checks run again.
+- `/maintainer/retire/<uuid>/` withdraws that edition and records the actor in an
+  audit event. Other published editions of the item may remain available. Saved
+  results retain their original editions and scores. A retired edition cannot be
+  reactivated; publish a successor if it is needed again.
+
+Existing published editions remain immutable when a successor is edited or
+published. Copied sources/company records remain shared and frozen where already
+published; the existing source-correction action creates a separate reference.
+Expired job details or retired skill requirements may need correction in the new
+draft before it can be published. These actions require a maintainer or business
+administrator role, rather than Django staff/superuser flags alone.
+
 Lists use 20 entries per page. Compare has independent `careers_page`, `jobs_page`,
 and `postings_page` parameters. Journey uses `page` for reference history,
 `posting_matches_page` for private history, and `snapshots_page` for saved progress.
@@ -39,6 +61,12 @@ Category scores average the three strongest reported levels in each of six
 categories, padded with zeros and scaled to 100. These descriptive metrics are
 separate from the career/job comparison algorithm. The landing-page shape is an
 example, not a student score.
+
+Dashboard job cards show completeness and mandatory status alongside the score,
+including a Provisional label for partial inputs. Progress snapshots capture skill
+IDs, categories and levels in one SQL read, then derive both saved levels and
+category scores from those same rows. An edit after that read cannot mix old
+levels with newly computed category scores in one snapshot.
 
 ## Privacy and history
 

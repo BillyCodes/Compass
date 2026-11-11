@@ -44,6 +44,57 @@ def create_draft_version(*, actor, item_id, title, body):
 
 
 @transaction.atomic
+def create_successor_draft(*, actor, version_id):
+    """Copy an immutable edition into its item's next editable draft.
+
+    An existing draft is opened instead of creating duplicates on repeated POSTs.
+    Sources/company identities stay shared; corrections to frozen references use
+    the existing replacement services. Reviews and publication attribution do not
+    carry forward.
+    """
+    require_content_editor(actor)
+    identity = ContentVersion.objects.only("item_id").get(pk=version_id)
+    item = ContentItem.objects.select_for_update().get(pk=identity.item_id)
+    source = ContentVersion.objects.select_for_update().get(pk=version_id)
+    if item.retired_at is not None:
+        raise ValidationError("This content item is retired.")
+    if source.status not in (ContentVersion.Status.PUBLISHED, ContentVersion.Status.RETIRED):
+        raise ValidationError("Create a successor from a published or retired edition.")
+    existing = item.versions.filter(status=ContentVersion.Status.DRAFT).order_by("-version_no").first()
+    if existing is not None:
+        return existing
+    version = create_draft_version(actor=actor, item_id=item.pk, title=source.title, body=source.body)
+    ContentSource.objects.bulk_create([
+        ContentSource(version=version, source_id=source_id)
+        for source_id in source.source_links.values_list("source_id", flat=True)
+    ])
+    ContentRequirement.objects.bulk_create([
+        ContentRequirement(version=version, kind=version.kind, skill_id=row.skill_id,
+                           required_level=row.required_level, weight=row.weight, mandatory=row.mandatory)
+        for row in source.requirements.all()
+    ])
+    ContentSkill.objects.bulk_create([
+        ContentSkill(version=version, kind=version.kind, skill_id=row.skill_id, coverage_level=row.coverage_level)
+        for row in source.skill_mappings.all()
+    ])
+    details = getattr(source, "details", None)
+    if details is not None:
+        fields = {field.attname: getattr(details, field.attname)
+                  for field in ContentDetails._meta.concrete_fields if field.name != "version"}
+        ContentDetails.objects.create(version=version, **fields)
+    # Pilot author cards/tags belong to their edition and must be copied before
+    # publication, while the new draft can still be edited.
+    profile = getattr(source, "field_note", None)
+    if profile is not None:
+        fields = {field.attname: getattr(profile, field.attname)
+                  for field in type(profile)._meta.concrete_fields if field.name != "version"}
+        copied = type(profile).objects.create(version=version, **fields)
+        copied.skills.set(profile.skills.all())
+    version.refresh_from_db()
+    return version
+
+
+@transaction.atomic
 def update_draft_version(*, actor, version_id, expected_revision, title, body):
     version = _lock_draft(actor, version_id, expected_revision)
     version.title = title.strip()

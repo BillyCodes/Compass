@@ -105,7 +105,10 @@
       {% for p in matches %}
       <div class="list-row">
         <div class="co-logo">{{ p.company|default:p.title|initials }}</div>
-        <div class="grow"><div class="title">{{ p.title }}</div><div class="sub">{{ p.company }}{% if p.location %} · {{ p.location }}{% endif %}</div></div>
+        <div class="grow"><div class="title">{{ p.title }}</div><div class="sub">{{ p.company }}{% if p.location %} · {{ p.location }}{% endif %}</div>
+          {% if p.is_provisional %}<span class="pill p-amber">Provisional</span>{% else %}<span class="pill p-green">Inputs complete</span>{% endif %}
+          <p class="small muted" style="margin:4px 0 0">{{ p.reported_count }} of {{ p.relevant_count }} relevant skills reported. Mandatory requirements: {{ p.mandatory_label }}.</p>
+        </div>
         <span class="pill {% if p.status == 'Strong Match' %}p-green{% elif p.status == 'Developing Match' %}p-amber{% else %}p-blue{% endif %} tnum">{{ p.score|floatformat:0 }}%</span>
         <form method="post" action="{% url 'comparisons:run' p.pk %}">{% csrf_token %}<button class="btn ghost small" type="submit">Compare</button></form>
       </div>

@@ -84,6 +84,11 @@
             Publish
         </a>
     </div>
+{% elif not version.item.retired_at %}
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <a class="btn secondary small" href="{% url 'maintenance:successor' version.pk %}">Create successor draft</a>
+      {% if version.status == "published" %}<a class="btn danger small" href="{% url 'maintenance:retire' version.pk %}">Retire edition</a>{% endif %}
+    </div>
 {% else %}
     <span>Not editable</span>
 {% endif %}

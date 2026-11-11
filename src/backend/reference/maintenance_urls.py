@@ -10,10 +10,13 @@ from . import maintenance_requirement_views
 from . import maintenance_detail_views
 
 from . import maintenance_skill_views
+from . import maintenance_lifecycle_views
 
 app_name = "maintenance"
 
 urlpatterns = [
+    path("successor/<uuid:version_id>/", maintenance_lifecycle_views.successor, name="successor"),
+    path("retire/<uuid:version_id>/", maintenance_lifecycle_views.retire, name="retire"),
     path(
         "",
         maintenance_views.dashboard,
