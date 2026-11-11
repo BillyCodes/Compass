@@ -63,15 +63,21 @@
 </section>
 
 <section class="public-section" id="about" style="padding-top:0">
-  <div class="card" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
-    <div style="flex:1;min-width:240px">
-      <p class="eyebrow">Test Launch 01</p>
-      <h2 style="font-size:22px;margin:6px 0">A controlled pilot by the Digital Corsairs</h2>
-      <p class="muted" style="margin:0">This build uses synthetic data only. Companies and professionals shown are fictional sample content. Please don't enter real personal records.</p>
+  <div class="card" style="padding:32px">
+    <p class="eyebrow">About Compass</p>
+    <h2 style="font-size:26px;margin:6px 0 10px">From classroom to career, with a clear next step</h2>
+    <p class="muted" style="margin:0 0 22px;max-width:70ch">Compass is built by the Digital Corsairs, a team of computer science students, to help students see how their coursework turns into career readiness and what to learn next. Every part of it is designed to be clear, private and honest about what it knows.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+      <div><h3 style="font-size:16px;margin:0 0 6px">Private by design</h3><p class="muted small" style="margin:0">Your profile, skills and results are visible only to you.</p></div>
+      <div><h3 style="font-size:16px;margin:0 0 6px">Transparent matching</h3><p class="muted small" style="margin:0">Every comparison shows how it was scored, and skills you haven't reported are never guessed.</p></div>
+      <div><h3 style="font-size:16px;margin:0 0 6px">Reviewed insight</h3><p class="muted small" style="margin:0">Career and Field Note content is reviewed by a second person before it is published.</p></div>
     </div>
-    <a class="btn" href="{% url 'accounts:register' %}">Create a test account</a>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:26px">
+      <a class="btn" href="{% url 'accounts:register' %}">Get started</a>
+      <span class="muted small">Sample content in this build is fictional.</span>
+    </div>
   </div>
 </section>
 </main>
-<p class="pilot-foot">COMPASS · Digital Corsairs Senior Project · Test Launch 01</p>
+<p class="pilot-foot">COMPASS · Built by the Digital Corsairs · Senior Project</p>
 {% endblock %}
