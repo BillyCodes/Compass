@@ -29,9 +29,10 @@ def category_key(text):
 def category_scores(levels_by_category):
     scores = {}
     for key, _ in CATEGORIES:
+        # Average of the student's strongest reported skills in the category (no padding),
+        # so level 0..5 maps cleanly to 0, 20, 40, 60, 80, 100.
         levels = sorted(levels_by_category.get(key, []), reverse=True)[:TOP_N]
-        levels += [0] * (TOP_N - len(levels))
-        scores[key] = round(sum(levels) / TOP_N / 5 * 100, 1)
+        scores[key] = round(sum(levels) / len(levels) / 5 * 100, 1) if levels else 0.0
     return scores
 
 

@@ -65,7 +65,7 @@
       <h2 id="shape-h">Your shape</h2>
       {{ radar|safe }}
       <div class="legend"><span><i></i>Now</span>{% if last_snap %}<span><i class="prev"></i>Saved {{ last_snap.created_at|date:"M j" }}</span>{% endif %}</div>
-      <p class="how" style="margin:14px 0 0">Each category score is the average of your three strongest skill levels in it, out of 5.</p>
+      <p class="how" style="margin:14px 0 0">Each category score is the average level of your (up to) three strongest skills in it, shown out of 100: None = 0, Awareness = 20, Beginner = 40, Intermediate = 60, Advanced = 80, Expert = 100.</p>
     </section>
 
     <section class="card" id="courses" aria-labelledby="course-h">
