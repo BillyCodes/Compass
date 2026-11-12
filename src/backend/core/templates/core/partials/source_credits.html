@@ -6,6 +6,8 @@
     <p>{% if credit.source.source_url %}<a href="{{ credit.source.source_url }}" target="_blank" rel="noopener noreferrer">{{ credit.source.source_title }}</a>{% else %}{{ credit.source.source_title }}{% endif %}
     {% if credit.source.source_version %} · {{ credit.source.source_version }}{% endif %}</p>
     {% if credit.source.publisher %}<p class="small muted">{{ credit.source.publisher }}{% if credit.source.author %} · {{ credit.source.author }}{% endif %} · Retrieved {{ credit.source.collected_at|date:"M j, Y" }}</p>{% endif %}
+    {% if credit.source.external_id %}<p class="small">Source ID: {{ credit.source.external_id }}</p>{% endif %}
+    {% if credit.source.file_sha256 %}<details><summary>Imported file identity</summary><p class="source-digest">SHA-256: {{ credit.source.file_sha256 }}</p>{% if credit.source.raw_metadata.local_ingestion %}<p class="small muted">Retrieval date records local ingestion of the preserved source file.</p>{% endif %}</details>{% endif %}
     {% if credit.source.attribution_text %}<div class="small">{{ credit.source.attribution_text|linebreaks }}</div>{% endif %}
     {% if credit.source.license_url %}<p class="small"><a href="{{ credit.source.license_url }}" target="_blank" rel="noopener noreferrer">{{ credit.source.license_name|default:"Source usage terms" }}</a></p>{% endif %}
     {% if credit.usage != "unknown" %}<p class="small muted">Use: {{ credit.get_usage_display }}</p>{% endif %}

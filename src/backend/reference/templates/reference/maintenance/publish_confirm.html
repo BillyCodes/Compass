@@ -31,6 +31,8 @@
     Check the draft before confirming.
   </p>
 
+  <p><a href="{% url 'maintenance:preview' version.pk %}">Preview content and source credits</a></p>
+  {% if issues %}<section class="card" role="status"><h2>Resolve before publication</h2><ul>{% for issue in issues %}<li>{{ issue }}</li>{% endfor %}</ul></section>{% endif %}
   <form method="post">
     {% csrf_token %}
 

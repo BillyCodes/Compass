@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from accounts.permissions import require_content_editor
 
+from .curation import publication_issues
 from .models import ContentVersion
 from .services import publish_content_version
 
@@ -78,6 +79,7 @@ def publish_content(request, version_id):
         {
             "active": "maintenance",
             "version": version,
+            "issues": publication_issues(version),
             "form": form,
         },
     )

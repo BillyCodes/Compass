@@ -383,3 +383,18 @@ a.chip:hover { text-decoration: none; color: var(--ink); }
 .skip-link:focus { top: 12px; }
 .errorlist { color: #9b1c1c; padding-left: 20px; }
 .pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+
+/* Curated content maintenance */
+.curation-starts { margin: 24px 0; }
+.curation-starts > a { color: inherit; text-decoration: none; }
+.curation-starts > a:hover, .curation-starts > a:focus-visible { outline: 2px solid var(--accent, #6554c0); }
+.curation-starts h2 { font-size: 18px; }
+.curation-filters { display: flex; flex-wrap: wrap; gap: 16px; margin: 24px 0; align-items: end; }
+.curation-filters label { display: grid; gap: 6px; flex: 1 1 180px; }
+.curation-filters input, .curation-filters select { width: 100%; min-height: 42px; }
+.curation-table { overflow-x: auto; }
+.curation-table table { width: 100%; border-collapse: collapse; }
+.curation-table th, .curation-table td { padding: 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #ddd; }
+.curation-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.source-digest { overflow-wrap: anywhere; font-size: 12px; }
+.maintenance-page input:not([type=checkbox]):not([type=hidden]), .maintenance-page select, .maintenance-page textarea { max-width: 100%; }

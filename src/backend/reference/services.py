@@ -432,3 +432,34 @@ def edit_draft_source(
     _touch_revision(version)
 
     return corrected
+
+
+@transaction.atomic
+def set_field_note_profile(*, actor, version_id, expected_revision, skills=(), **fields):
+    from pilot.models import FieldNoteProfile
+    version = _lock_draft(actor, version_id, expected_revision)
+    if version.kind != ContentKind.INSIGHT:
+        raise ValidationError('Author details and tags are only available for Field Notes.')
+    allowed = {'author_name', 'author_role', 'author_org', 'years_experience', 'quote', 'working_on', 'learn_next'}
+    if set(fields) - allowed:
+        raise ValidationError('Unsupported author details.')
+    tags = list(Skill.objects.select_for_update().filter(pk__in=[skill.pk for skill in skills]))
+    if any(skill.status != Skill.Status.ACTIVE for skill in tags):
+        raise ValidationError('Choose active skill tags.')
+    if version.origin == ContentVersion.Origin.ORIGINAL:
+        # Keep the attribution used by student pages and the author card consistent.
+        author_name = fields['author_name'].strip()
+        if version.original_author != author_name:
+            version.originality_confirmed = False
+        version.original_author = author_name
+        version.full_clean()
+        version.save(update_fields=['original_author', 'originality_confirmed'])
+    profile, _ = FieldNoteProfile.objects.get_or_create(version=version, defaults={'author_name': fields['author_name']})
+    for key, value in fields.items():
+        setattr(profile, key, value.strip() if isinstance(value, str) else value)
+    profile.is_sample = version.origin == ContentVersion.Origin.SYNTHETIC
+    profile.full_clean()
+    profile.save()
+    profile.skills.set(tags)
+    _touch_revision(version)
+    return profile

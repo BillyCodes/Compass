@@ -177,6 +177,8 @@ Tests use a separate PostgreSQL test database.
 
 ## Project guides
 
+- [Curated maintainer workflow](docs/curated-maintainer-workflow.md): provider-aware drafts, O*NET import previews, source review and publication.
+
 - [Branch integration checklist](docs/architecture/integration-checklist.md): shared decisions, lead-specific findings, and merge verification.
 - [Frontend integration](docs/architecture/frontend-integration.md): routes, supported screens, and remaining work.
 - [Development setup](docs/development.md): database settings and troubleshooting.

@@ -11,17 +11,18 @@ from django.views.decorators.http import require_GET, require_http_methods
 from accounts.permissions import require_content_editor
 
 from .maintenance_forms import (
-    AddSourceForm,
+    AddSourceForm, MITResourceForm,
     CreateContentForm,
     EditContentForm,
 )
-from .models import ContentVersion
+from .curation import PROVIDER_PRESETS, PROVIDER_GUIDANCE, editorial_versions, publication_issues
+from .models import ContentVersion, ContentKind, ReferenceSource
 from .services import (
     attach_source,
     create_content_item,
     create_draft_version,
     create_reference_source,
-    update_draft_version,
+    update_draft_version, set_content_details,
 )
 
 
@@ -31,7 +32,7 @@ from .services import (
 def dashboard(request):
     require_content_editor(request.user)
 
-    versions = ContentVersion.objects.select_related("item")
+    versions = editorial_versions()
 
     totals = versions.aggregate(
         drafts=Count(
@@ -48,6 +49,23 @@ def dashboard(request):
         ),
     )
 
+    filters = {key: request.GET.get(key, "").strip() for key in ("q", "kind", "origin", "status", "provider", "missing")}
+    if filters["q"]:
+        versions = versions.filter(Q(title__icontains=filters["q"]) | Q(body__icontains=filters["q"]) | Q(source_links__source__external_id__icontains=filters["q"]))
+    for field in ("kind", "origin", "status"):
+        if filters[field]:
+            versions = versions.filter(**{field: filters[field]})
+    if filters["provider"]:
+        versions = versions.filter(source_links__source__provider=filters["provider"])
+    versions = versions.distinct()
+    if filters["missing"] == "yes":
+        # This curated catalog is deliberately small. Reuse the exact diagnostics
+        # so the filter and preview agree, retaining SQL pagination afterwards.
+        ids = [v.pk for v in versions.filter(status="draft") if publication_issues(v)]
+        versions = versions.filter(pk__in=ids)
+    query = request.GET.copy()
+    query.pop("page", None)
+
     page = Paginator(
         versions.order_by("title", "item_id", "-version_no"),
         20,
@@ -59,6 +77,9 @@ def dashboard(request):
         {
             "active": "maintenance",
             "totals": totals,
+            "filters": filters, "kinds": ContentKind.choices, "origins": ContentVersion.Origin.choices,
+            "statuses": ContentVersion.Status.choices, "providers": ReferenceSource._meta.get_field("provider").choices,
+            "filter_query": query.urlencode(),
             "page": page,
         },
     )
@@ -70,9 +91,12 @@ def dashboard(request):
 def create_content(request):
     require_content_editor(request.user)
 
-    form = CreateContentForm(
-        request.POST if request.method == "POST" else None
-    )
+    preset = request.GET.get("preset", "")
+    initial = {"reflection": {"kind": "insight", "origin": "original"},
+               "mit": {"kind": "resource", "origin": "external"},
+               "bls": {"kind": "career", "origin": "external"}}.get(preset, {})
+    form_class = MITResourceForm if preset == "mit" else CreateContentForm
+    form = form_class(request.POST if request.method == "POST" else None, initial=initial)
 
     if request.method == "POST" and form.is_valid():
         try:
@@ -82,7 +106,7 @@ def create_content(request):
                     kind=form.cleaned_data["kind"],
                 )
 
-                create_draft_version(
+                version = create_draft_version(
                     actor=request.user,
                     item_id=item.pk,
                     title=form.cleaned_data["title"],
@@ -92,6 +116,22 @@ def create_content(request):
                     originality_confirmed=form.cleaned_data["originality_confirmed"],
                 )
 
+                if preset == "mit":
+                    url = form.cleaned_data["resource_url"]
+                    edition = form.cleaned_data["edition"]
+                    prerequisites = form.cleaned_data["prerequisites"]
+                    version = update_draft_version(actor=request.user, version_id=version.pk,
+                        expected_revision=version.draft_revision, title=version.title,
+                        body=f"{version.body}\n\nEdition: {edition}\nPrerequisites / placement: {prerequisites}\nExternal learning resource; no MIT enrollment, academic credit or certification is implied.")
+                    set_content_details(actor=request.user, version_id=version.pk,
+                        expected_revision=version.draft_revision, provider="MIT OpenCourseWare", resource_url=url)
+                    version.refresh_from_db()
+                    source = create_reference_source(actor=request.user, source_title=version.title,
+                        source_url_or_identifier=url, source_url=url, provider="mit", publisher="MIT OpenCourseWare",
+                        source_version=edition, raw_metadata={"prerequisites": prerequisites})
+                    attach_source(actor=request.user, version_id=version.pk, source_id=source.pk,
+                        expected_revision=version.draft_revision, usage="link")
+
         except ValidationError as exc:
             form.add_error(None, "; ".join(exc.messages))
 
@@ -100,7 +140,7 @@ def create_content(request):
                 request,
                 "Draft created successfully.",
             )
-            return redirect("maintenance:dashboard")
+            return redirect("maintenance:edit_content", version_id=version.pk)
 
     return render(
         request,
@@ -109,6 +149,7 @@ def create_content(request):
             "active": "maintenance",
             "form": form,
             "is_edit": False,
+            "guidance": PROVIDER_GUIDANCE.get(preset, "Write an original personal reflection with an accurate author name; no invented external source is needed." if preset == "reflection" else ""),
         },
     )
 
@@ -252,16 +293,24 @@ def add_source(request, version_id):
                 )
 
     else:
-        form = AddSourceForm(
-            initial={
-                "expected_revision": version.draft_revision,
-            }
-        )
+        initial = {"expected_revision": version.draft_revision,
+                   **PROVIDER_PRESETS.get(request.GET.get("provider"), {})}
+        if request.GET.get("provider") == "bls":
+            from .onet_import import CAREERS
+            code = version.source_links.filter(source__provider="onet").values_list("source__external_id", flat=True).first()
+            if code in CAREERS:
+                title, path = CAREERS[code]
+                url = f"https://www.bls.gov/ooh/{path}.htm"
+                initial.update(source_title=f"BLS Occupational Outlook Handbook — {title}", source_url=url,
+                    source_url_or_identifier=url, external_id=code, usage="link",
+                    attribution_text="U.S. Bureau of Labor Statistics, Occupational Outlook Handbook.",
+                    raw_metadata={"soc_code": code, "review_note": "Record wage year, geography and projection period before including figures."})
+        form = AddSourceForm(initial=initial)
 
     return render(
         request,
         "reference/maintenance/source_form.html",
-        {
+        {"guidance": PROVIDER_GUIDANCE.get(request.GET.get("provider"), "Select a provider preset or reuse an existing source. Review the actual material and its usage terms."),
             "active": "maintenance",
             "form": form,
             "version": version,

@@ -44,18 +44,18 @@
 <section class="feature-row" id="how" aria-label="What Compass does">
   <div class="feature"><div class="icon-tile t-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>See your skills</h3><p>Upload your resume or add your skills. Compass turns them into a Skillprint you can grow, and courses help point you to what to learn next.</p></div>
   <div class="feature"><div class="icon-tile t-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div><h3>Compare to careers</h3><p>See how your skills match a job posting or career profile, and exactly which skills close the gap.</p></div>
-  <div class="feature"><div class="icon-tile t-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 20c1-4 4-6 7-6s6 2 7 6M17 4a4 4 0 0 1 0 8M22 20c-.6-2.4-2-4-4-5"/></svg></div><h3>Get field insights</h3><p>Read what working professionals are building right now and what they say to learn next.</p></div>
+  <div class="feature"><div class="icon-tile t-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 20c1-4 4-6 7-6s6 2 7 6M17 4a4 4 0 0 1 0 8M22 20c-.6-2.4-2-4-4-5"/></svg></div><h3>Get field insights</h3><p>Read attributed insights and personal reflections about learning and career development.</p></div>
   <div class="feature"><div class="icon-tile t-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div><h3>Follow your path</h3><p>Save your progress and watch your Skillprint change semester to semester.</p></div>
 </section>
 
 <section class="public-section" id="notes">
   <p class="eyebrow">Field Notes</p>
-  <h2>Real advice, written for students</h2>
-  <p class="muted" style="max-width:60ch">Short notes from professionals in the field about the tools they use, the problems they're solving, and what they'd learn first.</p>
+  <h2>Reflections and insights for students</h2>
+  <p class="muted" style="max-width:60ch">Short notes about practice, tools and learning, with authorship and personal reflections clearly identified.</p>
   <div class="grid g-3" style="margin-top:22px">
     {% for n in notes %}
     <article class="card note-card">
-      {% if n.author_name %}<div class="person"><div class="avatar {{ n.author_name|av }}">{{ n.initials }}</div><div><b>{{ n.author_role }}</b><span>{{ n.author_org }}</span></div></div>{% endif %}
+      {% if n.author_name %}<div class="person"><div class="avatar {{ n.author_name|av }}">{{ n.initials }}</div><div><b>{{ n.author_name }}</b><span>{{ n.author_role }}{% if n.author_org %} · {{ n.author_org }}{% endif %}</span></div></div>{% endif %}
       <blockquote>“{{ n.quote|default:n.headline }}”</blockquote>
     </article>
     {% endfor %}
@@ -74,7 +74,7 @@
     </div>
     <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:26px">
       <a class="btn" href="{% url 'accounts:register' %}">Get started</a>
-      <span class="muted small">Sample content in this build is fictional.</span>
+      <span class="muted small">Compass distinguishes curated public sources, original personal reflections and labeled synthetic demonstration content.</span>
     </div>
   </div>
 </section>

@@ -126,12 +126,12 @@ class FieldNoteProfile(models.Model):
     """Presentation details for a published `insight` edition (author card, quote, tags)."""
     version = models.OneToOneField("reference.ContentVersion", primary_key=True, on_delete=models.PROTECT, related_name="field_note")
     author_name = models.CharField(max_length=60)
-    author_role = models.CharField(max_length=80)
-    author_org = models.CharField(max_length=80)
-    years_experience = models.PositiveSmallIntegerField(default=5)
-    quote = models.CharField(max_length=300)
-    working_on = models.TextField()
-    learn_next = models.TextField()
+    author_role = models.CharField(blank=True, max_length=80)
+    author_org = models.CharField(blank=True, max_length=80)
+    years_experience = models.PositiveSmallIntegerField(null=True, blank=True)
+    quote = models.CharField(blank=True, max_length=300)
+    working_on = models.TextField(blank=True)
+    learn_next = models.TextField(blank=True)
     is_sample = models.BooleanField(default=True)
     skills = models.ManyToManyField("skills.Skill", related_name="field_notes", blank=True)
 

@@ -23,6 +23,8 @@
         </a>
     </p>
 
+    <p class="card">{{ guidance }}</p>
+    <p><a href="?provider=onet">O*NET preset</a> · <a href="?provider=bls">BLS preset</a> · <a href="?provider=mit">MIT OCW link preset</a> · <a href="{% url 'maintenance:reuse_source' version.pk %}">Reuse existing source</a></p>
     <h2>Source details</h2>
 
     <form

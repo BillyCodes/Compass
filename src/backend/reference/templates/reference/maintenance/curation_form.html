@@ -1,0 +1,10 @@
+{% extends "core/app_base.html" %}
+{% block title %}{{ heading }} | Compass{% endblock %}
+{% block content %}
+<section class="card maintenance-page">
+  <p class="eyebrow">Content maintenance · {{ version.title }}</p>
+  <h1>{{ heading }}</h1><p>{{ guidance }}</p>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn" type="submit">Save</button></form>
+  <p><a href="{% url 'maintenance:edit_content' version.pk %}">Back to draft</a></p>
+</section>
+{% endblock %}

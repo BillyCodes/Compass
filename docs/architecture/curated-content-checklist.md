@@ -107,30 +107,30 @@ across cards/exports, real imports and account provisioning remain unchecked bel
 
 ## Phase 2 — Source-aware maintainer workflow
 
-- [ ] Offer clear starting actions: **Import O*NET careers/skills**, **Add BLS
+- [x] Offer clear starting actions: **Import O*NET careers/skills**, **Add BLS
       career context**, **Add learning resource**, and **Write original Field Note**.
       Retain general draft editing for corrections and other supported content.
-- [ ] Add dashboard search and filters for origin/provider, content kind, status
+- [x] Add dashboard search and filters for origin/provider, content kind, status
       and missing required metadata. Keep pagination and lifecycle actions.
-- [ ] Provide a reusable source picker and provider-specific forms with license
+- [x] Provide a reusable source picker and provider-specific forms with license
       guidance. Prepopulated templates assist the maintainer; they do not certify
       that every resource or third-party asset has the same reuse rights.
-- [ ] Support Field Note author details and optional skill tags through the
+- [x] Support Field Note author details and optional skill tags through the
       maintainer UI. Do not require invented employers, years of experience,
       technical projects or quotes to publish a motivational note.
-- [ ] Preview student-facing content, source credits, original-note labels and
+- [x] Preview student-facing content, source credits, original-note labels and
       external links before publication. List concrete missing fields when blocked.
-- [ ] Import a small selected set into drafts, with validation and a dry-run
+- [x] Import a small selected set into drafts, with validation and a dry-run
       preview. Repeated imports must not duplicate careers/skills, silently
       overwrite published editions, or auto-publish changed external data.
-- [ ] Make future external revisions create reviewable successor drafts. Keep
+- [x] Make future external revisions create reviewable successor drafts. Keep
       separate import/source versions and Compass edition numbers.
 
 ## Phase 3 — Source-specific requirements and attribution
 
 ### O*NET downloadable database
 
-- [ ] Record the dataset version and exact files used, retaining O*NET-SOC codes.
+- [x] Record the dataset version and exact files used, retaining O*NET-SOC codes.
 - [ ] Credit the versioned O*NET database and USDOL/ETA, link CC BY 4.0, and
       identify adaptations under the [database license](https://www.onetcenter.org/license_db.html).
       Check its stated exceptions and follow its trademark/non-endorsement guidance.
@@ -173,9 +173,9 @@ across cards/exports, real imports and account provisioning remain unchecked bel
 
 - [ ] Render human-readable citations, license links and adaptation notices on
       detail pages and suitable attribution access from cards, search and exports.
-- [ ] Keep source attribution associated with the published edition when sources
+- [x] Keep source attribution associated with the published edition when sources
       are corrected, content is retired, or saved comparisons are opened later.
-- [ ] Use an honest mix-of-content disclosure: curated public sources, clearly
+- [x] Use an honest mix-of-content disclosure: curated public sources, clearly
       marked original reflections and any explicitly labeled synthetic records.
       Replace blanket home-page wording that says all sample content is fictional.
 
@@ -221,7 +221,7 @@ on behalf of the user, and the curated database remains a later setup task.
 
 ## Phase 5 — Curated database and presentation experience
 
-- [ ] Create/configure `compass_curated` and apply the complete Django migration
+- [x] Create/configure `compass_curated` and apply the complete Django migration
       history. Preserve the existing synthetic development database.
 - [ ] Add five career drafts and seven linked resource drafts from the research
       shortlist, then validate sources and publish through normal services.
@@ -262,3 +262,26 @@ on behalf of the user, and the curated database remains a later setup task.
 These changes require additive migrations and workflow updates, not replacement
 or simplification of the current database. The checklist does not implement them
 or grant reuse permission beyond the applicable source licenses.
+
+## Source-aware workflow implementation — November 12, 2026
+
+The [maintainer workflow guide](../curated-maintainer-workflow.md) describes the
+new starting actions, filters, reusable sources, provider guidance, MIT link form,
+original-note author/tags UI, read-only preview and concrete publication blockers.
+The selected O*NET importer supports read-only previews, atomic repeatable imports,
+stable occupation identities, raw rows/checksums and successor drafts. It leaves
+proficiency requirements for editorial review and never auto-publishes.
+
+Partial Phase 3 work is intentionally left unchecked above: detailed citations
+now show source IDs and file identities, and the home page discloses mixed content;
+broader skill/card/export attribution remains pending. BLS figures and the seven
+MIT resources are not automatically imported. The student career-first dashboard
+and a complete curated presentation remain later work.
+
+Local Mac application verified: `compass_curated` has five external career drafts,
+ten versioned O*NET source records and six selected software skills; no publications.
+A repeat-import preview reports all five unchanged. All five previews render and
+report the expected missing reviewed positive-level/positive-weight requirement.
+BLS context, seven learning resources and personal reflections still need review
+and authoring. Visual browser QA remains unverified because macOS computer-use
+access was unavailable; authenticated Django responses were verified instead.

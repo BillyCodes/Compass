@@ -1,7 +1,9 @@
 # Curated catalog source shortlist
 
-Reviewed November 12, 2026. Research only: no records have been imported or
-published. Career identifiers were checked against the downloaded
+Reviewed November 12, 2026. The five O*NET career profiles have now been imported
+as drafts in the local Mac `compass_curated` database using the repeatable importer.
+No content has been published. BLS context and the seven MIT links below remain
+research candidates for editorial review. Career identifiers were checked against the downloaded
 [occupation_data.csv](../../data/reference/onet/31.0/occupation_data.csv);
 software examples were checked in
 [software_skills.csv](../../data/reference/onet/31.0/software_skills.csv).

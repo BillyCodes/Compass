@@ -1,0 +1,25 @@
+{% extends "core/app_base.html" %}
+{% block title %}Preview: {{ version.title }} | Compass{% endblock %}
+{% block content %}
+<section class="card">
+  <p class="eyebrow">Maintainer preview · {{ version.get_status_display }} · Edition {{ version.version_no }} · Revision {{ version.draft_revision }}</p>
+  <h1>{{ version.title }}</h1>
+  <p>{{ version.get_origin_display }}</p>
+  {% if note.is_original %}<p>Original personal reflection by {{ note.author_name }}</p>{% elif note.author_name %}<p>By {{ note.author_name }}{% if note.author_role %} · {{ note.author_role }}{% endif %}{% if note.author_org %} · {{ note.author_org }}{% endif %}</p>{% endif %}
+  {% if note.quote %}<blockquote>{{ note.quote }}</blockquote>{% endif %}
+  <div>{{ version.body|linebreaks }}</div>
+  {% if note.working_on %}<h2>What my team is working on right now</h2><div>{{ note.working_on|linebreaks }}</div>{% endif %}
+  {% if note.learn_next %}<h2>What I'd learn next if I were you</h2><div>{{ note.learn_next|linebreaks }}</div>{% endif %}
+  {% if associations %}<h2>Selected O*NET software associations</h2><p>Source examples inform editorial review. Hot technology and in-demand flags are not proficiency levels or mandatory hiring requirements.</p><ul>{% for row in associations %}<li>{{ row.skill }} (source: {{ row.raw_name }}) · Hot technology: {{ row.hot }} · In demand: {{ row.demand }}</li>{% endfor %}</ul>{% endif %}
+  {% if note.skills %}<p>Tags: {% for skill in note.skills %}{{ skill.skill_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+  {% if version.details.resource_url %}<p><a href="{{ version.details.resource_url }}" target="_blank" rel="noopener noreferrer">Open learning resource</a> · {{ version.details.provider }}</p>{% endif %}
+  {% if version.kind == 'career' or version.kind == 'job' %}<h2>Compass skill requirements</h2><p>These levels, weights and mandatory flags are editorial interpretations, rather than O*NET proficiency ratings.</p><ul>{% for row in version.requirements.all %}<li>{{ row.skill.skill_name }}: {{ row.get_required_level_display }} · Weight {{ row.weight }} · Mandatory: {{ row.mandatory|yesno:"Yes,No" }}</li>{% empty %}<li>No reviewed requirements yet.</li>{% endfor %}</ul>{% endif %}
+  {% if version.kind == 'resource' or version.kind == 'course' %}<h2>Compass skill coverage</h2><p>Coverage does not automatically change student proficiency.</p><ul>{% for row in version.skill_mappings.all %}<li>{{ row.skill.skill_name }}: {{ row.get_coverage_level_display }}</li>{% empty %}<li>No reviewed coverage yet.</li>{% endfor %}</ul>{% endif %}
+</section>
+{% include "core/partials/source_credits.html" %}
+<section class="card" style="margin-top:20px"><h2>Publication readiness</h2>
+{% if issues %}<ul>{% for issue in issues %}<li>{{ issue }}</li>{% endfor %}</ul>{% elif version.status == 'draft' %}<p>Required metadata is present. Review accuracy, source rights and the student-facing content before publishing.</p>{% else %}<p>This edition is {{ version.get_status_display|lower }}.</p>{% endif %}
+{% if version.status == 'draft' and not version.item.retired_at %}<a class="btn secondary" href="{% url 'maintenance:edit_content' version.pk %}">Edit draft</a> <a class="btn" href="{% url 'maintenance:publish_content' version.pk %}">Review publication</a>{% endif %}
+<p><a href="{% url 'maintenance:dashboard' %}">Back to dashboard</a></p>
+</section>
+{% endblock %}

@@ -8,7 +8,7 @@
     <p>Explore sourced insights and clearly attributed personal reflections.</p>
   </div>
 </div>
-{% if has_sample %}<div class="sample-banner"><span class="pill p-amber">Pilot</span>These are sample notes written by the team for Test Launch 01. The people and companies are fictional.</div>{% endif %}
+{% if has_sample %}<div class="sample-banner"><span class="pill p-amber">Pilot</span>Notes marked as synthetic demonstration content use fictional people and companies. Original reflections are attributed to their authors.</div>{% endif %}
 <div class="tabs" aria-label="Filter by skill">
   <a class="chip {% if not current %}on{% endif %}" href="{% url 'reference:notes' %}">All</a>
   {% for s in tagged %}<a class="chip {% if current == s.skill_id|stringformat:'s' %}on{% endif %}" href="?skill={{ s.skill_id }}">{{ s.skill_name }}</a>{% endfor %}
@@ -16,7 +16,7 @@
 <div class="grid g-3">
   {% for n in cards %}
   <article class="card note-card">
-    {% if n.author_name %}<div class="person"><div class="avatar {{ n.author_name|av }}">{{ n.initials }}</div><div><b>{{ n.author_role }}</b><span>{{ n.author_org }}</span></div></div>{% endif %}
+    {% if n.author_name %}<div class="person"><div class="avatar {{ n.author_name|av }}">{{ n.initials }}</div><div><b>{{ n.author_name }}</b><span>{{ n.author_role }}{% if n.author_org %} · {{ n.author_org }}{% endif %}</span></div></div>{% endif %}
     <blockquote>“{{ n.quote|default:n.headline }}”</blockquote>
     <div class="chips">{% for s in n.skills|slice:":4" %}<span class="chip">{{ s.skill_name }}</span>{% endfor %}</div>
     <div class="foot"><a href="{% url 'reference:note' n.pk %}">Read full note →</a><span class="small muted">{{ n.published_at|date:"M j" }}</span></div>

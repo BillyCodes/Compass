@@ -531,3 +531,46 @@ class ResourceDetailsForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class ExistingSourceForm(forms.Form):
+    source = forms.ModelChoiceField(queryset=ReferenceSource.objects.order_by('source_title'), label='Existing source')
+    usage = ContentSource._meta.get_field('usage').formfield()
+    changes = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}))
+    attribution_note = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
+    expected_revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
+
+
+class FieldNoteForm(forms.Form):
+    author_name = forms.CharField(max_length=60)
+    author_role = forms.CharField(max_length=80, required=False, help_text='Use an accurate role, such as computer science student.')
+    author_org = forms.CharField(max_length=80, required=False, label='Organization (optional)')
+    years_experience = forms.IntegerField(min_value=0, max_value=32767, required=False)
+    quote = forms.CharField(max_length=300, required=False, widget=forms.Textarea(attrs={'rows': 2}))
+    working_on = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}))
+    learn_next = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}))
+    skills = forms.ModelMultipleChoiceField(queryset=Skill.objects.filter(status='active'), required=False)
+    expected_revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
+
+
+class MITResourceForm(CreateContentForm):
+    body = forms.CharField(label='Your introduction to this resource', widget=forms.Textarea(attrs={'rows': 5}),
+        help_text='Write your own short introduction. Do not paste copied course text into this link-only workflow.')
+    resource_url = forms.URLField(max_length=2000, label='MIT OCW resource URL',
+        validators=[URLValidator(schemes=['https'])])
+    edition = forms.CharField(max_length=100, help_text='For example: Fall 2016. Preserve the archived edition.')
+    prerequisites = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}),
+        help_text='Describe reviewed prerequisites and placement; note advanced material explicitly.')
+
+    def clean_resource_url(self):
+        from urllib.parse import urlsplit
+        value = self.cleaned_data['resource_url']
+        if urlsplit(value).hostname != 'ocw.mit.edu':
+            raise forms.ValidationError('Use an MIT OpenCourseWare URL on ocw.mit.edu. Use the general editor for other providers.')
+        return value
+
+    def clean(self):
+        data = super().clean()
+        if data.get('kind') != 'resource' or data.get('origin') != 'external':
+            raise forms.ValidationError('The MIT link workflow creates curated external learning resources.')
+        return data

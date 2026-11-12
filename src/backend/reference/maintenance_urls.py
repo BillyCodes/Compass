@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import maintenance_source_views, maintenance_views
+from . import maintenance_source_views, maintenance_views, maintenance_curation_views
 
 from . import maintenance_publication_views
 
@@ -15,6 +15,10 @@ from . import maintenance_lifecycle_views
 app_name = "maintenance"
 
 urlpatterns = [
+    path("import/onet/", maintenance_curation_views.onet_import, name="onet_import"),
+    path("preview/<uuid:version_id>/", maintenance_curation_views.preview, name="preview"),
+    path("edit/<uuid:version_id>/sources/reuse/", maintenance_curation_views.reuse_source, name="reuse_source"),
+    path("edit/<uuid:version_id>/field-note/", maintenance_curation_views.field_note, name="field_note"),
     path("successor/<uuid:version_id>/", maintenance_lifecycle_views.successor, name="successor"),
     path("retire/<uuid:version_id>/", maintenance_lifecycle_views.retire, name="retire"),
     path(

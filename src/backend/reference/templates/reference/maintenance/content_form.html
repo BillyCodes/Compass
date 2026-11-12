@@ -29,6 +29,8 @@
     </a>
   </header>
 
+  {% if guidance %}<p class="card">{{ guidance }}</p>{% endif %}
+  {% if is_edit %}<p><a class="btn secondary" href="{% url 'maintenance:preview' version.pk %}">Preview &amp; publication checks</a></p>{% endif %}
   <section
     aria-labelledby="content-details-heading"
     style="margin-bottom: 32px;"
@@ -91,6 +93,7 @@
   </section>
 
 {% if is_edit %}
+    {% if version.kind == "insight" %}<section class="card"><h2>Field Note author and tags</h2><p>Accurate author details and optional skill tags. Personal reflections need no invented employer, experience or quotations.</p><a href="{% url 'maintenance:field_note' version.pk %}">Edit author details and skill tags</a></section>{% endif %}
 
     {% if version.kind == "career" or version.kind == "job" %}
       <section
@@ -342,6 +345,7 @@
       <h2 id="sources-heading">Sources</h2>
 
       <p>References attached to this draft.</p>
+      <p><a href="{% url 'maintenance:add_source' version.pk %}?provider=onet">O*NET preset</a> · <a href="{% url 'maintenance:add_source' version.pk %}?provider=bls">BLS preset</a> · <a href="{% url 'maintenance:add_source' version.pk %}?provider=mit">MIT OCW link preset</a> · <a href="{% url 'maintenance:reuse_source' version.pk %}">Reuse existing source</a></p>
       <p>
         Save any title or description changes before adding or removing
         a source. Unsaved text changes will not be saved by those actions.

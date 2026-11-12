@@ -271,3 +271,12 @@ class ContentReview(models.Model):
             models.CheckConstraint(condition=models.Q(reviewed_revision__gte=1), name="review_revision_positive"),
             models.CheckConstraint(condition=models.Q(decision__in=["approved", "changes_requested"]), name="review_decision_allowed"),
         ]
+
+
+class OnetCareerIdentity(models.Model):
+    """Import identity survives source corrections and edition lifecycle changes."""
+    occupation_code = models.CharField(max_length=10, primary_key=True)
+    item = models.OneToOneField(ContentItem, on_delete=models.PROTECT, related_name='onet_identity')
+
+    class Meta:
+        db_table = 'onet_career_identity'

@@ -96,7 +96,7 @@ class SnapshotScoringVersionTests(TestCase):
     def test_home_describes_direct_publication_and_retains_demo_disclosure(self):
         response = self.client.get(reverse("core:home"))
         self.assertContains(response, "Content maintainers publish career profiles and Field Notes with supporting sources.")
-        self.assertContains(response, "Sample content in this build is fictional.")
+        self.assertContains(response, "curated public sources, original personal reflections and labeled synthetic demonstration content")
         self.assertNotContains(response, "reviewed by a second person")
 
 
