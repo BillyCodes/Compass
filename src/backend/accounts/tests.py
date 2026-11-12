@@ -1,15 +1,17 @@
 """PostgreSQL-backed tests for the first ERD section and email authentication."""
 import uuid
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 from io import StringIO
 from unittest.mock import patch
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.db import IntegrityError, transaction
-from django.test import Client, TestCase, override_settings
+from django.db import IntegrityError, transaction, close_old_connections
+from django.test import Client, TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 
 from .models import Account, AccountRole, Role, Student
@@ -228,3 +230,191 @@ class AccountTests(TestCase):
             self.assertFalse(account.is_staff)
             self.assertFalse(account.is_superuser)
             self.assertFalse(account.role_assignments.filter(role__role_name="administrator").exists())
+
+
+class AccountProvisioningTests(TestCase):
+    PASSWORD = "Provisioning-passphrase!6284"
+    NEW_PASSWORD = "Maintainer-passphrase!3197"
+
+    def setUp(self):
+        cache.clear()
+
+    def bootstrap(self, email="owner@example.test", passwords=None):
+        output = StringIO()
+        with patch("accounts.management.provisioning.getpass", side_effect=passwords or [self.PASSWORD, self.PASSWORD]):
+            call_command("bootstrap_administrator", email, stdout=output)
+        self.assertNotIn(self.PASSWORD, output.getvalue())
+        return Account.objects.get(login_email=email.lower()), output
+
+    def manage(self, action, email, administrator="owner@example.test", password=None, new_passwords=None):
+        output = StringIO()
+        with (patch("accounts.management.commands.manage_maintainer.hidden_password", return_value=password or self.PASSWORD),
+              patch("accounts.management.provisioning.getpass", side_effect=new_passwords or [self.NEW_PASSWORD, self.NEW_PASSWORD])):
+            call_command("manage_maintainer", action, email, administrator=administrator, stdout=output)
+        self.assertNotIn(self.PASSWORD, output.getvalue())
+        self.assertNotIn(self.NEW_PASSWORD, output.getvalue())
+        return output
+
+    def test_bootstrap_creates_only_business_administrator_with_audited_hashed_password(self):
+        from auditing.models import AuditEvent
+        account, output = self.bootstrap()
+        self.assertTrue(account.check_password(self.PASSWORD))
+        self.assertNotEqual(account.password, self.PASSWORD)
+        self.assertFalse(account.is_staff or account.is_superuser)
+        self.assertFalse(Student.objects.filter(account=account).exists())
+        self.assertEqual(list(account.role_assignments.values_list("role__role_name", flat=True)), ["administrator"])
+        event = AuditEvent.objects.get(subject_account=account)
+        self.assertIsNone(event.actor_account)
+        self.assertEqual(event.metadata, {"role_name": "administrator"})
+        self.assertContains(self.client.get(reverse("accounts:login")), "Log in")
+        response = self.client.post(reverse("accounts:login"), {"username": account.login_email, "password": self.PASSWORD})
+        self.assertRedirects(response, reverse("maintenance:dashboard"))
+
+    def test_bootstrap_never_replaces_an_existing_or_disabled_administrator(self):
+        from auditing.models import AuditEvent
+        account, _ = self.bootstrap()
+        initial = account.password
+        Account.objects.filter(pk=account.pk).update(is_active=False)
+        for email in (account.login_email, "another@example.test"):
+            with patch("accounts.management.provisioning.getpass") as prompt, self.assertRaises(CommandError):
+                call_command("bootstrap_administrator", email, stdout=StringIO())
+            prompt.assert_not_called()
+        account.refresh_from_db()
+        self.assertEqual(account.password, initial)
+        self.assertEqual(Account.objects.count(), 1)
+        self.assertEqual(AuditEvent.objects.count(), 1)
+
+    def test_bootstrap_does_not_promote_existing_student(self):
+        student = create_student(email="student@example.test", password=self.PASSWORD, display_name="Student")
+        with self.assertRaises(CommandError):
+            self.bootstrap(student.account.login_email)
+        self.assertFalse(student.account.role_assignments.filter(role__role_name="administrator").exists())
+
+    def test_bootstrap_rejects_invalid_email_weak_password_and_mismatch_without_writes(self):
+        for email, passwords in (("invalid", None), ("valid@example.test", ["password", "password"]),
+                                  ("valid@example.test", [self.PASSWORD, "different"])):
+            with self.subTest(email=email, passwords=passwords), self.assertRaises(CommandError):
+                self.bootstrap(email, passwords)
+            self.assertFalse(Account.objects.exists())
+
+    def test_bootstrap_audit_failure_rolls_back_account_and_role(self):
+        with patch("accounts.provisioning._record_event", side_effect=RuntimeError("audit unavailable")):
+            with self.assertRaises(RuntimeError):
+                self.bootstrap()
+        self.assertFalse(Account.objects.exists())
+        self.assertFalse(AccountRole.objects.exists())
+
+    def test_bootstrap_refuses_password_input_that_cannot_be_hidden(self):
+        from getpass import GetPassWarning
+        with patch("accounts.management.provisioning.getpass", side_effect=GetPassWarning("Cannot hide input")):
+            with self.assertRaisesMessage(CommandError, "interactive terminal"):
+                call_command("bootstrap_administrator", "owner@example.test", stdout=StringIO())
+        self.assertFalse(Account.objects.exists())
+
+    def test_create_maintainer_is_audited_and_uses_standard_login(self):
+        from auditing.models import AuditEvent
+        admin, _ = self.bootstrap()
+        self.manage("create", "Editor@Example.TEST")
+        editor = Account.objects.get(login_email="editor@example.test")
+        self.assertTrue(editor.check_password(self.NEW_PASSWORD))
+        self.assertFalse(editor.is_staff or editor.is_superuser)
+        self.assertFalse(Student.objects.filter(account=editor).exists())
+        self.assertEqual(list(editor.role_assignments.values_list("role__role_name", flat=True)), ["maintainer"])
+        self.assertEqual(AuditEvent.objects.get(subject_account=editor).actor_account_id, admin.pk)
+        response = self.client.post(reverse("accounts:login"), {"username": editor.login_email, "password": self.NEW_PASSWORD})
+        self.assertRedirects(response, reverse("maintenance:dashboard"))
+        self.assertEqual(self.client.get(reverse("skills:skillprint")).status_code, 403)
+
+    def test_create_refuses_existing_account_without_resetting_credentials(self):
+        self.bootstrap()
+        original = Account.objects.create_user("existing@example.test", self.PASSWORD)
+        with self.assertRaises(CommandError):
+            self.manage("create", "EXISTING@example.test")
+        original.refresh_from_db()
+        self.assertTrue(original.check_password(self.PASSWORD))
+        self.assertFalse(original.role_assignments.exists())
+
+    def test_grant_and_revoke_are_idempotent_and_revoke_takes_effect_in_existing_session(self):
+        from auditing.models import AuditEvent
+        self.bootstrap()
+        editor = Account.objects.create_user("existing@example.test", self.NEW_PASSWORD)
+        for _ in range(2):
+            self.manage("grant", editor.login_email)
+        self.assertTrue(self.client.login(username=editor.login_email, password=self.NEW_PASSWORD))
+        self.assertEqual(self.client.get(reverse("maintenance:dashboard")).status_code, 200)
+        for _ in range(2):
+            self.manage("revoke", editor.login_email)
+        self.assertEqual(self.client.get(reverse("maintenance:dashboard")).status_code, 403)
+        events = AuditEvent.objects.filter(subject_account=editor)
+        self.assertEqual(events.filter(event_type="role.assigned").count(), 1)
+        self.assertEqual(events.filter(event_type="role.removed").count(), 1)
+        editor.refresh_from_db()
+        self.assertTrue(editor.check_password(self.NEW_PASSWORD))
+
+    def test_grant_does_not_turn_a_student_into_a_dual_role_account(self):
+        self.bootstrap()
+        student = create_student(email="student@example.test", password=self.PASSWORD, display_name="Student")
+        with self.assertRaises(CommandError):
+            self.manage("grant", student.account.login_email)
+        self.assertFalse(student.account.role_assignments.filter(role__role_name="maintainer").exists())
+
+    def test_commands_require_active_administrator_credentials_and_business_role(self):
+        admin, _ = self.bootstrap()
+        staff = Account.objects.create_superuser("staff@example.test", self.PASSWORD)
+        editor = Account.objects.create_user("editor@example.test", self.PASSWORD)
+        AccountRole.objects.create(account=editor, role=Role.objects.get(role_name="maintainer"))
+        for email, password in ((admin.login_email, "wrong"), (staff.login_email, self.PASSWORD),
+                                 (editor.login_email, self.PASSWORD), ("missing@example.test", self.PASSWORD)):
+            with self.subTest(email=email), self.assertRaises(CommandError):
+                self.manage("create", "blocked@example.test", administrator=email, password=password)
+        Account.objects.filter(pk=admin.pk).update(is_active=False)
+        with self.assertRaises(CommandError):
+            self.manage("create", "blocked@example.test")
+        self.assertFalse(Account.objects.filter(login_email="blocked@example.test").exists())
+
+    def test_maintainer_creation_rejects_bad_password_and_rolls_back_on_audit_failure(self):
+        self.bootstrap()
+        for values in (["password", "password"], [self.NEW_PASSWORD, "different"]):
+            with self.assertRaises(CommandError):
+                self.manage("create", "blocked@example.test", new_passwords=values)
+        with patch("accounts.services._record_event", side_effect=RuntimeError("audit unavailable")):
+            with self.assertRaises(RuntimeError):
+                self.manage("create", "blocked@example.test")
+        self.assertFalse(Account.objects.filter(login_email="blocked@example.test").exists())
+
+    def test_deactivation_ends_maintainer_access_without_touching_student_records(self):
+        from accounts.services import set_account_active
+        admin, _ = self.bootstrap()
+        self.manage("create", "editor@example.test")
+        editor = Account.objects.get(login_email="editor@example.test")
+        student = create_student(email="student@example.test", password=self.PASSWORD, display_name="Student")
+        self.client.force_login(editor)
+        self.assertEqual(self.client.get(reverse("accounts:student-detail", args=[student.pk])).status_code, 404)
+        set_account_active(actor=admin, account=editor, is_active=False)
+        self.assertEqual(self.client.get(reverse("maintenance:dashboard")).status_code, 302)
+        self.assertTrue(Student.objects.filter(pk=student.pk).exists())
+
+
+class AdministratorBootstrapConcurrencyTests(TransactionTestCase):
+    def test_two_concurrent_bootstraps_create_only_one_administrator(self):
+        from accounts.provisioning import _bootstrap_administrator
+        Role.objects.get_or_create(role_name="administrator")
+        barrier = Barrier(2)
+
+        def bootstrap(email):
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                try:
+                    _bootstrap_administrator(email=email, password="Concurrent-bootstrap!7259")
+                    return True
+                except ValidationError:
+                    return False
+            finally:
+                close_old_connections()
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            outcomes = list(pool.map(bootstrap, ["first@example.test", "second@example.test"]))
+        self.assertEqual(sorted(outcomes), [False, True])
+        self.assertEqual(AccountRole.objects.filter(role__role_name="administrator").count(), 1)
+        self.assertEqual(Account.objects.count(), 1)

@@ -181,27 +181,43 @@ across cards/exports, real imports and account provisioning remain unchecked bel
 
 ## Phase 4 — Personal accounts and maintainer authorization
 
-- [ ] Document the presentation roles: one personal student account and a
+- [x] Document the presentation roles: one personal student account and a
       separately provisioned maintainer account for demonstrating content editing.
       Use names/emails chosen by their owners and unique passwords; keep credentials
       outside source control. Existing demo accounts remain development fixtures.
-- [ ] Use normal registration for the personal student account. Allow realistic
+- [x] Use normal registration for the personal student account. Allow realistic
       self-reported skills, interests and optional evidence without requiring real
       resumes, sensitive academic data or other people's information.
-- [ ] Add an explicit local setup command to bootstrap the first business
+- [x] Add an explicit local setup command to bootstrap the first business
       administrator with a securely prompted password. Never promote an account
       automatically at startup, by email domain, or through public registration.
       Define repeat-command behavior without overwriting passwords or privileges.
-- [ ] Add an administrator-authorized way to provision/grant/revoke maintainer
+- [x] Add an administrator-authorized way to provision/grant/revoke maintainer
       access using the existing audited role services. Start with a narrow command;
       add a small role-management UI only if needed. Full Django admin is optional.
-- [ ] Keep student-only and maintainer-only accounts distinct initially; document
+- [x] Keep student-only and maintainer-only accounts distinct initially; document
       the routing policy if an account is deliberately assigned both roles later.
-- [ ] Verify a provisioned maintainer logs in through the normal login page and
+- [x] Verify a provisioned maintainer logs in through the normal login page and
       lands at `/maintainer/`. Role revocation and account deactivation must take
       effect on subsequent requests, including an existing session.
-- [ ] Keep role management administrator-only and student records owner-only.
+- [x] Keep role management administrator-only and student records owner-only.
       Maintainers cannot grant themselves privileges or view other students' data.
+
+Provisioning implemented: see [personal accounts and maintainer access](../account-provisioning.md).
+`bootstrap_administrator` creates only the first new business administrator, with
+concurrent setup serialized on the administrator role. Existing accounts and
+administrator assignments (including disabled ones) are never overwritten.
+`manage_maintainer create|grant|revoke` authenticates an active administrator and
+uses audited role services. Passwords are hidden prompts, never command-line
+arguments. New account creation rolls back if role assignment/auditing fails.
+The grant path refuses student accounts/profiles; student registration remains
+unchanged. Administrator accounts can already edit content through their own role.
+
+Session revocation, account deactivation and owner-only student access are covered
+by tests. Account activation/deactivation services already exist; a broader user
+management UI/command is outside this provisioning batch. This phase implements
+and documents the workflow; no personal accounts or credentials have been created
+on behalf of the user, and the curated database remains a later setup task.
 
 ## Phase 5 — Curated database and presentation experience
 

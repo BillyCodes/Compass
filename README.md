@@ -112,6 +112,10 @@ Database data persists; `docker compose down --volumes` deletes it.
 
 ## Test accounts and reference data
 
+For personal student accounts and administrator-authorized maintainer accounts,
+see [account provisioning](docs/account-provisioning.md). All accounts share the
+standard login page; privileged roles require explicit assignment.
+
 Use synthetic information during development. Registration creates a student
 account. To create two demo students and a maintainer:
 
