@@ -1,5 +1,11 @@
 # Django architecture
 
+The [curated content checklist](curated-content-checklist.md) structures the next
+batch: source provenance and attribution, original Field Notes, maintainer
+provisioning, and the curated presentation database. The
+[source shortlist](curated-catalog-sources.md) maps computing careers to BLS and
+MIT OpenCourseWare material.
+
 The [branch integration checklist](integration-checklist.md) tracks decisions,
 review findings, and verification for the pilot UI and maintainer dashboard work.
 
