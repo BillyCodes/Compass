@@ -7,7 +7,7 @@ from django.db.models import Exists, OuterRef, Prefetch, Q, Subquery
 from django.utils import timezone
 
 from reference.models import ContentItem, ContentSkill, ContentVersion
-from reference.services import available_content_versions
+from reference.selectors import latest_available_learning
 from skills.models import Skill, StudentSkill
 from skills.services import _owned_student
 from .models import MatchInputSkill, MatchResult, MatchSkillResult, Recommendation
@@ -48,12 +48,9 @@ def _recommendations(requirements, calculation):
     useful_mappings = ContentSkill.objects.filter(useful_coverage).order_by("skill_id")
     # Choose the latest available edition BEFORE testing usefulness/retired skills.
     # Filtering first would incorrectly fall back to an older, more useful edition.
-    latest_ids = (available_content_versions().filter(kind__in=["course", "resource"])
-                  .order_by("item_id", "-version_no").distinct("item_id").values("pk"))
-    retired_mappings = ContentSkill.objects.filter(version_id=OuterRef("pk"), skill__status=Skill.Status.RETIRED)
+    latest_ids = latest_available_learning().values("pk")
     versions = (ContentVersion.objects.filter(pk__in=Subquery(latest_ids))
                 .filter(Exists(useful_mappings.filter(version_id=OuterRef("pk"))))
-                .filter(~Exists(retired_mappings))
                 .only("version_id", "kind")
                 .prefetch_related(Prefetch("skill_mappings", queryset=useful_mappings)))
     candidates = []

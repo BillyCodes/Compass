@@ -57,6 +57,20 @@ and `postings_page` parameters. Journey uses `page` for reference history,
 Existing Explorer, Field Notes, Skillprint and learning-route pagination remains,
 preserving filters and other list positions.
 
+Course choices, selection validation, selected-course cards, and recommendation
+generation share the same learning-edition policy. Select the latest published,
+unexpired edition of an active item, then reject editions with retired skill
+mappings. Withdrawing that edition permits an older available published edition;
+an ineligible newer published edition does not silently fall back. Existing
+selections remain readable as unavailable history when no eligible edition exists.
+Detail links and saved recommendation links validate their exact edition with
+the same publication, expiry, item and skill checks, preserving eligible older
+editions referenced by history. Course selection never awards proficiency.
+
+Skillprint category scores describe all reported skills. When its skill list spans
+multiple pages, empty category sections say there are no skills on the current
+page rather than implying the student has never reported skills in that category.
+
 Category scores average up to three strongest reported levels in each of six
 categories, without padding missing slots, and scale to 100. One Advanced skill
 scores 80; no reported skills scores zero. These descriptive metrics are

@@ -7,7 +7,7 @@ from core.pagination import paginate
 from pilot.services import presenter
 from skills.models import Skill
 from skills.services import list_student_skills
-from .selectors import latest_available
+from .selectors import available_learning_versions, latest_available
 from .services import available_content_versions
 
 
@@ -39,7 +39,7 @@ def field_note_detail(request, version_id):
 @student_required
 @require_GET
 def learning_detail(request, version_id):
-    version = get_object_or_404(available_content_versions().filter(kind__in=["course", "resource"]).exclude(skill_mappings__skill__status="retired"), pk=version_id)
+    version = get_object_or_404(available_learning_versions(), pk=version_id)
     details = getattr(version, "details", None)
     url = details.resource_url if details else ""
     if not url.lower().startswith(("https://", "http://")):

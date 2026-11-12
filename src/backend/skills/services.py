@@ -64,12 +64,20 @@ def retire_skill(*, actor, skill_id):
 @transaction.atomic
 def select_student_course(*, actor, course_item_id):
     from reference.models import ContentItem, ContentKind, ContentVersion
+    from reference.selectors import latest_available_learning
     student = _owned_student(actor)
     item = ContentItem.objects.select_for_update().get(pk=course_item_id)
     if item.kind != ContentKind.COURSE or item.retired_at is not None:
         raise ValidationError("Choose an available course.")
-    if not ContentVersion.objects.filter(item=item, status=ContentVersion.Status.PUBLISHED).exists():
+    candidate = latest_available_learning("course").filter(item=item).first()
+    if candidate is None:
         raise ValidationError("This course has no available published version.")
+    # Serialize selection with edition withdrawal and mapped-skill retirement.
+    ContentVersion.objects.select_for_update().get(pk=candidate.pk)
+    list(Skill.objects.select_for_update().filter(
+        learning_mappings__version=candidate).order_by("skill_id"))
+    if not latest_available_learning("course").filter(item=item, pk=candidate.pk).exists():
+        raise ValidationError("This course is no longer available.")
     record = StudentCourse.objects.filter(student=student, course_item=item).first()
     if record is None:
         record = StudentCourse(student=student, course_item=item)

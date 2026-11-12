@@ -42,11 +42,16 @@ def skillprint(request):
     comparable_snap = last_snap if sp.snapshot_is_current(last_snap) else None
     course_page = paginate(request, list_student_courses(actor=request.user).order_by("-selected_at", "pk"), "courses_page")
     selections = list(course_page)
-    editions = ContentVersion.objects.filter(item_id__in=[s.course_item_id for s in selections], status__in=["published", "retired"]).select_related("details").order_by("item_id", "-version_no").distinct("item_id")
-    latest = {}
-    for version in editions:
-        latest.setdefault(version.item_id, version)
-    courses = [{"selection": s, "version": latest.get(s.course_item_id)} for s in selections]
+    item_ids = [s.course_item_id for s in selections]
+    latest = {v.item_id: v for v in latest_available("course").filter(item_id__in=item_ids)}
+    # Keep an unavailable selection readable as history without offering it as
+    # currently available. Prefer an eligible edition whenever one exists.
+    historical = (ContentVersion.objects.filter(item_id__in=set(item_ids) - latest.keys(),
+                  status__in=["published", "retired"]).select_related("details")
+                  .order_by("item_id", "-version_no").distinct("item_id"))
+    fallback = {v.item_id: v for v in historical}
+    courses = [{"selection": s, "version": latest.get(s.course_item_id) or fallback.get(s.course_item_id),
+                "available": s.course_item_id in latest} for s in selections]
     return render(request, "core/skillprint.html", {"active": "skillprint", "form": form,
         "course_form": CourseForm(prefix="course"), "groups": groups, "levels": ProficiencyLevel.choices, "courses": courses,
         "radar": sp.radar_svg(scores, comparable_snap.categories if comparable_snap else None), "last_snap": comparable_snap,

@@ -10,8 +10,7 @@ from django.db.models import Subquery
 from reference.models import ContentVersion
 
 from comparisons.scoring import Requirement, calculate
-from reference.selectors import latest_available
-from reference.services import available_content_versions
+from reference.selectors import available_learning_versions, latest_available
 from skills.models import ProficiencyLevel
 from .job_matches import top_job_versions
 
@@ -109,7 +108,7 @@ def live_job_matches(levels, limit=3):
 
 def reference_available(version_ids):
     """Which saved recommendation targets are still available (published, active skills)."""
-    return set(available_content_versions().exclude(skill_mappings__skill__status="retired")
+    return set(available_learning_versions()
                .filter(pk__in=version_ids).values_list("pk", flat=True))
 
 

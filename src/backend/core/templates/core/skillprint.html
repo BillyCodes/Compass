@@ -53,7 +53,7 @@
           <form method="post" action="{% url 'skills:remove-skill' s.skill_id %}">{% csrf_token %}<button class="btn danger" type="submit" aria-label="Remove {{ s.skill.skill_name }}">Remove</button></form>
         </div>
         {% empty %}
-        <p class="muted small" style="margin:0 0 8px">No {{ label|lower }} skills yet.</p>
+        <p class="muted small" style="margin:0 0 8px">{% if skill_page.paginator.num_pages > 1 %}No {{ label|lower }} skills on this page.{% else %}No {{ label|lower }} skills yet.{% endif %}</p>
         {% endfor %}
       </div>
       {% endfor %}
@@ -81,7 +81,7 @@
 {% include "core/partials/pagination.html" with page=course_page parameter="courses_page" label="Selected courses" %}
       <div class="list">
         {% for c in courses %}
-        <div class="list-row"><div class="grow"><div class="title">{% if c.version %}{{ c.version.details.course_code|default:"Course" }}{% else %}Course{% endif %}</div><div class="sub">{% if c.version %}{{ c.version.title }}{% if c.version.status == "retired" %} · no longer available{% endif %}{% else %}Course details unavailable{% endif %}</div></div>
+        <div class="list-row"><div class="grow"><div class="title">{% if c.version %}{{ c.version.details.course_code|default:"Course" }}{% else %}Course{% endif %}</div><div class="sub">{% if c.version %}{{ c.version.title }}{% if not c.available %} · no longer available{% endif %}{% else %}Course details unavailable{% endif %}</div></div>
           <form method="post" action="{% url 'skills:remove-course' c.selection.course_item_id %}">{% csrf_token %}<button class="btn danger small" type="submit" aria-label="Remove course selection">Remove</button></form></div>
         {% empty %}<p class="muted small">No courses yet.</p>{% endfor %}
       </div>
