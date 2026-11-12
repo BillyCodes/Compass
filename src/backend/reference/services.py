@@ -14,6 +14,7 @@ from skills.models import Skill
 from .models import (
     Company, ContentDetails, ContentItem, ContentKind, ContentRequirement,
     ContentReview, ContentSkill, ContentSource, ContentVersion, ReferenceSource,
+    SOURCE_METADATA_FIELDS, SOURCE_USAGE_FIELDS,
 )
 
 
@@ -27,8 +28,11 @@ def create_content_item(*, actor, kind):
 
 
 @transaction.atomic
-def create_draft_version(*, actor, item_id, title, body):
+def create_draft_version(*, actor, item_id, title, body, origin=ContentVersion.Origin.SYNTHETIC,
+                         original_author="", originality_confirmed=False):
     require_content_editor(actor)
+    if type(originality_confirmed) is not bool:
+        raise ValidationError("Confirm originality using a checkbox.")
     # A parent row lock serializes version-number allocation for this item.
     item = ContentItem.objects.select_for_update().get(pk=item_id)
     if item.retired_at is not None:
@@ -37,6 +41,8 @@ def create_draft_version(*, actor, item_id, title, body):
     version = ContentVersion(
         item=item, kind=item.kind, version_no=last + 1,
         title=title.strip(), body=body.strip(), created_by=actor,
+        origin=origin, original_author=_text(original_author, "original_author"),
+        originality_confirmed=originality_confirmed,
     )
     version.full_clean()
     version.save()
@@ -63,10 +69,12 @@ def create_successor_draft(*, actor, version_id):
     existing = item.versions.filter(status=ContentVersion.Status.DRAFT).order_by("-version_no").first()
     if existing is not None:
         return existing
-    version = create_draft_version(actor=actor, item_id=item.pk, title=source.title, body=source.body)
+    version = create_draft_version(actor=actor, item_id=item.pk, title=source.title, body=source.body,
+        origin=source.origin, original_author=source.original_author, originality_confirmed=False)
     ContentSource.objects.bulk_create([
-        ContentSource(version=version, source_id=source_id)
-        for source_id in source.source_links.values_list("source_id", flat=True)
+        ContentSource(version=version, source_id=link.source_id,
+                      **{field: getattr(link, field) for field in SOURCE_USAGE_FIELDS})
+        for link in source.source_links.all()
     ])
     ContentRequirement.objects.bulk_create([
         ContentRequirement(version=version, kind=version.kind, skill_id=row.skill_id,
@@ -95,13 +103,22 @@ def create_successor_draft(*, actor, version_id):
 
 
 @transaction.atomic
-def update_draft_version(*, actor, version_id, expected_revision, title, body):
+def update_draft_version(*, actor, version_id, expected_revision, title, body, origin=None,
+                         original_author=None, originality_confirmed=None):
     version = _lock_draft(actor, version_id, expected_revision)
     version.title = title.strip()
     version.body = body.strip()
+    if origin is not None:
+        version.origin = origin
+    if original_author is not None:
+        version.original_author = _text(original_author, "original_author")
+    if originality_confirmed is not None:
+        if type(originality_confirmed) is not bool:
+            raise ValidationError("Confirm originality using a checkbox.")
+        version.originality_confirmed = originality_confirmed
     version.draft_revision += 1
     version.full_clean()
-    version.save(update_fields=["title", "body", "draft_revision"])
+    version.save(update_fields=["title", "body", "draft_revision", "origin", "original_author", "originality_confirmed"])
     return version
 
 
@@ -158,7 +175,7 @@ def create_company(*, actor, company_name, industry=""):
 
 
 @transaction.atomic
-def create_reference_source(*, actor, source_title, source_url_or_identifier, collected_at=None):
+def create_reference_source(*, actor, source_title, source_url_or_identifier, collected_at=None, **metadata):
     require_content_editor(actor)
     fields = {
         "source_title": _text(source_title,"source_title"),
@@ -166,6 +183,9 @@ def create_reference_source(*, actor, source_title, source_url_or_identifier, co
     }
     if collected_at is not None:
         fields["collected_at"] = collected_at
+    if set(metadata) - set(SOURCE_METADATA_FIELDS):
+        raise ValidationError("Unsupported source metadata.")
+    fields.update({key: value if key == "raw_metadata" else _text(value, key) for key, value in metadata.items()})
     source = ReferenceSource(**fields)
     source.full_clean()
     source.save()
@@ -173,13 +193,15 @@ def create_reference_source(*, actor, source_title, source_url_or_identifier, co
 
 
 @transaction.atomic
-def attach_source(*, actor, version_id, source_id, expected_revision):
+def attach_source(*, actor, version_id, source_id, expected_revision, usage=ContentSource.Usage.UNKNOWN,
+                  changes="", attribution_note=""):
     version = _lock_draft(actor,version_id,expected_revision)
     source = ReferenceSource.objects.get(pk=source_id)
     existing = ContentSource.objects.filter(version=version,source=source).first()
     if existing is not None:
         return existing  # No content change, so do not increment the revision.
-    link = ContentSource(version=version,source=source)
+    link = ContentSource(version=version,source=source,usage=usage,
+                         changes=_text(changes, "changes"), attribution_note=_text(attribution_note, "attribution_note"))
     link.full_clean()
     link.save()
     _touch_revision(version)
@@ -309,6 +331,9 @@ def publish_content_version(*, actor, version_id, expected_revision):
     details = ContentDetails.objects.filter(version=version).first()
     if details is not None:
         details.full_clean()
+    for link in version.source_links.select_related("source"):
+        link.full_clean()
+        link.source.full_clean()
     version.status = ContentVersion.Status.PUBLISHED
     version.published_by = actor
     version.published_at = timezone.now()
@@ -356,6 +381,7 @@ def edit_draft_source(
     expected_revision,
     source_title,
     source_url_or_identifier,
+    **metadata,
 ):
     """Replace a draft's source with a corrected, separate catalog entry."""
     version = _lock_draft(actor, version_id, expected_revision)
@@ -380,10 +406,13 @@ def edit_draft_source(
 
     original = link.source
 
-    if (
-        title == original.source_title
-        and identifier == original.source_url_or_identifier
-    ):
+    if set(metadata) - set(SOURCE_METADATA_FIELDS + SOURCE_USAGE_FIELDS):
+        raise ValidationError("Unsupported source metadata.")
+    source_fields = {field: metadata.get(field, getattr(original, field)) for field in SOURCE_METADATA_FIELDS}
+    usage_fields = {field: metadata.get(field, getattr(link, field)) for field in SOURCE_USAGE_FIELDS}
+    source_changed = (title != original.source_title or identifier != original.source_url_or_identifier
+                      or any(value != getattr(original, field) for field, value in source_fields.items()))
+    if not source_changed and all(value == getattr(link, field) for field, value in usage_fields.items()):
         return original
 
     corrected = create_reference_source(
@@ -391,11 +420,14 @@ def edit_draft_source(
         source_title=title,
         source_url_or_identifier=identifier,
         collected_at=original.collected_at,
-    )
+        **source_fields,
+    ) if source_changed else original
 
     link.source = corrected
+    for field, value in usage_fields.items():
+        setattr(link, field, value)
     link.full_clean()
-    link.save(update_fields=["source"])
+    link.save(update_fields=["source", *SOURCE_USAGE_FIELDS])
 
     _touch_revision(version)
 

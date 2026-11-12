@@ -85,6 +85,7 @@ def _reference_detail(request, result):
     notes = _related_notes(r["skill_id"] for g in ("gap", "unreported") for r in groups[g])
     return render(request, "core/result.html", {"active": "compare", "summary": summary, "groups": groups,
         "recommendations": recommendations, "recommendation_page": recommendation_page, "notes": notes,
+        "source_credits": version.source_links.select_related("source"),
         "changed_since": any(current.get(skill_id) != level for skill_id, level in levels.items())})
 
 

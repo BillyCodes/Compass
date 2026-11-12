@@ -25,7 +25,7 @@ not implemented. Companion research: [curated catalog sources](curated-catalog-s
   and it does not grant access to students' private records. Author biographies
   must accurately describe the person rather than imply professional credentials.
 
-## Current implementation facts
+## Starting implementation facts (before Phase 1)
 
 - `AccountRole` governs business permissions. Active maintainers and business
   administrators pass `require_content_editor`; public registration creates a
@@ -47,32 +47,63 @@ not implemented. Companion research: [curated catalog sources](curated-catalog-s
 
 ## Phase 1 — Define provenance and original-content rules
 
-- [ ] Define origin categories: curated external content, original Field Note,
+- [x] Define origin categories: curated external content, original Field Note,
       and synthetic demonstration content. Separate origin from content type:
       career/resource/insight and draft/published/retired still have distinct roles.
-- [ ] Extend source metadata with publisher/author, source URL, license name and
+- [x] Extend source metadata with publisher/author, source URL, license name and
       URL, attribution text, dataset/course edition, and retrieval date. Preserve
       source identifiers separately from editable titles.
-- [ ] Record how each edition uses a source: link only, copied excerpt, adapted
+- [x] Record how each edition uses a source: link only, copied excerpt, adapted
       content, or team-authored interpretation. Record changes and applicable
       credit/notice per source usage rather than assigning one license to an
       entire mixed-source career profile.
-- [ ] Track import identity/version and file checksum for O*NET files, plus
+- [x] Track import identity/version and file checksum for O*NET files, plus
       stable occupation IDs and software example mappings. Retain the raw source
       values separately from Compass normalizations and scoring interpretations.
-- [ ] Define migration/backfill behavior for existing sources and published
+- [x] Define migration/backfill behavior for existing sources and published
       editions. Preserve historical content and guards; do not invent missing
       license information or mutate frozen source records in place.
-- [ ] Permit an original motivational/reflection Field Note without an external
+- [x] Permit an original motivational/reflection Field Note without an external
       citation when authorship and original-content status are recorded. Require
       appropriate citations/permission for borrowed quotations or externally
       derived factual material; a free-draft option is not a citation bypass.
-- [ ] Label personal reflection clearly. Do not present it as professional advice,
+- [x] Label personal reflection clearly. Do not present it as professional advice,
       verified labor-market evidence, or a source of scoring requirements.
-- [ ] Implement original-note publication eligibility consistently in forms,
+- [x] Implement original-note publication eligibility consistently in forms,
       services and a new PostgreSQL guard migration. Require provenance for
       externally sourced records; preserve direct publication without independent
       approval. Establish how existing insight editions are classified on upgrade.
+
+Phase 1 foundation implemented: `reference/0009_content_provenance` adds the
+fields and labels existing editions `legacy`; `reference/0010` extends the SQL
+publication/history guards. Unknown historical rights remain unknown. Existing
+published content remains readable and immutable; a legacy successor must be
+classified before publication. New internal/demo drafts default to synthetic,
+while the maintainer create form defaults to curated external content.
+
+Source records now support provider, publisher, author, canonical URL, license
+name/URL, attribution, edition, external ID, SHA-256 and raw JSON metadata. Each
+source link records usage, changes and additional credit. These are storage and
+validation foundations; populating import identities and reviewed software-skill
+mappings is part of the later importer batch. Raw metadata must be a JSON object.
+The existing collection timestamp records retrieval time; source correction keeps
+that time rather than falsely implying a fresh retrieval.
+
+Original reflections require the `insight` kind, an author name and an originality/
+borrowed-material confirmation. External content still needs citations; any cited
+material on an original note also receives provenance validation. Link-only uses
+require provider, publisher and source URL without inventing a reuse license;
+copies, adaptations and interpretations also require license/credit fields, with
+change notes for adaptations/interpretations. O*NET citations additionally require
+version, external ID and file checksum. These checks establish required metadata,
+not the truth of a license claim; source-specific review remains in Phase 3.
+
+The generic create/edit/source forms expose these fields now. Successor drafts
+copy source usage and provenance but require a fresh originality confirmation.
+Source corrections preserve published references. Original-note detail pages
+label personal reflection, and reference-result/learning/note detail pages render
+source credits. Provider-specific dashboard actions, full attribution coverage
+across cards/exports, real imports and account provisioning remain unchecked below.
 
 ## Phase 2 — Source-aware maintainer workflow
 

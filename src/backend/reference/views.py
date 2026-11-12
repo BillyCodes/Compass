@@ -33,7 +33,8 @@ def field_note_detail(request, version_id):
     version = get_object_or_404(available_content_versions(kind="insight").select_related("field_note"), pk=version_id)
     mine = dict(list_student_skills(actor=request.user).values_list("skill_id", "proficiency_level"))
     more = [presenter.note_card(v) for v in presenter.note_versions().exclude(pk=version.pk)[:3]]
-    return render(request, "core/field_note_detail.html", {"active": "notes", "note": presenter.note_card(version), "mine": mine, "more": more})
+    return render(request, "core/field_note_detail.html", {"active": "notes", "note": presenter.note_card(version), "mine": mine, "more": more,
+                  "source_credits": version.source_links.select_related("source")})
 
 
 @student_required
@@ -44,4 +45,5 @@ def learning_detail(request, version_id):
     url = details.resource_url if details else ""
     if not url.lower().startswith(("https://", "http://")):
         url = ""
-    return render(request, "core/learning_detail.html", {"active": "compare", "version": version, "details": details, "resource_url": url})
+    return render(request, "core/learning_detail.html", {"active": "compare", "version": version, "details": details, "resource_url": url,
+                  "source_credits": version.source_links.select_related("source")})

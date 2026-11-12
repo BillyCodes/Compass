@@ -5,7 +5,7 @@
 <p class="eyebrow" style="margin-top:8px"><a href="{% url 'reference:notes' %}">← Field Notes</a></p>
 <div class="grid g-side" style="margin-top:10px">
   <article class="card note-body">
-    {% if note.author_name %}<div class="note-card"><div class="person"><div class="avatar {{ note.author_name|av }}">{{ note.initials }}</div><div><b>{{ note.author_name }}</b><span>{{ note.author_role }} · {{ note.author_org }} · {{ note.years_experience }} years</span></div></div></div>{% endif %}
+    {% if note.is_original %}<p class="eyebrow">Original personal reflection by {{ note.author_name }}</p>{% elif note.author_name %}<div class="note-card"><div class="person"><div class="avatar {{ note.author_name|av }}">{{ note.initials }}</div><div><b>{{ note.author_name }}</b><span>{{ note.author_role }} · {{ note.author_org }} · {{ note.years_experience }} years</span></div></div></div>{% endif %}
     {% if note.quote %}<p class="big-quote">“{{ note.quote }}”</p>{% endif %}
     <h2 style="font-size:22px;margin:0 0 10px">{{ note.headline }}</h2>
     <div>{{ note.body|linebreaks }}</div>
@@ -44,4 +44,5 @@
     </section>
   </aside>
 </div>
+{% include "core/partials/source_credits.html" %}
 {% endblock %}

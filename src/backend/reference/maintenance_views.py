@@ -87,6 +87,9 @@ def create_content(request):
                     item_id=item.pk,
                     title=form.cleaned_data["title"],
                     body=form.cleaned_data["body"],
+                    origin=form.cleaned_data["origin"] or ContentVersion.Origin.EXTERNAL,
+                    original_author=form.cleaned_data["original_author"],
+                    originality_confirmed=form.cleaned_data["originality_confirmed"],
                 )
 
         except ValidationError as exc:
@@ -144,6 +147,9 @@ def edit_content(request, version_id):
                     ],
                     title=form.cleaned_data["title"],
                     body=form.cleaned_data["body"],
+                    origin=form.cleaned_data["origin"] or version.origin,
+                    original_author=form.cleaned_data["original_author"],
+                    originality_confirmed=form.cleaned_data["originality_confirmed"],
                 )
 
             except ValidationError as exc:
@@ -161,6 +167,9 @@ def edit_content(request, version_id):
             initial={
                 "title": version.title,
                 "body": version.body,
+                "origin": version.origin,
+                "original_author": version.original_author,
+                "originality_confirmed": version.originality_confirmed,
                 "expected_revision": version.draft_revision,
             }
         )
@@ -212,6 +221,7 @@ def add_source(request, version_id):
                 with transaction.atomic():
                     source = create_reference_source(
                         actor=request.user,
+                        **form.source_metadata(),
                         source_title=form.cleaned_data["source_title"],
                         source_url_or_identifier=form.cleaned_data[
                             "source_url_or_identifier"
@@ -220,6 +230,7 @@ def add_source(request, version_id):
 
                     attach_source(
                         actor=request.user,
+                        **form.source_usage(),
                         version_id=version.pk,
                         source_id=source.pk,
                         expected_revision=form.cleaned_data[

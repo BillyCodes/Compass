@@ -30,6 +30,7 @@ def match_status(score, mandatory_status):
 def note_card(version):
     profile = getattr(version, "field_note", None)
     card = {"pk": version.pk, "headline": version.title, "body": version.body, "published_at": version.published_at,
+            "is_original": version.origin == ContentVersion.Origin.ORIGINAL,
             "author_name": "", "author_role": "", "author_org": "", "years_experience": None, "quote": "",
             "working_on": "", "learn_next": "", "is_sample": False, "initials": "C", "skills": []}
     if profile is not None:
@@ -37,6 +38,10 @@ def note_card(version):
                     years_experience=profile.years_experience, quote=profile.quote, working_on=profile.working_on,
                     learn_next=profile.learn_next, is_sample=profile.is_sample, initials=profile.initials,
                     skills=list(profile.skills.all()))
+    if card["is_original"]:
+        card.update(author_name=version.original_author, author_role="Personal reflection", author_org="",
+                    years_experience=None, is_sample=False, quote="", working_on="", learn_next="",
+                    initials="".join(word[0] for word in version.original_author.split()[:2]).upper())
     return card
 
 

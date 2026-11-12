@@ -2,11 +2,49 @@ from django import forms
 
 from django.core.validators import URLValidator
 
-from .models import Company, ContentKind
+from .models import Company, ContentKind, ContentVersion, ReferenceSource, ContentSource, SOURCE_METADATA_FIELDS, SOURCE_USAGE_FIELDS
 
 from skills.models import ProficiencyLevel, Skill
 
-class CreateContentForm(forms.Form):
+class ContentOriginForm(forms.Form):
+    origin = forms.ChoiceField(choices=ContentVersion.Origin.choices,
+        initial=ContentVersion.Origin.EXTERNAL, required=False,
+        help_text="Classify the draft before publication. Synthetic means demonstration data, not sourced real-world content.")
+    original_author = forms.CharField(max_length=150, required=False, label="Original reflection author",
+        help_text="Required for an original personal reflection; use an accurate author name.")
+    originality_confirmed = forms.BooleanField(required=False,
+        label="I confirm this is original personal reflection and all borrowed material is appropriately cited.")
+
+
+class SourceProvenanceForm(forms.Form):
+    provider = ReferenceSource._meta.get_field("provider").formfield(required=False)
+    publisher = ReferenceSource._meta.get_field("publisher").formfield(required=False)
+    author = ReferenceSource._meta.get_field("author").formfield(required=False)
+    source_url = ReferenceSource._meta.get_field("source_url").formfield(required=False)
+    license_name = ReferenceSource._meta.get_field("license_name").formfield(required=False)
+    license_url = ReferenceSource._meta.get_field("license_url").formfield(required=False)
+    attribution_text = ReferenceSource._meta.get_field("attribution_text").formfield(required=False)
+    source_version = ReferenceSource._meta.get_field("source_version").formfield(required=False)
+    external_id = ReferenceSource._meta.get_field("external_id").formfield(required=False)
+    file_sha256 = ReferenceSource._meta.get_field("file_sha256").formfield(required=False)
+    raw_metadata = ReferenceSource._meta.get_field("raw_metadata").formfield(required=False)
+    usage = ContentSource._meta.get_field("usage").formfield(required=False)
+    changes = ContentSource._meta.get_field("changes").formfield(required=False)
+    attribution_note = ContentSource._meta.get_field("attribution_note").formfield(required=False)
+
+    def source_metadata(self):
+        values = {field: self.cleaned_data[field] for field in SOURCE_METADATA_FIELDS}
+        values["provider"] = values["provider"] or "unknown"
+        values["raw_metadata"] = values["raw_metadata"] or {}
+        return values
+
+    def source_usage(self):
+        values = {field: self.cleaned_data[field] for field in SOURCE_USAGE_FIELDS}
+        values["usage"] = values["usage"] or "unknown"
+        return values
+
+
+class CreateContentForm(ContentOriginForm):
     kind = forms.ChoiceField(
         label="Content type",
         choices=ContentKind.choices,
@@ -27,7 +65,7 @@ class CreateContentForm(forms.Form):
     )
 
 
-class EditContentForm(forms.Form):
+class EditContentForm(ContentOriginForm):
     title = forms.CharField(
         label="Title",
         max_length=250,
@@ -47,7 +85,7 @@ class EditContentForm(forms.Form):
     )
 
 
-class AddSourceForm(forms.Form):
+class AddSourceForm(SourceProvenanceForm):
     source_title = forms.CharField(
         label="Source title",
         max_length=250,
@@ -82,6 +120,7 @@ class AddSourceForm(forms.Form):
 class EditSourceForm(AddSourceForm):
     """Use the same source fields when correcting a draft's reference."""
     pass
+
 
 class ContentRequirementForm(forms.Form):
     skill = forms.ModelChoiceField(

@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 
 from accounts.permissions import require_content_editor
 
-from .models import ContentSource, ContentVersion
+from .models import ContentSource, ContentVersion, SOURCE_METADATA_FIELDS, SOURCE_USAGE_FIELDS
 from .services import detach_source
 
 from django.shortcuts import render
@@ -125,6 +125,8 @@ def edit_source(request, version_id, source_id):
             try:
                 edit_draft_source(
                     actor=request.user,
+                    **form.source_metadata(),
+                    **form.source_usage(),
                     version_id=version.pk,
                     source_id=link.source_id,
                     expected_revision=form.cleaned_data[
@@ -152,6 +154,8 @@ def edit_source(request, version_id, source_id):
     else:
         form = EditSourceForm(
             initial={
+                **{field: getattr(link.source, field) for field in SOURCE_METADATA_FIELDS},
+                **{field: getattr(link, field) for field in SOURCE_USAGE_FIELDS},
                 "source_title": link.source.source_title,
                 "source_url_or_identifier": (
                     link.source.source_url_or_identifier

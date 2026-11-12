@@ -10,6 +10,10 @@ from django.utils import timezone
 from skills.models import ProficiencyLevel
 from django.db import models
 
+SOURCE_METADATA_FIELDS = ("provider", "publisher", "author", "source_url", "license_name", "license_url",
+                          "attribution_text", "source_version", "external_id", "file_sha256", "raw_metadata")
+SOURCE_USAGE_FIELDS = ("usage", "changes", "attribution_note")
+
 
 class ContentKind(models.TextChoices):
     CAREER = "career", "Career profile"
@@ -37,6 +41,12 @@ class ContentItem(models.Model):
 
 
 class ContentVersion(models.Model):
+    class Origin(models.TextChoices):
+        LEGACY = "legacy", "Existing content — origin not reviewed"
+        EXTERNAL = "external", "Curated external content"
+        ORIGINAL = "original", "Original personal reflection"
+        SYNTHETIC = "synthetic", "Synthetic demonstration content"
+
     class Status(models.TextChoices):
         DRAFT = "draft", "Draft"
         PUBLISHED = "published", "Published"
@@ -49,6 +59,9 @@ class ContentVersion(models.Model):
     draft_revision = models.PositiveIntegerField(default=1)
     title = models.CharField(max_length=250)
     body = models.TextField()
+    origin = models.CharField(max_length=12, choices=Origin.choices, default=Origin.SYNTHETIC)
+    original_author = models.CharField(max_length=150, blank=True)
+    originality_confirmed = models.BooleanField(default=False)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="created_content_versions")
     published_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="published_content_versions")
@@ -58,6 +71,8 @@ class ContentVersion(models.Model):
         db_table = "content_version"
         ordering = ["item_id", "version_no"]
         constraints = [
+            models.CheckConstraint(condition=models.Q(origin__in=["legacy", "external", "original", "synthetic"]), name="content_origin_allowed"),
+            models.CheckConstraint(condition=~models.Q(origin="original") | models.Q(kind="insight"), name="original_content_is_insight"),
             # Do NOT make (item, kind) unique here: an item must support many editions.
             models.UniqueConstraint(fields=["item", "version_no"], name="content_version_number_unique"),
             models.UniqueConstraint(fields=["version_id", "kind"], name="content_version_id_kind_unique"),
@@ -109,6 +124,18 @@ class ReferenceSource(models.Model):
     source_title = models.CharField(max_length=250)
     source_url_or_identifier = models.TextField()
     collected_at = models.DateTimeField(default=timezone.now)
+    provider = models.CharField(max_length=12, choices=[("unknown", "Not reviewed"), ("onet", "O*NET"),
+        ("bls", "BLS"), ("mit", "MIT OpenCourseWare"), ("other", "Other")], default="unknown")
+    publisher = models.CharField(max_length=250, blank=True)
+    author = models.CharField(max_length=250, blank=True)
+    source_url = models.URLField(max_length=2000, blank=True, validators=[URLValidator(schemes=["http", "https"])])
+    license_name = models.CharField(max_length=150, blank=True)
+    license_url = models.URLField(max_length=2000, blank=True, validators=[URLValidator(schemes=["http", "https"])])
+    attribution_text = models.TextField(blank=True)
+    source_version = models.CharField(max_length=100, blank=True)
+    external_id = models.CharField(max_length=250, blank=True)
+    file_sha256 = models.CharField(max_length=64, blank=True, validators=[RegexValidator(r"^[a-f0-9]{64}$", "Use a lowercase SHA-256 digest.")])
+    raw_metadata = models.JSONField(default=dict, blank=True)
 
     class Meta:
         db_table = "reference_source"
@@ -120,15 +147,30 @@ class ReferenceSource(models.Model):
     def __str__(self):
         return self.source_title
 
+    def clean(self):
+        super().clean()
+        if not isinstance(self.raw_metadata, dict):
+            raise ValidationError({"raw_metadata": "Use a JSON object containing source identifiers and raw values."})
+
 
 class ContentSource(models.Model):
+    class Usage(models.TextChoices):
+        UNKNOWN = "unknown", "Not reviewed"
+        LINK = "link", "Link only"
+        EXCERPT = "excerpt", "Copied excerpt"
+        ADAPTED = "adapted", "Adapted content"
+        INTERPRETATION = "interpretation", "Compass-authored interpretation"
     source_link_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     version = models.ForeignKey(ContentVersion, on_delete=models.PROTECT, related_name="source_links")
     source = models.ForeignKey(ReferenceSource, on_delete=models.PROTECT, related_name="version_links")
+    usage = models.CharField(max_length=16, choices=Usage.choices, default=Usage.UNKNOWN)
+    changes = models.TextField(blank=True)
+    attribution_note = models.TextField(blank=True)
 
     class Meta:
         db_table = "content_source"
-        constraints = [models.UniqueConstraint(fields=["version", "source"], name="content_source_unique")]
+        constraints = [models.UniqueConstraint(fields=["version", "source"], name="content_source_unique"),
+            models.CheckConstraint(condition=models.Q(usage__in=["unknown", "link", "excerpt", "adapted", "interpretation"]), name="source_usage_allowed")]
 
 
 class VersionKindValidationMixin(models.Model):

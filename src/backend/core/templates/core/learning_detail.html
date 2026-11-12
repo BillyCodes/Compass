@@ -7,4 +7,5 @@
 <h1>{{ version.title }}</h1>
 <div>{{ version.body|linebreaks }}</div>{% if details.provider %}<p>Provider: {{ details.provider }}</p>{% endif %}{% if details.course_code %}<p>Course: {{ details.course_code }}</p>{% endif %}{% if resource_url %}<a class="btn" href="{{ resource_url }}" target="_blank" rel="noopener noreferrer">Open learning resource</a>{% endif %}<p class="how">This resource may help you develop a skill. It does not automatically change your reported proficiency.</p>
 </article>
+{% include "core/partials/source_credits.html" %}
 {% endblock %}
