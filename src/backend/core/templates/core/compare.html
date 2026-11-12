@@ -53,7 +53,7 @@
     </div>
   </article>
   {% endfor %}
-  {% if not mine %}<p class="muted">No job postings are published yet. You can paste one below.</p>{% endif %}
+  {% if not mine %}<p class="muted">You haven't pasted any job postings yet. You can paste one below.</p>{% endif %}
 </div>
 
 {% include "core/partials/pagination.html" with page=mine parameter="postings_page" label="Pasted postings" %}

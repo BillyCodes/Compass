@@ -13,6 +13,7 @@ from comparisons.scoring import Requirement, calculate
 from reference.selectors import latest_available
 from reference.services import available_content_versions
 from skills.models import ProficiencyLevel
+from .job_matches import top_job_versions
 
 LEVELS = dict(ProficiencyLevel.choices)
 STRONG, DEVELOPING = 75, 45
@@ -89,7 +90,7 @@ def summary_for(*, title, subtitle, location, created_at, score, mandatory_statu
 def live_job_matches(levels, limit=3):
     """Unsaved comparison against currently published job editions (dashboard only)."""
     out = []
-    for version in latest_available("job").prefetch_related("requirements"):
+    for version in top_job_versions(levels, limit):
         rows = list(version.requirements.all())
         try:
             calc = calculate([Requirement(r.skill_id, r.required_level, r.weight, r.mandatory) for r in rows], levels)

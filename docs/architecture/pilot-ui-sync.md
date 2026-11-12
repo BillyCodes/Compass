@@ -68,6 +68,18 @@ IDs, categories and levels in one SQL read, then derive both saved levels and
 category scores from those same rows. An edit after that read cannot mix old
 levels with newly computed category scores in one snapshot.
 
+Dashboard job matching selects the latest available editions first, filters out
+jobs with no reported relevant skills, and ranks weighted scores in PostgreSQL.
+Only the top three editions and their requirements are loaded for the shared
+Python scorer to build cards. Selection uses rounded scores and stable item-ID
+ties, preserving the previous ranking and all completeness/mandatory labels.
+This uses three queries when matches exist, one when none are eligible, and no
+queries for an empty Skillprint. Database ranking still scales with eligible
+requirements; application memory and Python scoring are limited to the winners.
+Regression tests compare SQL selection against `weighted_skill_match_v1`, including
+rounding, explicit zeros, unknowns and edition availability. Any future scoring
+algorithm change must update this SQL selection and its parity tests together.
+
 ## Privacy and history
 
 Submitting a new private posting saves the posting, detected requirements and first
