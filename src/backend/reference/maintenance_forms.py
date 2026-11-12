@@ -171,13 +171,9 @@ class ContentRequirementForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        skills = kwargs.pop('skills', None)
         super().__init__(*args, **kwargs)
-
-        self.fields["skill"].queryset = (
-            Skill.objects
-            .filter(status=Skill.Status.ACTIVE)
-            .order_by("skill_name")
-        )
+        self.fields["skill"].queryset = skills if skills is not None else Skill.objects.filter(status=Skill.Status.ACTIVE).order_by("skill_name")
 
 class JobDetailsForm(forms.Form):
     company = forms.ModelChoiceField(

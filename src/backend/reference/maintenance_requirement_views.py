@@ -3,6 +3,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
@@ -12,6 +13,8 @@ from accounts.permissions import require_content_editor
 from .maintenance_forms import ContentRequirementForm
 from .models import ContentKind, ContentVersion
 from .services import set_requirement
+from .career_skills import version_suggestions
+from skills.models import Skill
 
 from django import forms
 from django.views.decorators.http import require_POST
@@ -50,8 +53,26 @@ def add_requirement(request, version_id):
             version_id=version.pk,
         )
 
+    query = request.GET.get('q', '').strip()
+    demand_only = request.GET.get('demand') == 'yes'
+    show_all = request.GET.get('catalog') == 'all'
+    suggestions = version_suggestions(version) if version.kind == ContentKind.CAREER else []
+    active = Skill.objects.filter(status=Skill.Status.ACTIVE).order_by('skill_name')
+    by_name = {skill.skill_name.casefold(): skill for skill in active}
+    for row in suggestions:
+        row['record'] = by_name.get(row['skill'].casefold())
+    suggestions = [row for row in suggestions if row['record'] is not None]
+    visible = [row for row in suggestions if (not demand_only or row['demand'])
+               and (not query or query.casefold() in (row['skill'] + ' ' + row['raw_name']).casefold())]
+    if suggestions and not show_all:
+        choices = active.filter(pk__in=[row['record'].pk for row in visible])
+    else:
+        choices = active.filter(Q(skill_name__icontains=query) | Q(pk__in=[row['record'].pk for row in visible])) if query else active
+        if demand_only:
+            choices = choices.filter(pk__in=[row['record'].pk for row in visible])
+
     if request.method == "POST":
-        form = ContentRequirementForm(request.POST)
+        form = ContentRequirementForm(request.POST, skills=choices)
 
         if form.is_valid():
             try:
@@ -81,11 +102,8 @@ def add_requirement(request, version_id):
                 )
 
     else:
-        form = ContentRequirementForm(
-            initial={
-                "expected_revision": version.draft_revision,
-            }
-        )
+        form = ContentRequirementForm(skills=choices, initial={
+            "expected_revision": version.draft_revision, "skill": request.GET.get('skill', '')})
 
     return render(
         request,
@@ -93,7 +111,8 @@ def add_requirement(request, version_id):
         {
             "active": "maintenance",
             "form": form,
-            "version": version,
+            "version": version, "suggestions": visible, "has_suggestions": bool(suggestions),
+            "query": query, "demand_only": demand_only, "show_all": show_all,
         },
     )
 

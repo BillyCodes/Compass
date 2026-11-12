@@ -21,6 +21,23 @@
     </a>
   </header>
 
+  <section class="card" style="margin-bottom:24px">
+    <h2>Find a relevant skill</h2>
+    <p>{% if has_suggestions %}The default list contains selected software examples associated with this career in its preserved O*NET source.{% else %}Browse the active skill catalog. This draft has no selected O*NET software associations.{% endif %} Proficiency levels, weights and mandatory flags remain Compass editorial decisions.</p>
+    <form method="get" class="curation-filters">
+      <label>Search skills or source names<input type="search" name="q" value="{{ query }}"></label>
+      <label>Skill catalog<select name="catalog"><option value="related">Career-associated skills</option><option value="all" {% if show_all %}selected{% endif %}>All active skills</option></select></label>
+      <label>Demand indicator<select name="demand"><option value="">All selected examples</option><option value="yes" {% if demand_only %}selected{% endif %}>In-demand examples only</option></select></label>
+      <button class="btn secondary" type="submit">Find skills</button>
+      <a href="{% url 'maintenance:add_requirement' version.pk %}">Reset</a>
+    </form>
+    {% if has_suggestions %}<h3>Selected career associations</h3>
+    <p>Names and categories are normalized by Compass. O*NET demand indicators do not establish proficiency or make a skill mandatory.</p>
+    <div class="curation-table"><table><thead><tr><th>Skill / original source name</th><th>Source indicators</th><th>Source</th><th>Action</th></tr></thead><tbody>
+    {% for row in suggestions %}<tr><td>{{ row.record.skill_name }}<div class="small muted">{{ row.raw_name }}</div></td><td>In demand: {{ row.demand|yesno:"Yes,No" }}<br>Hot technology: {{ row.hot|yesno:"Yes,No" }}</td><td><a href="{{ row.source.source_url }}" target="_blank" rel="noopener noreferrer">O*NET {{ row.source.source_version }} · {{ row.source.external_id }}</a></td><td><a href="{% url 'maintenance:add_requirement' version.pk %}?skill={{ row.record.pk }}">Choose skill</a></td></tr>{% empty %}<tr><td colspan="4">No selected associations match these filters.</td></tr>{% endfor %}
+    </tbody></table></div>{% endif %}
+  </section>
+  <h2>Set the requirement</h2>
   <form method="post">
     {% csrf_token %}
 

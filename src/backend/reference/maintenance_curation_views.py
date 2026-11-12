@@ -10,7 +10,8 @@ from accounts.permissions import require_content_editor
 from pilot.services.presenter import note_card
 from .curation import editorial_versions, publication_issues
 from .maintenance_forms import ExistingSourceForm, FieldNoteForm
-from .onet_import import SKILLS, import_careers, import_plan, plan_fingerprint
+from .onet_import import import_careers, import_plan, plan_fingerprint
+from .career_skills import version_suggestions
 from .services import attach_source, set_field_note_profile
 
 
@@ -20,14 +21,7 @@ from .services import attach_source, set_field_note_profile
 def preview(request, version_id):
     require_content_editor(request.user)
     version = get_object_or_404(editorial_versions(), pk=version_id)
-    associations = []
-    for link in version.source_links.all():
-        examples = link.source.raw_metadata.get('software_examples', [])
-        for row in examples if isinstance(examples, list) else []:
-            if isinstance(row, dict) and row.get('Workplace Example') in SKILLS:
-                associations.append({'raw_name': row['Workplace Example'],
-                    'skill': SKILLS[row['Workplace Example']][0],
-                    'hot': row.get('Hot Technology'), 'demand': row.get('In Demand')})
+    associations = version_suggestions(version)
     return render(request, 'reference/maintenance/preview.html', dict(
         active='maintenance', version=version, issues=publication_issues(version), associations=associations,
         note=note_card(version) if version.kind == 'insight' else None,

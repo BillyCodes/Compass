@@ -3,7 +3,7 @@
 {% block content %}
 <section class="card maintenance-page">
   <p class="eyebrow">Content maintenance</p><h1>Import O*NET® careers/skills</h1>
-  <p>This dry-run preview reads the two local O*NET 31.0 CSVs. Importing creates reviewable drafts and up to six selected software skills. No content is published.</p>
+  <p>This dry-run preview reads the two local O*NET 31.0 CSVs. Importing creates reviewable drafts and selected software skills, including ten additional examples per career. Existing unchanged drafts receive catalog additions without changes to their text or requirements. No content is published.</p>
   <p>Occupation descriptions are retained verbatim. Exact file checksums and raw software associations remain attached to each edition. Skill categories and SQL name consolidation are Compass decisions. Software examples do not establish proficiency levels, weights or mandatory requirements.</p>
   <div class="list">{% for row in plan %}<article class="list-row"><div class="grow"><h2>{{ row.title }}</h2><p>{{ row.code }} · {{ row.action|title }}</p><p>Selected skills: {{ row.skills|join:", " }}</p><p>{{ row.occupation.Description }}</p><p><a href="{{ row.bls_url }}" target="_blank" rel="noopener noreferrer">BLS context for review</a></p>{% if row.latest %}<a href="{% url 'maintenance:preview' row.latest.pk %}">Review existing edition</a>{% endif %}<details><summary>File identities</summary><p class="source-digest">Occupation CSV: {{ row.occupation_hash }}</p><p class="source-digest">Software CSV: {{ row.software_hash }}</p></details></div></article>{% endfor %}</div>
   <p>BLS context is linked for research and is not imported or cited as already reviewed. After import, review sources and add Compass skill requirements before publication.</p>

@@ -16,8 +16,9 @@ open `/maintainer/`. Public registration still creates students only.
 
 - **Import O*NET careers/skills** previews the five selected computing careers
   from the preserved O*NET 31.0 occupation and software CSVs. GET is read-only;
-  the CSRF-protected import POST creates drafts, sources and up to six exact
-  software skill names (Python, SQL, PostgreSQL, Git, Linux and Docker). Existing
+  the CSRF-protected import POST creates drafts, sources and 16 selected software
+  skills per career: the six shared examples plus ten additional occupation-specific
+  examples. Shared skills are deduplicated across the catalog. Existing
   skill names/categories are preserved. No proficiency requirements are inferred.
 - **Add BLS career context** filters to career editions. On a draft, **Add BLS
   source** prepopulates the matching profile link and occupation code where an
@@ -65,7 +66,9 @@ hashes, source edition, IDs and Compass normalization notes are retained in the
 edition's sources. Retrieval time records local file ingestion, not a claimed
 new download from O*NET. The original CSV files remain untouched.
 
-Repeated unchanged imports skip existing careers, including edited drafts. Changed
+Repeated unchanged imports skip existing careers, including edited drafts, while
+adding missing selected skills to the catalog. This catalog refresh does not change
+edition bodies, requirements, publication state, source snapshots or draft revisions. Changed
 files produce successor drafts for previously published/retired editions of active
 items. Existing draft conflicts stop the entire batch rather than replacing work.
 Retired content items are skipped. The whole import is atomic. Source-file changes
@@ -109,3 +112,30 @@ five career drafts; it does not automatically import the seven resources, write
 personal reflections, supply BLS wage statistics or publish any content. Broader
 skill/card/export attribution and the career-first student dashboard remain later
 work in the [checklist](architecture/curated-content-checklist.md).
+
+## Career-specific skill picker
+
+On a career draft, open **Add or update requirement**. The picker defaults to the
+16 selected examples associated with that career's preserved O*NET source rows.
+Use search (normalized name or original source name), the in-demand filter, or
+**All active skills** to browse outside that shortlist. “Choose skill” preselects
+the entry; saving still requires your reviewed proficiency level, weight and
+mandatory flag. In-demand and hot-technology indicators describe source software
+associations, not hiring mandates or proficiency levels.
+
+The versioned selection policy is in `reference/career_skills.py`. It records
+exact raw names and explicit Compass name normalizations (for example Oracle Java
+to Java, and Microsoft PowerShell to PowerShell). Each career gets ten extra
+examples beyond the shared six, with overlapping tools deduplicated. Suggestions
+are derived from the edition's source snapshot; they do not silently use software
+examples from a newer source file. Historical source metadata remains unchanged.
+
+To refresh missing catalog skills for existing careers, preview the normal importer
+then run it with `--apply`, or use the browser import action. A career marked
+“unchanged” remains unchanged while missing selected skills become available.
+
+The local curated catalog was refreshed and verified: 48 unique active skills
+cover the five sets of 16 selected associations. All five requirement pages rendered
+successfully. Existing career bodies, statuses, revisions, requirement rows and
+source records were compared before/after and preserved. A repeated refresh added
+no duplicate skills.

@@ -18,6 +18,6 @@ class Command(BaseCommand):
             plan = import_careers(actor=actor, dry_run=not options['apply'], directory=options['source_dir'])
         except (Account.DoesNotExist, PermissionDenied, ValidationError) as exc:
             raise CommandError(str(exc)) from exc
-        self.stdout.write('Applied drafts only.' if options['apply'] else 'Dry run: no database changes.')
+        self.stdout.write('Applied draft imports and skill catalog additions; no publication.' if options['apply'] else 'Dry run: no database changes.')
         for row in plan:
             self.stdout.write(f'{row["code"]}: {row["title"]} — {row["action"]}; skills: {", ".join(row["skills"])}')

@@ -11,6 +11,7 @@ from django.db import connection, transaction
 
 from accounts.permissions import require_content_editor
 from skills.models import Skill
+from .career_skills import selected_examples, selection
 from .models import ContentSource, ContentVersion, ContentItem, OnetCareerIdentity
 from .services import (attach_source, create_content_item, create_draft_version,
                        create_reference_source, create_successor_draft, detach_source, update_draft_version)
@@ -22,18 +23,14 @@ CAREERS = {
     '15-1211.00': ('Computer Systems Analysts', 'computer-and-information-technology/computer-systems-analysts'),
     '15-1243.00': ('Database Architects', 'computer-and-information-technology/database-administrators'),
 }
-# Only exact source examples are consolidated; no fuzzy vendor/product matching.
-SKILLS = {'Python': ('Python', 'Programming'), 'Structured query language SQL': ('SQL', 'Data'),
-          'PostgreSQL': ('PostgreSQL', 'Data'), 'Git': ('Git', 'Tools'),
-          'Linux': ('Linux', 'Systems'), 'Docker': ('Docker', 'Tools')}
 IMPORTER = 'compass_onet_v1'
 ATTRIBUTION = ('Career descriptions and software examples originate in the O*NET® 31.0 Database, '
                'U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), under CC BY 4.0. '
                'O*NET® is a trademark of USDOL/ETA. Compass selects occupations and software examples and '
                'consolidates selected names. These changes have not been approved, endorsed or tested by USDOL/ETA.')
-CHANGES = ('Compass selected five computing occupations and six exact software example names. '
+CHANGES = ('Compass selected five computing occupations and career-specific software examples. '
            'The occupation description is reproduced unchanged. SQL consolidates the source label '
-           '“Structured query language SQL”. Categories are Compass-authored. No proficiency levels, '
+           '“Structured query language SQL”; other name normalizations are recorded in source metadata. Categories are Compass-authored. No proficiency levels, '
            'weights, mandatory requirements or learning coverage are derived from software associations.')
 
 
@@ -87,13 +84,13 @@ def import_plan(directory=None, *, lock=False):
                 action = 'successor'
         plan.append(dict(code=code, title=title, occupation=matches[0], examples=examples,
                          occupation_hash=occupation_hash, software_hash=software_hash, fingerprint=fingerprint,
-                         skills=sorted({SKILLS[row['Workplace Example']][0] for row in examples if row['Workplace Example'] in SKILLS}),
+                         skills=sorted(row['skill'] for row in selected_examples(code, examples)),
                          bls_url=f'https://www.bls.gov/ooh/{bls_path}.htm', latest=latest, action=action))
     return plan
 
 
 def plan_fingerprint(plan):
-    return hashlib.sha256(''.join(row['fingerprint'] for row in plan).encode()).hexdigest()
+    return hashlib.sha256(json.dumps([(row['fingerprint'], selection(row['code'])) for row in plan], sort_keys=True).encode()).hexdigest()
 
 
 @transaction.atomic
@@ -111,6 +108,16 @@ def import_careers(*, actor, dry_run=True, directory=None, expected_fingerprint=
     if dry_run:
         return plan
     for row in plan:
+        if row['action'] != 'retired':
+            # Catalog-only enrichment also runs for unchanged editions. Never
+            # rewrite their bodies, requirements, source snapshots or revisions.
+            for entry in selected_examples(row['code'], row['examples']):
+                name, category = entry['skill'], entry['category']
+                existing = list(Skill.objects.filter(skill_name__iexact=name))
+                if len(existing) > 1 or any(skill.status != 'active' for skill in existing):
+                    raise ValidationError(f'Review the existing {name} skill before importing.')
+                if not existing:
+                    Skill.objects.create(skill_name=name, category=category)
         if row['action'] in ('unchanged', 'retired'):
             continue
         if row['action'] == 'successor':
@@ -125,17 +132,9 @@ def import_careers(*, actor, dry_run=True, directory=None, expected_fingerprint=
             OnetCareerIdentity.objects.create(occupation_code=row['code'], item=item)
             version = create_draft_version(actor=actor, item_id=item.pk, title=row['title'],
                                            body=row['occupation']['Description'], origin='external')
-        for example in row['examples']:
-            if example['Workplace Example'] in SKILLS:
-                name, category = SKILLS[example['Workplace Example']]
-                existing = list(Skill.objects.filter(skill_name__iexact=name))
-                if len(existing) > 1 or any(skill.status != 'active' for skill in existing):
-                    raise ValidationError(f'Review the existing {name} skill before importing.')
-                if not existing:
-                    Skill.objects.create(skill_name=name, category=category)
         for filename, checksum, raw_values in (
             ('occupation_data.csv', row['occupation_hash'], {'occupation': row['occupation']}),
-            ('software_skills.csv', row['software_hash'], {'software_examples': row['examples'], 'normalizations': SKILLS}),
+            ('software_skills.csv', row['software_hash'], {'software_examples': row['examples'], 'normalizations': selection(row['code'])}),
         ):
             url = f'https://www.onetcenter.org/dl_files/database/db_31_0_csv/{filename}'
             source = create_reference_source(actor=actor, source_title=f'O*NET® 31.0 — {row["title"]} — {filename}',

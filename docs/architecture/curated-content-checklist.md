@@ -285,3 +285,10 @@ report the expected missing reviewed positive-level/positive-weight requirement.
 BLS context, seven learning resources and personal reflections still need review
 and authoring. Visual browser QA remains unverified because macOS computer-use
 access was unavailable; authenticated Django responses were verified instead.
+
+Career selection expansion: each of the five careers now has 16 selected software
+associations (six shared plus ten occupation-specific examples). The requirement
+picker offers career-specific defaults, normalized/source-name search, in-demand
+filtering and all-catalog access, with original source names and citations. Catalog
+refreshes preserve existing edition bodies, revisions, requirements and source
+history; they do not create scoring requirements automatically.
