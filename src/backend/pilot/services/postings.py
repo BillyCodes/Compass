@@ -71,6 +71,13 @@ def create_posting(*, actor, title, company, description):
     return posting
 
 
+@transaction.atomic
+def create_posting_and_match(*, actor, title, company, description):
+    """Save a new private posting and its first result as one operation."""
+    posting = create_posting(actor=actor, title=title, company=company, description=description)
+    return run_posting_match(actor=actor, posting_id=posting.pk)
+
+
 def list_postings(*, actor):
     return StudentPosting.objects.filter(student=_owned_student(actor)).prefetch_related("requirements")
 

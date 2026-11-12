@@ -80,8 +80,8 @@ def posting_create(request):
     if form.is_valid():
         d = form.cleaned_data
         try:
-            posting = postings.create_posting(actor=request.user, title=d["title"], company=d["company"], description=d["description"])
-            match = postings.run_posting_match(actor=request.user, posting_id=posting.pk)
+            match = postings.create_posting_and_match(
+                actor=request.user, title=d["title"], company=d["company"], description=d["description"])
         except ValidationError as exc:
             form.add_error(None, exc.messages)
         else:

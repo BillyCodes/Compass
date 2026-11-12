@@ -70,6 +70,11 @@ levels with newly computed category scores in one snapshot.
 
 ## Privacy and history
 
+Submitting a new private posting saves the posting, detected requirements and first
+comparison in one transaction. If comparison creation fails, none of those records
+remain. Validation errors return the populated form for correction. Comparing an
+existing posting again leaves that posting and earlier results intact on failure.
+
 Use synthetic data for this senior-project demonstration. Uploaded files are
 parsed and discarded; `ResumeImport` retains the filename, detected skill metadata,
 and short text excerpts. The upload screen discloses this. Unchecked skills are
