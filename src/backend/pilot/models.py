@@ -45,11 +45,14 @@ class ResumeImport(models.Model):
 
 class ProgressSnapshot(models.Model):
     """'Save progress': a dated copy of the student's Skillprint for the Journey view."""
+    LEGACY_SCORING = "padded_top3_v1"
+    CURRENT_SCORING = "reported_top3_v2"
     snapshot_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="progress_snapshots")
     label = models.CharField(max_length=80, blank=True)
     skills = models.JSONField()       # {skill_uuid: level}
     categories = models.JSONField()   # {category_key: 0-100}
+    scoring_version = models.CharField(max_length=32, default=CURRENT_SCORING)
     readiness = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 

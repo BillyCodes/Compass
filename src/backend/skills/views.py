@@ -39,6 +39,7 @@ def skillprint(request):
     if by_category.get("other"):
         groups.append(("other", "Other", None, by_category["other"]))
     last_snap = sp.last_snapshot(request.student)
+    comparable_snap = last_snap if sp.snapshot_is_current(last_snap) else None
     course_page = paginate(request, list_student_courses(actor=request.user).order_by("-selected_at", "pk"), "courses_page")
     selections = list(course_page)
     editions = ContentVersion.objects.filter(item_id__in=[s.course_item_id for s in selections], status__in=["published", "retired"]).select_related("details").order_by("item_id", "-version_no").distinct("item_id")
@@ -48,7 +49,8 @@ def skillprint(request):
     courses = [{"selection": s, "version": latest.get(s.course_item_id)} for s in selections]
     return render(request, "core/skillprint.html", {"active": "skillprint", "form": form,
         "course_form": CourseForm(prefix="course"), "groups": groups, "levels": ProficiencyLevel.choices, "courses": courses,
-        "radar": sp.radar_svg(scores, last_snap.categories if last_snap else None), "last_snap": last_snap,
+        "radar": sp.radar_svg(scores, comparable_snap.categories if comparable_snap else None), "last_snap": comparable_snap,
+        "legacy_snapshot": bool(last_snap and not comparable_snap),
         "skill_page": skill_page, "course_page": course_page})
 
 

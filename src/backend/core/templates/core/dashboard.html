@@ -65,6 +65,7 @@
     {% if skill_count %}
       {{ radar|safe }}
       <div class="legend"><span><i></i>Now</span>{% if has_prev_shape %}<span><i class="prev"></i>Last saved</span>{% endif %}</div>
+      {% if legacy_snapshot %}<p class="small muted">Your previous save uses an earlier scoring method and is kept in Journey. Save progress to start comparisons with the current method.</p>{% endif %}
     {% else %}
       <div class="empty"><h3>Your Skillprint is empty</h3><p>Upload a resume or add a few skills to see your shape.</p><a class="btn small" href="{% url 'pilot:resume-upload' %}">Upload resume</a></div>
     {% endif %}

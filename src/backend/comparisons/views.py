@@ -141,12 +141,14 @@ def journey(request):
     for i, snap in enumerate(snaps):
         prev = snaps[i + 1] if i + 1 < len(snaps) else preceding
         changes = []
-        if prev:
+        scoring_changed = bool(prev and snap.scoring_version != prev.scoring_version)
+        if prev and not scoring_changed:
             for key, label in skillprint.CATEGORIES:
                 diff = round(snap.categories.get(key, 0) - prev.categories.get(key, 0), 1)
                 if diff:
                     changes.append((label, diff))
-        timeline.append({"snap": snap, "changes": changes, "skill_total": len(snap.skills)})
+        timeline.append({"snap": snap, "changes": changes, "skill_total": len(snap.skills),
+                         "scoring_changed": scoring_changed, "legacy_score": not skillprint.snapshot_is_current(snap)})
     result_page = paginate(request, list_matches(actor=request.user).annotate(met=Count("outcomes", filter=Q(outcomes__status="met")), total=Count("outcomes")).order_by("-created_at", "match_id"))
     posting_page = paginate(request, postings.list_posting_matches(actor=request.user), "posting_matches_page")
     history = []
@@ -159,10 +161,11 @@ def journey(request):
         posting_history.append({"title": f"{m.target_title} — {m.target_company}", "created_at": m.created_at, "score": m.score, "is_provisional": m.is_provisional,
             "status": presenter.match_status(m.score, m.mandatory_status), "requirements_met": sum(d["status"] == "met" for d in m.detail),
             "requirements_total": len(m.detail), "url": reverse("comparisons:detail", args=[m.pk]), "delete_url": reverse("comparisons:delete", args=[m.pk])})
-    oldest = snapshots.order_by("created_at", "pk").first()
+    oldest = snapshots.filter(scoring_version=ProgressSnapshot.CURRENT_SCORING).order_by("created_at", "pk").first()
     return render(request, "core/journey.html", {"active": "journey", "timeline": timeline,
         "results": result_page, "history": history, "posting_history": posting_history,
         "snapshot_page": snapshot_page, "posting_page": posting_page, "oldest": oldest,
+        "has_legacy_snapshots": snapshots.exclude(scoring_version=ProgressSnapshot.CURRENT_SCORING).exists(),
         "radar": skillprint.radar_svg(skillprint.scores_for_student(student), oldest.categories if oldest else None)})
 
 

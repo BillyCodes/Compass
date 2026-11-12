@@ -36,6 +36,7 @@ def dashboard(request):
     levels = {r.skill_id: r.proficiency_level for r in records}
     scores = skillprint.scores_for_student(student)
     last_snap = skillprint.last_snapshot(student)
+    comparable_snap = last_snap if skillprint.snapshot_is_current(last_snap) else None
 
     result = skillprint.latest_readiness(student)
     latest, groups, delta_score = None, {"met": [], "gap": [], "unreported": []}, None
@@ -58,8 +59,9 @@ def dashboard(request):
     notes = [presenter.note_card(version) for version in selected]
     return render(request, "core/dashboard.html", {
         "active": "dashboard", "greeting": _greeting(), "today": timezone.localdate(),
-        "radar": skillprint.radar_svg(scores, last_snap.categories if last_snap else None),
-        "has_prev_shape": bool(last_snap), "scores": scores, "top_skills": records[:5], "skill_count": len(records),
+        "radar": skillprint.radar_svg(scores, comparable_snap.categories if comparable_snap else None),
+        "has_prev_shape": bool(comparable_snap), "legacy_snapshot": bool(last_snap and not comparable_snap),
+        "scores": scores, "top_skills": records[:5], "skill_count": len(records),
         "latest": latest, "readiness_delta": delta_score, "delta": skillprint.snapshot_delta(student),
         "course_count": list_student_courses(actor=request.user).count(), "matches": matches,
         "strong_count": sum(m["status"] == "Strong Match" for m in matches),

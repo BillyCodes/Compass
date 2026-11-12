@@ -15,6 +15,7 @@
     <h2 id="then-h">{% if oldest %}Then and now{% else %}Now{% endif %}</h2>
     {{ radar|safe }}
     <div class="legend"><span><i></i>Now</span>{% if oldest %}<span><i class="prev"></i>{{ oldest.label|default:"First save" }} · {{ oldest.created_at|date:"M j, Y" }}</span>{% endif %}</div>
+    {% if has_legacy_snapshots %}<p class="small muted">Saves from the earlier scoring method remain in your timeline. The chart compares only saves using the current method.</p>{% endif %}
   </section>
 
   <section class="card" aria-labelledby="tl-h">
@@ -26,6 +27,8 @@
         <div class="when">{{ t.snap.created_at|date:"M j, Y" }}</div>
         <div class="what">{{ t.snap.label|default:"Saved progress" }}</div>
         <div class="small muted">{{ t.skill_total }} skills{% if t.snap.readiness is not None %} · readiness {{ t.snap.readiness|floatformat:0 }}%{% endif %}</div>
+        {% if t.legacy_score %}<div class="small muted">Earlier category scoring method</div>{% endif %}
+        {% if t.scoring_changed %}<div class="small muted">Category scoring changed since the previous save; score differences are not compared.</div>{% endif %}
         {% if t.changes %}<div class="chips" style="margin-top:6px">{% for name, diff in t.changes %}<span class="pill {% if diff > 0 %}p-green{% else %}p-red{% endif %}">{{ name }} {% if diff > 0 %}+{% endif %}{{ diff|floatformat:0 }}</span>{% endfor %}</div>{% endif %}
       </div>
       {% endfor %}

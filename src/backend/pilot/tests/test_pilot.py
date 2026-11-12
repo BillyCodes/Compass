@@ -113,6 +113,18 @@ class PostingTests(PilotBase):
             PostingMatch.objects.filter(pk=match.pk).update(score=101)
 
 
+class CategoryScoreTests(TestCase):
+    def test_single_skill_maps_linearly_to_100(self):
+        for level, expected in enumerate([0, 20, 40, 60, 80, 100]):
+            self.assertEqual(skillprint.category_scores({"programming": [level]})["programming"], expected)
+
+    def test_averages_top_three_without_padding(self):
+        scores = skillprint.category_scores({"programming": [2, 2], "data": [5, 4, 3, 0]})
+        self.assertEqual(scores["programming"], 40)
+        self.assertEqual(scores["data"], 80)
+        self.assertEqual(scores["systems"], 0)
+
+
 class SnapshotTests(PilotBase):
     def test_snapshot_and_delta(self):
         set = StudentSkill.objects.create(student=self.a, skill=self.python, proficiency_level=2)

@@ -7,7 +7,7 @@
   <nav class="links" aria-label="Site">
     <a href="#how">How it works</a>
     <a href="#notes">Field Notes</a>
-    <a href="#pilot">About the pilot</a>
+    <a href="#about">About Compass</a>
   </nav>
   <span class="spacer"></span>
   <div class="actions">
@@ -42,7 +42,7 @@
 </section>
 
 <section class="feature-row" id="how" aria-label="What Compass does">
-  <div class="feature"><div class="icon-tile t-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>See your skills</h3><p>Upload your resume or add courses and projects. Compass turns them into a Skillprint you can grow.</p></div>
+  <div class="feature"><div class="icon-tile t-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>See your skills</h3><p>Upload your resume or add your skills. Compass turns them into a Skillprint you can grow, and courses help point you to what to learn next.</p></div>
   <div class="feature"><div class="icon-tile t-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div><h3>Compare to careers</h3><p>See how your skills match a job posting or career profile, and exactly which skills close the gap.</p></div>
   <div class="feature"><div class="icon-tile t-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 20c1-4 4-6 7-6s6 2 7 6M17 4a4 4 0 0 1 0 8M22 20c-.6-2.4-2-4-4-5"/></svg></div><h3>Get field insights</h3><p>Read what working professionals are building right now and what they say to learn next.</p></div>
   <div class="feature"><div class="icon-tile t-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div><h3>Follow your path</h3><p>Save your progress and watch your Skillprint change semester to semester.</p></div>
@@ -51,7 +51,7 @@
 <section class="public-section" id="notes">
   <p class="eyebrow">Field Notes</p>
   <h2>Real advice, written for students</h2>
-  <p class="muted" style="max-width:60ch">Short notes from people in the field about the tools they use, the problems they're solving, and what they'd learn first.</p>
+  <p class="muted" style="max-width:60ch">Short notes from professionals in the field about the tools they use, the problems they're solving, and what they'd learn first.</p>
   <div class="grid g-3" style="margin-top:22px">
     {% for n in notes %}
     <article class="card note-card">
@@ -62,16 +62,22 @@
   </div>
 </section>
 
-<section class="public-section" id="pilot" style="padding-top:0">
-  <div class="card" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
-    <div style="flex:1;min-width:240px">
-      <p class="eyebrow">Test Launch 01</p>
-      <h2 style="font-size:22px;margin:6px 0">A controlled pilot by the Digital Corsairs</h2>
-      <p class="muted" style="margin:0">This build uses synthetic data only. Companies and professionals shown are fictional sample content. Please don't enter real personal records.</p>
+<section class="public-section" id="about" style="padding-top:0">
+  <div class="card" style="padding:32px">
+    <p class="eyebrow">About Compass</p>
+    <h2 style="font-size:26px;margin:6px 0 10px">From classroom to career, with a clear next step</h2>
+    <p class="muted" style="margin:0 0 22px;max-width:70ch">Compass is built by the Digital Corsairs, a team of computer science students, to help students see how their coursework turns into career readiness and what to learn next. Every part of it is designed to be clear, private and honest about what it knows.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+      <div><h3 style="font-size:16px;margin:0 0 6px">Private by design</h3><p class="muted small" style="margin:0">Your profile, skills and results are visible only to you.</p></div>
+      <div><h3 style="font-size:16px;margin:0 0 6px">Transparent matching</h3><p class="muted small" style="margin:0">Every comparison shows how it was scored, and skills you haven't reported are never guessed.</p></div>
+      <div><h3 style="font-size:16px;margin:0 0 6px">Maintained insight</h3><p class="muted small" style="margin:0">Content maintainers publish career profiles and Field Notes with supporting sources.</p></div>
     </div>
-    <a class="btn" href="{% url 'accounts:register' %}">Create a test account</a>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:26px">
+      <a class="btn" href="{% url 'accounts:register' %}">Get started</a>
+      <span class="muted small">Sample content in this build is fictional.</span>
+    </div>
   </div>
 </section>
 </main>
-<p class="pilot-foot">COMPASS · Digital Corsairs Senior Project · Test Launch 01</p>
+<p class="pilot-foot">COMPASS · Built by the Digital Corsairs · Senior Project</p>
 {% endblock %}
