@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "reference.apps.ReferenceConfig",
     "comparisons.apps.ComparisonsConfig",
     "auditing.apps.AuditingConfig",
+    "pilot.apps.PilotConfig",
 ]
 # Middleware wraps requests in this order and responses in reverse order.
 # Sessions must precede authentication so it can resolve a session's user.
@@ -123,3 +124,9 @@ CSRF_COOKIE_SAMESITE = "Lax"
 X_FRAME_OPTIONS = "DENY"
 # Development email prints to the console instead of sending real messages.
 MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
+
+# Bounded inputs for resume upload and pasted postings (checked again in services).
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+COMPASS_MAX_RESUME_BYTES = 2 * 1024 * 1024
+COMPASS_MAX_TEXT_CHARS = 20000
